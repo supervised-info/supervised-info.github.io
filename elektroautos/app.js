@@ -69,17 +69,17 @@
     { key: "modell", label: "Modell", identity: true, sticky: 2 },
     { key: "marke", label: "Marke", identity: true, sticky: 3 },
     { key: "autotyp", label: "Segment", identity: true },
-    { key: "preis.basispreis_eur", label: "Preis", kind: "eur", identity: true },
-    { key: "verbrauch.wltp_reichweite_km.min", label: "WLTP min", kind: "num", identity: true, path: "verbrauch.wltp_reichweite_km", end: "min" },
-    { key: "verbrauch.wltp_reichweite_km.max", label: "WLTP max", kind: "num", identity: true, path: "verbrauch.wltp_reichweite_km", end: "max" },
-    { key: "leistung.beschleunigung_0_100_s", label: "0-100 s", kind: "num", identity: true },
-    { key: "leistung.systemleistung_kw", label: "kW", kind: "num", identity: true },
-    { key: "batterie.netto_kwh", label: "kWh", kind: "num", identity: true },
-    { key: "laden.dc_max_kw", label: "DC kW", kind: "num", identity: true },
-    { key: "antrieb.konzept", label: "Antrieb", identity: true },
-    { key: "fahrwerk.waermepumpe", label: "WP", kind: "bool", identity: true },
-    { key: "status", label: "Status", kind: "status", identity: true },
-    { key: "eingestellt_grund", label: "Einstellgrund", whenAlt: true, identity: true },
+    { key: "preis.basispreis_eur", label: "Preis", kind: "eur", group: "Kosten" },
+    { key: "verbrauch.wltp_reichweite_km.min", label: "WLTP min", kind: "num", group: "Reichweite", path: "verbrauch.wltp_reichweite_km", end: "min" },
+    { key: "verbrauch.wltp_reichweite_km.max", label: "WLTP max", kind: "num", group: "Reichweite", path: "verbrauch.wltp_reichweite_km", end: "max" },
+    { key: "leistung.beschleunigung_0_100_s", label: "0-100 s", kind: "num", group: "Motor" },
+    { key: "leistung.systemleistung_kw", label: "kW", kind: "num", group: "Motor" },
+    { key: "batterie.netto_kwh", label: "kWh", kind: "num", group: "Batterie" },
+    { key: "laden.dc_max_kw", label: "DC kW", kind: "num", group: "Laden" },
+    { key: "antrieb.konzept", label: "Antrieb", group: "Motor" },
+    { key: "fahrwerk.waermepumpe", label: "WP", kind: "bool", group: "Specs" },
+    { key: "status", label: "Status", kind: "status", group: "Specs" },
+    { key: "eingestellt_grund", label: "Einstellgrund", whenAlt: true, group: "Specs" },
     { key: "adac_note", label: "ADAC", kind: "num", group: "Sicherheit" },
     { key: "euro_ncap.sterne", label: "NCAP", kind: "num", group: "Sicherheit" },
     { key: "euro_ncap.erwachsene", label: "Erw. %", kind: "num", group: "Sicherheit" },
@@ -574,6 +574,8 @@
   }
   function renderToolbar() {
     var html = '<span class="lab">Rubriken</span>';
+    var allOn = (state.hiddenGroups || []).length === 0;
+    html += '<button type="button" class="gchip' + (allOn ? " active" : "") + '" data-group="__all__" aria-pressed="' + allOn + '">Alle</button>';
     GROUPS.forEach(function (g) {
       var on = (state.hiddenGroups || []).indexOf(g) === -1;
       html += '<button type="button" class="gchip' + (on ? " active" : "") + '" data-group="' + esc(g) + '" aria-pressed="' + on + '">' + esc(g) + "</button>";
@@ -1158,9 +1160,14 @@
       var g = e.target.closest("[data-group]");
       if (g) {
         var name = g.getAttribute("data-group");
-        var i = state.hiddenGroups.indexOf(name);
-        if (i === -1) state.hiddenGroups.push(name);
-        else state.hiddenGroups.splice(i, 1);
+        if (name === "__all__") {
+          if ((state.hiddenGroups || []).length === 0) state.hiddenGroups = GROUPS.slice();
+          else state.hiddenGroups = [];
+        } else {
+          var i = state.hiddenGroups.indexOf(name);
+          if (i === -1) state.hiddenGroups.push(name);
+          else state.hiddenGroups.splice(i, 1);
+        }
         renderToolbar();
         applyAll();
         return;
