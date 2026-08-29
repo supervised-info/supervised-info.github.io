@@ -1233,7 +1233,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     var html = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title></title>" +
       "<script type=\"application/ld+json\">" +
       JSON.stringify(recipe).replace(/</g, "\\u003c") +
-      "</script></head><body></body></html>";
+      "</scr" + "ipt></head><body></body></html>";
     var src = "https://httpbin.org/base64/" + utf8ToB64(html);
     var href = "https://api.getbring.com/rest/bringrecipes/deeplink?url=" +
       encodeURIComponent(src) + "&source=web&baseQuantity=1&requestedQuantity=1";
