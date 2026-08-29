@@ -5027,7 +5027,7 @@
           "max": 410
         },
         "garantie_jahre": 8,
-        "garantie_km": 160000,
+        "garantie_km": 200000,
         "garantie_restkapazitaet_pct": 70
       },
       "laden": {
@@ -5050,24 +5050,24 @@
       },
       "verbrauch": {
         "wltp_kwh_100km": {
-          "min": 16.3,
-          "max": 17.4
+          "min": 17.0,
+          "max": 17.0
         },
         "wltp_reichweite_km": {
-          "min": 395,
-          "max": 410
+          "min": 420,
+          "max": 420
         },
         "realverbrauch_kwh_100km": {
-          "min": 18,
-          "max": 23
+          "min": 16.3,
+          "max": 22.1
         },
-        "realreichweite_sommer_stadt_km": 380,
-        "realreichweite_autobahn_130_km": 280,
+        "realreichweite_sommer_stadt_km": 495,
+        "realreichweite_autobahn_130_km": null,
         "effizienz_wh_km": {
-          "min": 163,
-          "max": 174
+          "min": 170,
+          "max": 170
         },
-        "realreichweite_winter_km": 250,
+        "realreichweite_winter_km": 280,
         "verbrauch_kwh_tkm": "n/a"
       },
       "abmessungen": {
@@ -5075,27 +5075,27 @@
         "breite_mm": 1822,
         "hoehe_mm": 1636,
         "radstand_mm": 2750,
-        "leergewicht_kg": 1820,
-        "zulaessiges_gesamtgewicht_kg": 2230,
-        "kofferraum_liter": 313,
+        "leergewicht_kg": 1863,
+        "zulaessiges_gesamtgewicht_kg": 2213,
+        "kofferraum_liter": 323,
         "kofferraum_umgeklappt_liter": 986,
-        "anhaengelast_gebremst_kg": 750,
+        "anhaengelast_gebremst_kg": 1600,
         "anhaengelast_ungebremst_kg": 750,
         "wendekreis_m": 11.0,
         "bodenfreiheit_mm": 175,
         "cw_wert": 0.29,
-        "frunk": false,
-        "frunk_liter": null,
+        "frunk": true,
+        "frunk_liter": 15,
         "ahk_verfuegbar": true,
-        "breite_mit_spiegel_mm": 2065,
+        "breite_mit_spiegel_mm": 2025,
         "sitze": 5,
         "felgen_zoll": 19,
         "display": "12,8\" Touchscreen",
-        "dachlast_kg": 75,
+        "dachlast_kg": 0,
         "kofferraum_elektrisch": true,
         "ahk_preis_eur": null,
         "hud": "Nein",
-        "nutzlast_kg": "n/a",
+        "nutzlast_kg": 425,
         "anzahl_achsen": "n/a",
         "laderaum_m3": "n/a",
         "fuehrerhaus": "n/a"
@@ -5111,7 +5111,7 @@
         }
       },
       "preis": {
-        "basispreis_eur": 41490,
+        "basispreis_eur": 42490,
         "stromkosten_eur_100km": {
           "min": 5.5,
           "max": 6.8
@@ -5149,17 +5149,18 @@
       "ota_updates": true,
       "reifen_serie": "235/45 R19",
       "quellen": [
+        "https://ev-database.org/de/pkw/1667/Smart-1-Proplus (Aug. 2026)",
         "smart.com/de (2026)",
         "ADAC"
       ],
-      "datenerfassung": "2026-06-20",
+      "datenerfassung": "2026-08-29",
       "adac_note": 2.2,
       "euro_ncap": {
         "sterne": 5,
         "erwachsene": 96,
         "kinder": 89,
         "fussgaenger": 71,
-        "assistenten": 80
+        "assistenten": 88
       },
       "produkt_url": "https://www.smart.com/de/de/models/smart-hash-1",
       "produktionsland": "China (Xi'an)",
@@ -5185,7 +5186,7 @@
         "systemleistung_kw": 200,
         "systemleistung_ps": 272,
         "drehmoment_nm": 343,
-        "beschleunigung_0_100_s": 6.7,
+        "beschleunigung_0_100_s": 5.8,
         "hoechstgeschwindigkeit_kmh": 180
       },
       "batterie": {
@@ -5202,7 +5203,7 @@
           "max": 415
         },
         "garantie_jahre": 8,
-        "garantie_km": 160000,
+        "garantie_km": 200000,
         "garantie_restkapazitaet_pct": 70
       },
       "laden": {
@@ -5216,7 +5217,7 @@
         ],
         "vorkonditionierung": true,
         "v2l": true,
-        "v2l_leistung_kw": 3.6,
+        "v2l_leistung_kw": 3.7,
         "v2g": false,
         "v2h": false,
         "ac_optional_preis_eur": null,
@@ -5225,24 +5226,24 @@
       },
       "verbrauch": {
         "wltp_kwh_100km": {
-          "min": 16.0,
-          "max": 17.0
+          "min": 16.8,
+          "max": 16.8
         },
         "wltp_reichweite_km": {
-          "min": 420,
+          "min": 435,
           "max": 435
         },
         "realverbrauch_kwh_100km": {
-          "min": 17,
-          "max": 22
+          "min": 15.3,
+          "max": 20.7
         },
-        "realreichweite_sommer_stadt_km": 400,
-        "realreichweite_autobahn_130_km": 290,
+        "realreichweite_sommer_stadt_km": 520,
+        "realreichweite_autobahn_130_km": null,
         "effizienz_wh_km": {
-          "min": 160,
-          "max": 170
+          "min": 168,
+          "max": 168
         },
-        "realreichweite_winter_km": 260,
+        "realreichweite_winter_km": 300,
         "verbrauch_kwh_tkm": "n/a"
       },
       "abmessungen": {
@@ -5250,27 +5251,27 @@
         "breite_mm": 1844,
         "hoehe_mm": 1556,
         "radstand_mm": 2785,
-        "leergewicht_kg": 1850,
-        "zulaessiges_gesamtgewicht_kg": 2260,
+        "leergewicht_kg": 1855,
+        "zulaessiges_gesamtgewicht_kg": 2230,
         "kofferraum_liter": 370,
         "kofferraum_umgeklappt_liter": 1160,
-        "anhaengelast_gebremst_kg": 750,
+        "anhaengelast_gebremst_kg": 1600,
         "anhaengelast_ungebremst_kg": 750,
         "wendekreis_m": 11.0,
         "bodenfreiheit_mm": 170,
         "cw_wert": 0.27,
-        "frunk": false,
-        "frunk_liter": null,
+        "frunk": true,
+        "frunk_liter": 15,
         "ahk_verfuegbar": true,
-        "breite_mit_spiegel_mm": 2065,
+        "breite_mit_spiegel_mm": 2045,
         "sitze": 5,
         "felgen_zoll": 19,
         "display": "12,8\" Touchscreen",
-        "dachlast_kg": 75,
+        "dachlast_kg": 0,
         "kofferraum_elektrisch": true,
         "ahk_preis_eur": null,
         "hud": "Nein",
-        "nutzlast_kg": "n/a",
+        "nutzlast_kg": 450,
         "anzahl_achsen": "n/a",
         "laderaum_m3": "n/a",
         "fuehrerhaus": "n/a"
@@ -5286,7 +5287,7 @@
         }
       },
       "preis": {
-        "basispreis_eur": 45490,
+        "basispreis_eur": 43490,
         "stromkosten_eur_100km": {
           "min": 5.4,
           "max": 6.6
@@ -5324,17 +5325,18 @@
       "ota_updates": true,
       "reifen_serie": "235/45 R19",
       "quellen": [
+        "https://ev-database.org/de/pkw/1999/Smart-3-Proplus (Aug. 2026)",
         "smart.com/de (2026)",
         "ADAC"
       ],
-      "datenerfassung": "2026-06-20",
+      "datenerfassung": "2026-08-29",
       "adac_note": 2.1,
       "euro_ncap": {
         "sterne": 5,
-        "erwachsene": 96,
-        "kinder": 89,
-        "fussgaenger": 71,
-        "assistenten": 80
+        "erwachsene": 90,
+        "kinder": 86,
+        "fussgaenger": 84,
+        "assistenten": 85
       },
       "produkt_url": "https://www.smart.com/de/de/models/smart-hash-3",
       "produktionsland": "China (Xi'an)",
@@ -23277,6 +23279,2554 @@
       "nachfolger_url": null,
       "eingestellt": false,
       "eingestellt_grund": null
+    },
+    {
+      "id": "000135",
+      "modell": "Smart #1 Pro",
+      "marke": "Smart",
+      "modelljahr": "2023-2026",
+      "plattform": "SEA (Geely)",
+      "autotyp": "Klein-SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Heckantrieb (RWD)",
+        "anzahl_motoren": 1,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 200,
+        "systemleistung_ps": 272,
+        "drehmoment_nm": 343,
+        "beschleunigung_0_100_s": 6.7,
+        "hoechstgeschwindigkeit_kmh": 180
+      },
+      "batterie": {
+        "brutto_kwh": 49.0,
+        "netto_kwh": 47.0,
+        "chemie": "LFP",
+        "systemspannung_v": 400,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 7.4,
+        "ac_optional_kw": null,
+        "dc_max_kw": 130,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.7,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": false,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 18.1,
+          "max": 18.1
+        },
+        "wltp_reichweite_km": {
+          "min": 310,
+          "max": 310
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 16.2,
+          "max": 21.9
+        },
+        "realreichweite_sommer_stadt_km": 375,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 181,
+          "max": 181
+        },
+        "realreichweite_winter_km": 215,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4270,
+        "breite_mm": 1822,
+        "hoehe_mm": 1636,
+        "radstand_mm": 2750,
+        "leergewicht_kg": 1855,
+        "zulaessiges_gesamtgewicht_kg": 2205,
+        "kofferraum_liter": 323,
+        "kofferraum_umgeklappt_liter": 986,
+        "anhaengelast_gebremst_kg": 0,
+        "anhaengelast_ungebremst_kg": 0,
+        "wendekreis_m": 11.0,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 15,
+        "ahk_verfuegbar": false,
+        "breite_mit_spiegel_mm": 2025,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 0,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 425,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "MacPherson",
+        "federung_hinten": "Mehrlenker",
+        "rekuperation": "3 Stufen + One-Pedal",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 37490,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/2041/Smart-1-Pro (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 96,
+        "kinder": 89,
+        "fussgaenger": 71,
+        "assistenten": 88
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China (Xi'an)",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000136",
+      "modell": "Smart #1 Pure",
+      "marke": "Smart",
+      "modelljahr": "2024-2026",
+      "plattform": "SEA (Geely)",
+      "autotyp": "Klein-SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Heckantrieb (RWD)",
+        "anzahl_motoren": 1,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 200,
+        "systemleistung_ps": 272,
+        "drehmoment_nm": 343,
+        "beschleunigung_0_100_s": 6.7,
+        "hoechstgeschwindigkeit_kmh": 180
+      },
+      "batterie": {
+        "brutto_kwh": 49.0,
+        "netto_kwh": 47.0,
+        "chemie": "LFP",
+        "systemspannung_v": 400,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 7.4,
+        "ac_optional_kw": null,
+        "dc_max_kw": 130,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.7,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": false,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 18.1,
+          "max": 18.1
+        },
+        "wltp_reichweite_km": {
+          "min": 310,
+          "max": 310
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 16.2,
+          "max": 21.9
+        },
+        "realreichweite_sommer_stadt_km": 375,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 181,
+          "max": 181
+        },
+        "realreichweite_winter_km": 215,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4270,
+        "breite_mm": 1822,
+        "hoehe_mm": 1636,
+        "radstand_mm": 2750,
+        "leergewicht_kg": 1855,
+        "zulaessiges_gesamtgewicht_kg": 2205,
+        "kofferraum_liter": 323,
+        "kofferraum_umgeklappt_liter": 986,
+        "anhaengelast_gebremst_kg": 0,
+        "anhaengelast_ungebremst_kg": 0,
+        "wendekreis_m": 11.0,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 15,
+        "ahk_verfuegbar": false,
+        "breite_mit_spiegel_mm": 2025,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 0,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 425,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "MacPherson",
+        "federung_hinten": "Mehrlenker",
+        "rekuperation": "3 Stufen + One-Pedal",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 34990,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/2217/Smart-1-Pure (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 96,
+        "kinder": 89,
+        "fussgaenger": 71,
+        "assistenten": 88
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China (Xi'an)",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000137",
+      "modell": "Smart #1 Premium",
+      "marke": "Smart",
+      "modelljahr": "2023-2026",
+      "plattform": "SEA (Geely)",
+      "autotyp": "Klein-SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Heckantrieb (RWD)",
+        "anzahl_motoren": 1,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 200,
+        "systemleistung_ps": 272,
+        "drehmoment_nm": 343,
+        "beschleunigung_0_100_s": 6.7,
+        "hoechstgeschwindigkeit_kmh": 180
+      },
+      "batterie": {
+        "brutto_kwh": 66.0,
+        "netto_kwh": 62.0,
+        "chemie": "NMC",
+        "systemspannung_v": 400,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 150,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.7,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": false,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 16.7,
+          "max": 16.7
+        },
+        "wltp_reichweite_km": {
+          "min": 440,
+          "max": 440
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 16.3,
+          "max": 22.1
+        },
+        "realreichweite_sommer_stadt_km": 490,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 167,
+          "max": 167
+        },
+        "realreichweite_winter_km": 280,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4270,
+        "breite_mm": 1822,
+        "hoehe_mm": 1636,
+        "radstand_mm": 2750,
+        "leergewicht_kg": 1875,
+        "zulaessiges_gesamtgewicht_kg": 2225,
+        "kofferraum_liter": 313,
+        "kofferraum_umgeklappt_liter": 976,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.0,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 15,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2025,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 0,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 425,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "MacPherson",
+        "federung_hinten": "Mehrlenker",
+        "rekuperation": "3 Stufen + One-Pedal",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 44990,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/2053/Smart-1-Premium (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 96,
+        "kinder": 89,
+        "fussgaenger": 71,
+        "assistenten": 88
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China (Xi'an)",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000138",
+      "modell": "Smart #1 Pure+",
+      "marke": "Smart",
+      "modelljahr": "2024-2026",
+      "plattform": "SEA (Geely)",
+      "autotyp": "Klein-SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Heckantrieb (RWD)",
+        "anzahl_motoren": 1,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 200,
+        "systemleistung_ps": 272,
+        "drehmoment_nm": 343,
+        "beschleunigung_0_100_s": 6.7,
+        "hoechstgeschwindigkeit_kmh": 180
+      },
+      "batterie": {
+        "brutto_kwh": 66.0,
+        "netto_kwh": 62.0,
+        "chemie": "NMC",
+        "systemspannung_v": 400,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 150,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.7,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": false,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 17.0,
+          "max": 17.0
+        },
+        "wltp_reichweite_km": {
+          "min": 420,
+          "max": 420
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 16.3,
+          "max": 22.1
+        },
+        "realreichweite_sommer_stadt_km": 495,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 170,
+          "max": 170
+        },
+        "realreichweite_winter_km": 280,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4270,
+        "breite_mm": 1822,
+        "hoehe_mm": 1636,
+        "radstand_mm": 2750,
+        "leergewicht_kg": 1863,
+        "zulaessiges_gesamtgewicht_kg": 2213,
+        "kofferraum_liter": 323,
+        "kofferraum_umgeklappt_liter": 986,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.0,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 15,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2025,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 0,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 425,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "MacPherson",
+        "federung_hinten": "Mehrlenker",
+        "rekuperation": "3 Stufen + One-Pedal",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 39990,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/2218/Smart-1-Pureplus (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 96,
+        "kinder": 89,
+        "fussgaenger": 71,
+        "assistenten": 88
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China (Xi'an)",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000139",
+      "modell": "Smart #1 Brabus",
+      "marke": "Smart",
+      "modelljahr": "2023-2026",
+      "plattform": "SEA (Geely)",
+      "autotyp": "Klein-SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Allrad (AWD)",
+        "anzahl_motoren": 2,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 315,
+        "systemleistung_ps": 428,
+        "drehmoment_nm": 543,
+        "beschleunigung_0_100_s": 3.9,
+        "hoechstgeschwindigkeit_kmh": 180
+      },
+      "batterie": {
+        "brutto_kwh": 66.0,
+        "netto_kwh": 62.0,
+        "chemie": "NMC",
+        "systemspannung_v": 400,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 150,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.7,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": false,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 17.9,
+          "max": 17.9
+        },
+        "wltp_reichweite_km": {
+          "min": 400,
+          "max": 400
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 16.8,
+          "max": 22.5
+        },
+        "realreichweite_sommer_stadt_km": 475,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 179,
+          "max": 179
+        },
+        "realreichweite_winter_km": 275,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4300,
+        "breite_mm": 1822,
+        "hoehe_mm": 1636,
+        "radstand_mm": 2750,
+        "leergewicht_kg": 1975,
+        "zulaessiges_gesamtgewicht_kg": 2325,
+        "kofferraum_liter": 313,
+        "kofferraum_umgeklappt_liter": 976,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.0,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 15,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2025,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 0,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 425,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "MacPherson",
+        "federung_hinten": "Mehrlenker",
+        "rekuperation": "3 Stufen + One-Pedal",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 48990,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/1748/Smart-1-Brabus (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 96,
+        "kinder": 89,
+        "fussgaenger": 71,
+        "assistenten": 88
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China (Xi'an)",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000140",
+      "modell": "Smart #1 Pulse",
+      "marke": "Smart",
+      "modelljahr": "2023-2026",
+      "plattform": "SEA (Geely)",
+      "autotyp": "Klein-SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Allrad (AWD)",
+        "anzahl_motoren": 2,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 315,
+        "systemleistung_ps": 428,
+        "drehmoment_nm": 584,
+        "beschleunigung_0_100_s": 4.5,
+        "hoechstgeschwindigkeit_kmh": 180
+      },
+      "batterie": {
+        "brutto_kwh": 66.0,
+        "netto_kwh": 62.0,
+        "chemie": "NMC",
+        "systemspannung_v": 400,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 150,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.7,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": false,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 17.9,
+          "max": 17.9
+        },
+        "wltp_reichweite_km": {
+          "min": 400,
+          "max": 400
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 16.8,
+          "max": 22.5
+        },
+        "realreichweite_sommer_stadt_km": 480,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 179,
+          "max": 179
+        },
+        "realreichweite_winter_km": 275,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4300,
+        "breite_mm": 1822,
+        "hoehe_mm": 1636,
+        "radstand_mm": 2750,
+        "leergewicht_kg": 1975,
+        "zulaessiges_gesamtgewicht_kg": 2325,
+        "kofferraum_liter": 313,
+        "kofferraum_umgeklappt_liter": 986,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.0,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 15,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2025,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 0,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 425,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "MacPherson",
+        "federung_hinten": "Mehrlenker",
+        "rekuperation": "3 Stufen + One-Pedal",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 46490,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/1920/Smart-1-Pulse (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 96,
+        "kinder": 89,
+        "fussgaenger": 71,
+        "assistenten": 88
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China (Xi'an)",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000141",
+      "modell": "Smart #3 Pro",
+      "marke": "Smart",
+      "modelljahr": "2024-2026",
+      "plattform": "SEA (Geely)",
+      "autotyp": "Kompakt-SUV (Coupe)",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Heckantrieb (RWD)",
+        "anzahl_motoren": 1,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 200,
+        "systemleistung_ps": 272,
+        "drehmoment_nm": 343,
+        "beschleunigung_0_100_s": 5.8,
+        "hoechstgeschwindigkeit_kmh": 180
+      },
+      "batterie": {
+        "brutto_kwh": 49.0,
+        "netto_kwh": 47.0,
+        "chemie": "LFP",
+        "systemspannung_v": 400,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 7.4,
+        "ac_optional_kw": null,
+        "dc_max_kw": 130,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.7,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": false,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 17.2,
+          "max": 17.2
+        },
+        "wltp_reichweite_km": {
+          "min": 325,
+          "max": 325
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 15.4,
+          "max": 20.9
+        },
+        "realreichweite_sommer_stadt_km": 395,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 172,
+          "max": 172
+        },
+        "realreichweite_winter_km": 225,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4400,
+        "breite_mm": 1844,
+        "hoehe_mm": 1556,
+        "radstand_mm": 2785,
+        "leergewicht_kg": 1855,
+        "zulaessiges_gesamtgewicht_kg": 2199,
+        "kofferraum_liter": 370,
+        "kofferraum_umgeklappt_liter": 1160,
+        "anhaengelast_gebremst_kg": 0,
+        "anhaengelast_ungebremst_kg": 0,
+        "wendekreis_m": 11.0,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 15,
+        "ahk_verfuegbar": false,
+        "breite_mit_spiegel_mm": 2045,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 0,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": "n/a",
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "MacPherson",
+        "federung_hinten": "Mehrlenker",
+        "rekuperation": "3 Stufen + One-Pedal",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 38490,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/2052/Smart-3-Pro (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 90,
+        "kinder": 86,
+        "fussgaenger": 84,
+        "assistenten": 85
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China (Xi'an)",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000142",
+      "modell": "Smart #3 Premium",
+      "marke": "Smart",
+      "modelljahr": "2024-2026",
+      "plattform": "SEA (Geely)",
+      "autotyp": "Kompakt-SUV (Coupe)",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Heckantrieb (RWD)",
+        "anzahl_motoren": 1,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 200,
+        "systemleistung_ps": 272,
+        "drehmoment_nm": 343,
+        "beschleunigung_0_100_s": 5.8,
+        "hoechstgeschwindigkeit_kmh": 180
+      },
+      "batterie": {
+        "brutto_kwh": 66.0,
+        "netto_kwh": 62.0,
+        "chemie": "NMC",
+        "systemspannung_v": 400,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 150,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.7,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": false,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 16.3,
+          "max": 16.3
+        },
+        "wltp_reichweite_km": {
+          "min": 455,
+          "max": 455
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 15.3,
+          "max": 21.0
+        },
+        "realreichweite_sommer_stadt_km": 515,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 163,
+          "max": 163
+        },
+        "realreichweite_winter_km": 295,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4400,
+        "breite_mm": 1844,
+        "hoehe_mm": 1556,
+        "radstand_mm": 2785,
+        "leergewicht_kg": 1885,
+        "zulaessiges_gesamtgewicht_kg": 2260,
+        "kofferraum_liter": 370,
+        "kofferraum_umgeklappt_liter": 1160,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.0,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 15,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2045,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 0,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 450,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "MacPherson",
+        "federung_hinten": "Mehrlenker",
+        "rekuperation": "3 Stufen + One-Pedal",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 46490,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/2054/Smart-3-Premium (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 90,
+        "kinder": 86,
+        "fussgaenger": 84,
+        "assistenten": 85
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China (Xi'an)",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000143",
+      "modell": "Smart #3 Brabus",
+      "marke": "Smart",
+      "modelljahr": "2024-2026",
+      "plattform": "SEA (Geely)",
+      "autotyp": "Kompakt-SUV (Coupe)",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Allrad (AWD)",
+        "anzahl_motoren": 2,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 315,
+        "systemleistung_ps": 428,
+        "drehmoment_nm": 543,
+        "beschleunigung_0_100_s": 3.7,
+        "hoechstgeschwindigkeit_kmh": 180
+      },
+      "batterie": {
+        "brutto_kwh": 66.0,
+        "netto_kwh": 62.0,
+        "chemie": "NMC",
+        "systemspannung_v": 400,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 150,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.7,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": false,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 17.6,
+          "max": 17.6
+        },
+        "wltp_reichweite_km": {
+          "min": 415,
+          "max": 415
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 16.1,
+          "max": 21.8
+        },
+        "realreichweite_sommer_stadt_km": 490,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 176,
+          "max": 176
+        },
+        "realreichweite_winter_km": 285,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4400,
+        "breite_mm": 1844,
+        "hoehe_mm": 1556,
+        "radstand_mm": 2785,
+        "leergewicht_kg": 1985,
+        "zulaessiges_gesamtgewicht_kg": 2360,
+        "kofferraum_liter": 370,
+        "kofferraum_umgeklappt_liter": 1160,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.0,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 15,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2045,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 0,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 450,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "MacPherson",
+        "federung_hinten": "Mehrlenker",
+        "rekuperation": "3 Stufen + One-Pedal",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 50990,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/2000/Smart-3-Brabus (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 90,
+        "kinder": 86,
+        "fussgaenger": 84,
+        "assistenten": 85
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China (Xi'an)",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000144",
+      "modell": "Smart #5 Pro",
+      "marke": "Smart",
+      "modelljahr": "2025-2026",
+      "plattform": "Geely SEA3 (400V)",
+      "autotyp": "SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Heckantrieb (RWD)",
+        "anzahl_motoren": 1,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 250,
+        "systemleistung_ps": 340,
+        "drehmoment_nm": 373,
+        "beschleunigung_0_100_s": 6.9,
+        "hoechstgeschwindigkeit_kmh": 200
+      },
+      "batterie": {
+        "brutto_kwh": 76.0,
+        "netto_kwh": 74.4,
+        "chemie": "LFP",
+        "systemspannung_v": 400,
+        "zelltyp": null,
+        "zelllieferant": [],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 11,
+        "ac_optional_kw": null,
+        "dc_max_kw": 150,
+        "dc_10_80_min": 30,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.3,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": true,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 18.5,
+          "max": 18.5
+        },
+        "wltp_reichweite_km": {
+          "min": 465,
+          "max": 465
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 17.7,
+          "max": 23.6
+        },
+        "realreichweite_sommer_stadt_km": 535,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 185,
+          "max": 185
+        },
+        "realreichweite_winter_km": 315,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4695,
+        "breite_mm": 1920,
+        "hoehe_mm": 1705,
+        "radstand_mm": 2900,
+        "leergewicht_kg": 2275,
+        "zulaessiges_gesamtgewicht_kg": 2700,
+        "kofferraum_liter": 630,
+        "kofferraum_umgeklappt_liter": 1530,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.2,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 72,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2169,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 100,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 500,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "n/a",
+        "federung_hinten": "n/a",
+        "rekuperation": "n/a",
+        "waermepumpe": false,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 45900,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/3141/Smart-5-Pro (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 88,
+        "kinder": 93,
+        "fussgaenger": 84,
+        "assistenten": 92
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000145",
+      "modell": "Smart #5 Pro+",
+      "marke": "Smart",
+      "modelljahr": "2025-2026",
+      "plattform": "Geely SEA3 (800V)",
+      "autotyp": "SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Heckantrieb (RWD)",
+        "anzahl_motoren": 1,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 267,
+        "systemleistung_ps": 363,
+        "drehmoment_nm": 373,
+        "beschleunigung_0_100_s": 6.5,
+        "hoechstgeschwindigkeit_kmh": 200
+      },
+      "batterie": {
+        "brutto_kwh": 100.0,
+        "netto_kwh": 94.0,
+        "chemie": "NMC",
+        "systemspannung_v": 800,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 400,
+        "dc_10_80_min": 18,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.3,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": true,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 18.4,
+          "max": 18.4
+        },
+        "wltp_reichweite_km": {
+          "min": 590,
+          "max": 590
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 17.9,
+          "max": 23.8
+        },
+        "realreichweite_sommer_stadt_km": 670,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 184,
+          "max": 184
+        },
+        "realreichweite_winter_km": 395,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4695,
+        "breite_mm": 1920,
+        "hoehe_mm": 1705,
+        "radstand_mm": 2900,
+        "leergewicht_kg": 2335,
+        "zulaessiges_gesamtgewicht_kg": 2750,
+        "kofferraum_liter": 630,
+        "kofferraum_umgeklappt_liter": 1530,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.2,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 72,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2169,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 100,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 490,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "n/a",
+        "federung_hinten": "n/a",
+        "rekuperation": "n/a",
+        "waermepumpe": false,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 50900,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/3142/Smart-5-Proplus (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 88,
+        "kinder": 93,
+        "fussgaenger": 84,
+        "assistenten": 92
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000146",
+      "modell": "Smart #5 Premium",
+      "marke": "Smart",
+      "modelljahr": "2025-2026",
+      "plattform": "Geely SEA3 (800V)",
+      "autotyp": "SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Heckantrieb (RWD)",
+        "anzahl_motoren": 1,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 267,
+        "systemleistung_ps": 363,
+        "drehmoment_nm": 373,
+        "beschleunigung_0_100_s": 6.5,
+        "hoechstgeschwindigkeit_kmh": 200
+      },
+      "batterie": {
+        "brutto_kwh": 100.0,
+        "netto_kwh": 94.0,
+        "chemie": "NMC",
+        "systemspannung_v": 800,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 400,
+        "dc_10_80_min": 18,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.3,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": true,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 18.4,
+          "max": 18.4
+        },
+        "wltp_reichweite_km": {
+          "min": 590,
+          "max": 590
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 17.9,
+          "max": 23.8
+        },
+        "realreichweite_sommer_stadt_km": 670,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 184,
+          "max": 184
+        },
+        "realreichweite_winter_km": 395,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4695,
+        "breite_mm": 1920,
+        "hoehe_mm": 1705,
+        "radstand_mm": 2900,
+        "leergewicht_kg": 2335,
+        "zulaessiges_gesamtgewicht_kg": 2750,
+        "kofferraum_liter": 630,
+        "kofferraum_umgeklappt_liter": 1530,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.2,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 72,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2169,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 100,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 490,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "n/a",
+        "federung_hinten": "n/a",
+        "rekuperation": "n/a",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 55400,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/3143/Smart-5-Premium (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 88,
+        "kinder": 93,
+        "fussgaenger": 84,
+        "assistenten": 92
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000147",
+      "modell": "Smart #5 Pulse",
+      "marke": "Smart",
+      "modelljahr": "2025-2026",
+      "plattform": "Geely SEA3 (800V)",
+      "autotyp": "SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Allrad (AWD)",
+        "anzahl_motoren": 2,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 432,
+        "systemleistung_ps": 587,
+        "drehmoment_nm": 643,
+        "beschleunigung_0_100_s": 4.9,
+        "hoechstgeschwindigkeit_kmh": 200
+      },
+      "batterie": {
+        "brutto_kwh": 100.0,
+        "netto_kwh": 94.0,
+        "chemie": "NMC",
+        "systemspannung_v": 800,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 400,
+        "dc_10_80_min": 18,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.3,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": true,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 19.9,
+          "max": 19.9
+        },
+        "wltp_reichweite_km": {
+          "min": 540,
+          "max": 540
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 18.3,
+          "max": 24.4
+        },
+        "realreichweite_sommer_stadt_km": 650,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 199,
+          "max": 199
+        },
+        "realreichweite_winter_km": 385,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4695,
+        "breite_mm": 1920,
+        "hoehe_mm": 1705,
+        "radstand_mm": 2900,
+        "leergewicht_kg": 2420,
+        "zulaessiges_gesamtgewicht_kg": 2845,
+        "kofferraum_liter": 630,
+        "kofferraum_umgeklappt_liter": 1530,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.2,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 47,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2169,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 100,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 500,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "n/a",
+        "federung_hinten": "n/a",
+        "rekuperation": "n/a",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 55400,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/3144/Smart-5-Pulse (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 88,
+        "kinder": 93,
+        "fussgaenger": 84,
+        "assistenten": 92
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000148",
+      "modell": "Smart #5 Summit Edition",
+      "marke": "Smart",
+      "modelljahr": "2025-2026",
+      "plattform": "Geely SEA3 (800V)",
+      "autotyp": "SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Allrad (AWD)",
+        "anzahl_motoren": 2,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 432,
+        "systemleistung_ps": 587,
+        "drehmoment_nm": 643,
+        "beschleunigung_0_100_s": 4.9,
+        "hoechstgeschwindigkeit_kmh": 200
+      },
+      "batterie": {
+        "brutto_kwh": 100.0,
+        "netto_kwh": 96.0,
+        "chemie": "NMC",
+        "systemspannung_v": 800,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 400,
+        "dc_10_80_min": 18,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.3,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": true,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 19.9,
+          "max": 19.9
+        },
+        "wltp_reichweite_km": {
+          "min": 540,
+          "max": 540
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 18.5,
+          "max": 24.6
+        },
+        "realreichweite_sommer_stadt_km": 660,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 199,
+          "max": 199
+        },
+        "realreichweite_winter_km": 390,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4695,
+        "breite_mm": 1920,
+        "hoehe_mm": 1705,
+        "radstand_mm": 2900,
+        "leergewicht_kg": 2445,
+        "zulaessiges_gesamtgewicht_kg": 2845,
+        "kofferraum_liter": 630,
+        "kofferraum_umgeklappt_liter": 1530,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.2,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 47,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2169,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 100,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 475,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "n/a",
+        "federung_hinten": "n/a",
+        "rekuperation": "n/a",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 56900,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/3145/Smart-5-Summit-Edition (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 88,
+        "kinder": 93,
+        "fussgaenger": 84,
+        "assistenten": 92
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
+    },
+    {
+      "id": "000149",
+      "modell": "Smart #5 Brabus",
+      "marke": "Smart",
+      "modelljahr": "2025-2026",
+      "plattform": "Geely SEA3 (800V)",
+      "autotyp": "SUV",
+      "user_wish": null,
+      "antrieb": {
+        "konzept": "Allrad (AWD)",
+        "anzahl_motoren": 2,
+        "motortyp": "PSM",
+        "achskonfiguration": "n/a"
+      },
+      "leistung": {
+        "systemleistung_kw": 475,
+        "systemleistung_ps": 646,
+        "drehmoment_nm": 710,
+        "beschleunigung_0_100_s": 3.8,
+        "hoechstgeschwindigkeit_kmh": 210
+      },
+      "batterie": {
+        "brutto_kwh": 100.0,
+        "netto_kwh": 94.0,
+        "chemie": "NMC",
+        "systemspannung_v": 800,
+        "zelltyp": "prismatisch",
+        "zelllieferant": [
+          "CATL"
+        ],
+        "gewicht_kg": {
+          "min": null,
+          "max": null
+        },
+        "garantie_jahre": 8,
+        "garantie_km": 200000,
+        "garantie_restkapazitaet_pct": 70
+      },
+      "laden": {
+        "ac_serie_kw": 22,
+        "ac_optional_kw": null,
+        "dc_max_kw": 400,
+        "dc_10_80_min": 18,
+        "ladestecker": [
+          "CCS",
+          "Typ 2"
+        ],
+        "vorkonditionierung": true,
+        "v2l": true,
+        "v2l_leistung_kw": 3.3,
+        "v2g": false,
+        "v2h": false,
+        "ac_optional_preis_eur": null,
+        "plug_and_charge": true,
+        "laderoutenplaner": true
+      },
+      "verbrauch": {
+        "wltp_kwh_100km": {
+          "min": 19.9,
+          "max": 19.9
+        },
+        "wltp_reichweite_km": {
+          "min": 540,
+          "max": 540
+        },
+        "realverbrauch_kwh_100km": {
+          "min": 18.4,
+          "max": 24.4
+        },
+        "realreichweite_sommer_stadt_km": 645,
+        "realreichweite_autobahn_130_km": null,
+        "effizienz_wh_km": {
+          "min": 199,
+          "max": 199
+        },
+        "realreichweite_winter_km": 385,
+        "verbrauch_kwh_tkm": "n/a"
+      },
+      "abmessungen": {
+        "laenge_mm": 4695,
+        "breite_mm": 1920,
+        "hoehe_mm": 1705,
+        "radstand_mm": 2900,
+        "leergewicht_kg": 2453,
+        "zulaessiges_gesamtgewicht_kg": 2845,
+        "kofferraum_liter": 630,
+        "kofferraum_umgeklappt_liter": 1530,
+        "anhaengelast_gebremst_kg": 1600,
+        "anhaengelast_ungebremst_kg": 750,
+        "wendekreis_m": 11.2,
+        "bodenfreiheit_mm": null,
+        "cw_wert": null,
+        "frunk": true,
+        "frunk_liter": 47,
+        "ahk_verfuegbar": true,
+        "breite_mit_spiegel_mm": 2169,
+        "sitze": 5,
+        "felgen_zoll": null,
+        "display": null,
+        "dachlast_kg": 100,
+        "kofferraum_elektrisch": null,
+        "ahk_preis_eur": null,
+        "hud": "n/a",
+        "nutzlast_kg": 467,
+        "anzahl_achsen": "n/a",
+        "laderaum_m3": "n/a",
+        "fuehrerhaus": "n/a"
+      },
+      "fahrwerk": {
+        "federung_vorne": "n/a",
+        "federung_hinten": "n/a",
+        "rekuperation": "n/a",
+        "waermepumpe": true,
+        "fahrgeraeusch_db": {
+          "wert_db": null,
+          "kmh": 130
+        }
+      },
+      "preis": {
+        "basispreis_eur": 60900,
+        "stromkosten_eur_100km": {
+          "min": null,
+          "max": null
+        },
+        "versicherung_eur_jahr": {
+          "min": null,
+          "max": null
+        },
+        "wertverlust_3_jahre_pct": {
+          "min": null,
+          "max": null
+        }
+      },
+      "garantien": {
+        "fahrzeug_jahre": 2,
+        "fahrzeug_km": "unbegrenzt",
+        "lack_jahre": 3,
+        "durchrostung_jahre": 12,
+        "mobilitaet_jahre": 2
+      },
+      "service": {
+        "wartungsintervall": "1 Jahr / 20.000 km",
+        "wartungskosten_eur": {
+          "min": null,
+          "max": null
+        },
+        "anfaellige_punkte": [],
+        "garantie_relevant": true
+      },
+      "bemerkung": null,
+      "ota_updates": true,
+      "reifen_serie": null,
+      "quellen": [
+        "https://ev-database.org/de/pkw/3179/Smart-5-Brabus (Aug. 2026)"
+      ],
+      "datenerfassung": "2026-08-29",
+      "adac_note": null,
+      "euro_ncap": {
+        "sterne": 5,
+        "erwachsene": 88,
+        "kinder": 93,
+        "fussgaenger": 84,
+        "assistenten": 92
+      },
+      "produkt_url": "https://www.smart.com/de/",
+      "produktionsland": "China",
+      "bild_url": null,
+      "lieferzeit_wochen": null,
+      "status": "aktuell"
     }
   ],
   "letzte_aktualisierung": "2026-08-29",
