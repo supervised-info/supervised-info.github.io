@@ -560,7 +560,17 @@
   }
   function renderCount() {
     var txt = "<strong>" + filtered.length + "</strong> von " + data.length;
-    if (state.q.trim()) txt += " · Suche aktiv";
+    var bits = [];
+    if (state.q.trim()) bits.push("Suche aktiv");
+    var cls = [];
+    if (state.classes.pkw) cls.push("Pkw");
+    if (state.classes.camper) cls.push("Camper");
+    if (state.classes.nutz) cls.push("Nutzfahrzeuge");
+    if (cls.length === 1) bits.push("nur " + cls[0]);
+    else if (cls.length === 2) bits.push(cls.join(" + "));
+    if (state.status.aktuell && !state.status.alt) bits.push("nur aktuell");
+    else if (!state.status.aktuell && state.status.alt) bits.push("nur veraltet");
+    if (bits.length) txt += " · " + bits.join(", ");
     $("matchCount").innerHTML = txt;
   }
   function renderFoot() {
