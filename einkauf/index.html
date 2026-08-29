@@ -565,9 +565,9 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   };
 
   var SEEDS = [
-    { id: "rewe", name: "Rewe", layout: ["obst", "brot", "bedienung", "trocken", "suess", "kuehlung", "tiefkuehl", "getraenke", "drogerie", "sonstiges"] },
     { id: "edeka", name: "Edeka", layout: ["obst", "bedienung", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges"] },
     { id: "aldi", name: "Aldi", layout: ["obst", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges"] },
+    { id: "rewe", name: "Rewe", layout: ["obst", "brot", "bedienung", "trocken", "suess", "kuehlung", "tiefkuehl", "getraenke", "drogerie", "sonstiges"] },
     { id: "lidl", name: "Lidl", layout: ["obst", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges"] },
     { id: "dm", name: "dm", layout: ["drogerie", "trocken", "getraenke", "sonstiges"] },
     { id: "eigenes", name: "Eigenes Layout", layout: ["sonstiges"] }
@@ -765,6 +765,25 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     });
   }
 
+  function orderStores(stores) {
+    var byId = {};
+    stores.forEach(function (s) { byId[s.id] = s; });
+    var out = [];
+    SEEDS.forEach(function (seed) {
+      if (byId[seed.id]) {
+        out.push(byId[seed.id]);
+        delete byId[seed.id];
+      }
+    });
+    stores.forEach(function (s) {
+      if (byId[s.id]) {
+        out.push(s);
+        delete byId[s.id];
+      }
+    });
+    return out;
+  }
+
   function sanitizeLayout(layout) {
     var seen = {};
     var out = [];
@@ -781,7 +800,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   function load() {
     var fallback = {
       theme: "light",
-      currentStoreId: "rewe",
+      currentStoreId: "edeka",
       items: [],
       mappings: {},
       stores: seedStores()
@@ -812,6 +831,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
         }
       });
       if (!stores.length) stores = seedStores();
+      stores = orderStores(stores);
       var items = Array.isArray(d.items) ? d.items : [];
       items = items.map(function (it) {
         if (!it || typeof it.name !== "string") return null;
@@ -830,7 +850,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
           if (DEPTS[d.mappings[k]]) mappings[k] = d.mappings[k];
         });
       }
-      var current = String(d.currentStoreId || "rewe");
+      var current = String(d.currentStoreId || "edeka");
       var has = stores.some(function (s) { return s.id === current; });
       if (!has) current = stores[0].id;
       return {
