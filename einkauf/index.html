@@ -1239,7 +1239,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     var recipeUrl = "https://httpbin.org/base64/" + utf8ToB64(html);
     var parserUrl = "https://api.getbring.com/rest/bringrecipes/parser?url=" +
       encodeURIComponent(recipeUrl);
-    var href = "https://web.getbring.com/import?type=RECIPE&src=" +
+    var href = "https://deeplink.getbring.com/import?type=RECIPE&src=" +
       encodeURIComponent(utf8ToB64(parserUrl));
     if (href.length > 7500) {
       copyBringText(toBringText(), "Liste zu lang für den Bring-Link. Kopiert.");
