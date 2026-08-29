@@ -463,7 +463,7 @@ tbody tr { cursor: pointer; }
 tbody tr:hover td { background: var(--paper-2); }
 tbody tr.pinned td { background: var(--oxide-soft); }
 tbody tr.open td { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--oxide) 45%, transparent); }
-tbody tr.stale td, tbody tr.alt td { background: rgba(239, 68, 68, .06); }
+tbody tr.stale td, tbody tr.alt td { background: color-mix(in srgb, rgb(239, 68, 68) 10%, var(--paper)); }
 .muted { color: var(--muted); }
 .badge {
   display: inline-block;
@@ -478,29 +478,44 @@ tbody tr.stale td, tbody tr.alt td { background: rgba(239, 68, 68, .06); }
 .badge.alt { border-color: var(--oxide); color: var(--oxide); }
 .bool-y { color: var(--good); font-weight: 650; }
 .bool-n { color: var(--muted); }
-td.hit { background: var(--hit) !important; }
+td.hit { background: color-mix(in srgb, var(--oxide) 22%, var(--paper)) !important; }
 .empty {
   padding: 2.2rem 1.2rem;
   color: var(--muted);
   font-family: var(--serif);
   font-size: 1.15rem;
 }
-.s0, .s1, .s2, .s3 { position: sticky; z-index: 3; }
-th.s0, th.s1, th.s2, th.s3 { z-index: 5; }
-.s0 { left: 0; min-width: 2.3rem; width: 2.3rem; }
-.s1 { left: 2.3rem; min-width: 3.1rem; width: 3.1rem; }
-.s2 { left: 5.4rem; min-width: 13.5rem; }
-.s3 { left: 18.9rem; min-width: 7.2rem; }
+.s0, .s1, .s2, .s3 {
+  --s0w: 2.6rem;
+  --s1w: 3.7rem;
+  --s2w: 14rem;
+  --s3w: 7.6rem;
+  position: sticky;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--paper);
+  background-clip: padding-box;
+}
+th.s0, th.s1, th.s2, th.s3 { z-index: 6; }
+.s0 { left: 0; width: var(--s0w); min-width: var(--s0w); max-width: var(--s0w); z-index: 3; }
+.s1 { left: var(--s0w); width: var(--s1w); min-width: var(--s1w); max-width: var(--s1w); z-index: 3; }
+.s2 { left: calc(var(--s0w) + var(--s1w)); width: var(--s2w); min-width: var(--s2w); max-width: var(--s2w); z-index: 3; }
+.s3 { left: calc(var(--s0w) + var(--s1w) + var(--s2w)); width: var(--s3w); min-width: var(--s3w); max-width: var(--s3w); z-index: 3; }
 td.s0, th.s0, td.s1, th.s1, td.s2, th.s2, td.s3, th.s3 {
   background: var(--paper);
   box-shadow: 1px 0 0 var(--rule);
 }
+td.s3, th.s3 { box-shadow: 6px 0 10px rgba(0, 0, 0, 0.22); }
 thead th.s0, thead th.s1, thead th.s2, thead th.s3 {
   background: var(--header-bg);
   color: var(--header-text);
 }
 tbody tr:hover td.s0, tbody tr:hover td.s1, tbody tr:hover td.s2, tbody tr:hover td.s3 { background: var(--paper-2); }
 tbody tr.pinned td.s0, tbody tr.pinned td.s1, tbody tr.pinned td.s2, tbody tr.pinned td.s3 { background: color-mix(in srgb, var(--oxide) 14%, var(--paper)); }
+tbody tr.alt td.s0, tbody tr.alt td.s1, tbody tr.alt td.s2, tbody tr.alt td.s3,
+tbody tr.stale td.s0, tbody tr.stale td.s1, tbody tr.stale td.s2, tbody tr.stale td.s3 {
+  background: color-mix(in srgb, rgb(239, 68, 68) 10%, var(--paper));
+}
 .pin input, .wish { accent-color: var(--oxide); }
 .wish {
   width: 2.5rem;
