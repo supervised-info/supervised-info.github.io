@@ -668,7 +668,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   els.copyBtn.addEventListener("click", copyMd);
   els.shareBtn.addEventListener("click", shareMd);
   els.bringBtn.addEventListener("click", shareBring);
-  els.remindersBtn.addEventListener("click", copyReminders);
+  els.remindersBtn.addEventListener("click", shareReminders);
   els.fileBtn.addEventListener("click", downloadMd);
   els.importBtn.addEventListener("click", function () { els.importFile.click(); });
   els.importFile.addEventListener("change", function () {
@@ -1300,17 +1300,13 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
         lines.push(it.name);
       });
     });
-    return lines.join("\n");
+    if (!lines.length) return "";
+    return lines.join("\r\n") + "\r\n";
   }
 
-  function copyReminders() {
-    var text = toRemindersText();
-    if (!text) {
-      setStatus("Nichts Offenes zum Mitnehmen.");
-      return;
-    }
+  function copyRemindersText(text) {
     function ok() {
-      setStatus("Kopiert. In Erinnerungen einfügen, dann in mehrere Erinnerungen aufteilen.", 6000);
+      setStatus("Kopiert. In Erinnerungen einfügen, dann in mehrere aufteilen.", 6000);
     }
     function fail() { setStatus("Konnte nicht kopieren."); }
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1323,6 +1319,24 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     } else {
       fail();
     }
+  }
+
+  function shareReminders() {
+    var text = toRemindersText();
+    if (!text) {
+      setStatus("Nichts Offenes zum Mitnehmen.");
+      return;
+    }
+    if (navigator.share) {
+      navigator.share({ text: text }).then(function () {
+        setStatus("Erinnerungen im Teilen-Menü wählen.");
+      }).catch(function (err) {
+        if (err && err.name === "AbortError") return;
+        copyRemindersText(text);
+      });
+      return;
+    }
+    copyRemindersText(text);
   }
 
   function copyBringText(text, okMsg) {
