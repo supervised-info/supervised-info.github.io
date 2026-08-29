@@ -537,6 +537,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     <button type="button" class="chipbtn" id="btn-layout" aria-controls="sheet" aria-expanded="false">Layout</button>
     <button type="button" class="chipbtn" id="btn-copy">Kopieren</button>
     <button type="button" class="chipbtn" id="btn-share">Teilen</button>
+    <button type="button" class="chipbtn" id="btn-bring">Bring</button>
     <button type="button" class="chipbtn" id="btn-file">Datei</button>
     <button type="button" class="chipbtn" id="btn-clear">Erledigte löschen</button>
   </div>
@@ -610,6 +611,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     layoutBtn: document.getElementById("btn-layout"),
     copyBtn: document.getElementById("btn-copy"),
     shareBtn: document.getElementById("btn-share"),
+    bringBtn: document.getElementById("btn-bring"),
     fileBtn: document.getElementById("btn-file"),
     clearBtn: document.getElementById("btn-clear"),
     scrim: document.getElementById("scrim"),
@@ -659,6 +661,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   els.scrim.addEventListener("click", closeSheet);
   els.copyBtn.addEventListener("click", copyMd);
   els.shareBtn.addEventListener("click", shareMd);
+  els.bringBtn.addEventListener("click", shareBring);
   els.fileBtn.addEventListener("click", downloadMd);
   els.clearBtn.addEventListener("click", function () {
     state.items = state.items.filter(function (it) { return !it.done; });
@@ -1175,6 +1178,53 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     } else {
       fail();
     }
+  }
+
+  function toBringText() {
+    var store = currentStore();
+    var groups = groupItems();
+    var n = 0;
+    var lines = [];
+    groups.forEach(function (g) {
+      g.items.forEach(function (it) {
+        if (it.done) return;
+        n += 1;
+        var num = n < 10 ? "0" + n : String(n);
+        lines.push(num + " " + it.name);
+      });
+    });
+    if (!lines.length) return "";
+    return "Einkauf " + store.name + "\n\n" + lines.join("\n") + "\n";
+  }
+
+  function copyBringText(text, okMsg) {
+    function fail() { setStatus("Konnte nicht kopieren."); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        setStatus(okMsg);
+      }).catch(fail);
+    } else {
+      fail();
+    }
+  }
+
+  function shareBring() {
+    var text = toBringText();
+    if (!text) {
+      setStatus("Nichts Offenes zum Mitnehmen.");
+      return;
+    }
+    var store = currentStore();
+    if (navigator.share) {
+      navigator.share({ title: "Einkauf — " + store.name, text: text }).then(function () {
+        setStatus("Bring im Teilen-Menü wählen.");
+      }).catch(function (err) {
+        if (err && err.name === "AbortError") return;
+        copyBringText(text, "Kopiert. In Bring einfügen.");
+      });
+      return;
+    }
+    copyBringText(text, "Kopiert. In Bring einfügen.");
   }
 
   function shareMd() {
