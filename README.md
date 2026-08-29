@@ -5,6 +5,7 @@ Sammlung eigenständiger HTML-Seiten für GitHub Pages. Keine Werkzeugkette: Dat
 ## Seiten
 
 - [Relativitätstheorie, anschaulich](relativitaetstheorie/)
+- [Elektroautos, im Vergleich](elektroautos/)
 
 ## Nächste Seite anlegen
 
