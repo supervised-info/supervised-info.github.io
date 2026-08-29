@@ -379,7 +379,7 @@
         if (rangeAtFull(def.key)) continue;
         var r = state.range[def.key];
         var n = pickNum(getVal(d, def.path), def.pick);
-        if (n == null) return;
+        if (n == null) continue;
         if (n < r[0] || n > r[1]) return;
       }
       if (state.marken.length && state.marken.indexOf(d.marke || "") === -1) return;
@@ -897,7 +897,8 @@
       marken: state.marken, segments: state.segments, drives: state.drives, chemie: state.chemie,
       tog: state.tog, hiddenGroups: state.hiddenGroups, pins: state.pins,
       sortCol: state.sortCol, sortDir: state.sortDir, colFilters: state.colFilters,
-      showColFilters: state.showColFilters, compareDiffOnly: state.compareDiffOnly
+      showColFilters: state.showColFilters, compareDiffOnly: state.compareDiffOnly,
+      dataStamp: meta.letzte_aktualisierung
     };
   }
   function schedulePersist() {
@@ -971,6 +972,10 @@
       if (saved[k] != null) state[k] = saved[k];
     });
     if (saved.hiddenGroups) state.hiddenGroups = saved.hiddenGroups;
+    if (saved.dataStamp !== meta.letzte_aktualisierung) {
+      state.range = {};
+      state.colFilters = {};
+    }
   }
   function applyWish() {
     var wish = lsGet("wish", {});
