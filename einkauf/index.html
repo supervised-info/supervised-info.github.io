@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Einkaufsliste, im Ladenweg</title>
+<meta name="description" content="Digitale Einkaufsliste mit Checkboxen, nach Ladenweg sortiert — von Eingang bis Kasse.">
+<meta name="theme-color" content="#f3eee4">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect fill=%22%231c1814%22 width=%2232%22 height=%2232%22/%3E%3Crect x=%228%22 y=%228%22 width=%2216%22 height=%2216%22 fill=%22none%22 stroke=%22%23e8d9c0%22 stroke-width=%221.4%22/%3E%3Cpath fill=%22none%22 stroke=%22%239c3424%22 stroke-width=%221.8%22 d=%22M11 16 L15 20 L22 12%22/%3E%3C/svg%3E">
+<style>
+:root {
+  --paper: #f3eee4;
+  --paper-2: #e9e1d2;
+  --paper-3: #dfd5c4;
+  --ink: #1c1814;
+  --muted: #5e564d;
+  --rule: #d2c8b8;
+  --oxide: #9c3424;
+  --oxide-soft: rgba(156, 52, 36, 0.11);
+  --glow-1: rgba(156, 52, 36, 0.05);
+  --glow-2: rgba(42, 85, 100, 0.05);
+  --shadow: 0 18px 50px rgba(28, 24, 20, 0.22);
+  --serif: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] {
+  --paper: #14110e;
+  --paper-2: #1d1915;
+  --paper-3: #2a241d;
+  --ink: #f3eee4;
+  --muted: #b3aa9c;
+  --rule: #3d362c;
+  --oxide: #e07060;
+  --oxide-soft: rgba(224, 112, 96, 0.16);
+  --glow-1: rgba(224, 112, 96, 0.08);
+  --glow-2: rgba(142, 184, 200, 0.06);
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html:focus-within { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.45;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 0% 0%, var(--glow-1), transparent 42%),
+    radial-gradient(ellipse at 100% 100%, var(--glow-2), transparent 46%);
+}
+body.locked { overflow: hidden; }
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5rem 0.8rem;
+  z-index: 80;
+}
+.skip:focus { left: 0.6rem; top: 0.6rem; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+a { color: var(--oxide); text-underline-offset: 0.16em; }
+a:hover { color: var(--ink); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible {
+  outline: 2px solid var(--oxide);
+  outline-offset: 2px;
+}
+.wrap {
+  position: relative;
+  z-index: 1;
+  width: min(40rem, calc(100% - 1.6rem));
+  margin: 0 auto;
+  padding: 0 0 3.5rem;
+}
+.mast {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 0 0;
+}
+.kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--oxide);
+}
+.kicker a { color: inherit; text-decoration: none; }
+.kicker a:hover { text-decoration: underline; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  font-size: clamp(2rem, 7vw, 3.1rem);
+  line-height: 0.95;
+  margin: 1.15rem 0 0.2rem;
+}
+.lede {
+  margin: 0 0 0.4rem;
+  color: var(--muted);
+  font-family: var(--serif);
+  font-size: 1.15rem;
+}
+.add {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  margin: 1.35rem 0 1rem;
+}
+#add {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-bottom: 1.5px solid var(--ink);
+  background: transparent;
+  padding: 0.55rem 0;
+  font-size: 1.05rem;
+  border-radius: 0;
+}
+#add::placeholder { color: var(--muted); opacity: 0.9; }
+.add-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--oxide);
+  color: var(--paper);
+  font-size: 1.55rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.add-btn:hover { filter: brightness(1.08); }
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.55rem 1rem;
+  margin-bottom: 0.75rem;
+}
+.store-lab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+#store {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.95rem;
+  min-height: 40px;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  max-width: 16rem;
+}
+.count {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.chipbtn, .iconbtn {
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  min-height: 44px;
+  font-size: 0.88rem;
+}
+.chipbtn:hover, .iconbtn:hover {
+  border-color: var(--oxide);
+  color: var(--oxide);
+}
+.chipbtn.primary {
+  background: var(--oxide);
+  border-color: var(--oxide);
+  color: var(--paper);
+}
+.chipbtn.primary:hover { color: var(--paper); filter: brightness(1.06); }
+.chipbtn.danger, .iconbtn.danger {
+  color: var(--oxide);
+  border-color: color-mix(in srgb, var(--oxide) 45%, var(--rule));
+}
+.status {
+  min-height: 1.35em;
+  margin: 0.55rem 0 0;
+  font-size: 0.88rem;
+  color: var(--oxide);
+}
+.empty {
+  margin: 2rem 0 0;
+  color: var(--muted);
+  font-family: var(--serif);
+  font-size: 1.15rem;
+}
+.dept h2 {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--oxide);
+  font-weight: 650;
+  margin: 1.35rem 0 0.15rem;
+}
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) minmax(7.2rem, auto) 44px;
+  gap: 0.3rem;
+  align-items: center;
+  border-bottom: 1px solid var(--rule);
+  min-height: 48px;
+}
+.chk {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+.chk input {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--oxide);
+}
+.name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 0.35rem 0.15rem;
+}
+.row.done .name {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+.row.done { opacity: 0.72; }
+.dept-sel {
+  font-size: 0.75rem;
+  min-height: 36px;
+  max-width: 11.5rem;
+  width: 100%;
+  border-radius: 999px;
+  padding: 0.15rem 0.45rem;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+}
+.del {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 1.35rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 24, 20, 0.42);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.scrim.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
+.sheet {
+  position: fixed;
+  z-index: 41;
+  top: 0;
+  right: 0;
+  height: 100%;
+  height: 100dvh;
+  width: min(22.5rem, 100%);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  border-left: 1px solid var(--rule);
+  transform: translateX(105%);
+  transition: transform 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.sheet.open { transform: translateX(0); }
+.sheet[hidden], .scrim[hidden] { display: none !important; }
+.sheet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem 0.7rem;
+  border-bottom: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+.sheet-head h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.45rem;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.sheet-body {
+  overflow: auto;
+  padding: 0.9rem 1rem 1.6rem;
+  flex: 1;
+}
+.sheet-store {
+  margin: 0 0 0.85rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.layout-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+.layout-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.35rem;
+  align-items: center;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.layout-name { font-size: 0.95rem; }
+.layout-btns { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.layout-btns button {
+  min-height: 40px;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  font-size: 0.75rem;
+}
+.layout-btns button:hover { border-color: var(--oxide); color: var(--oxide); }
+.layout-btns button:disabled { opacity: 0.4; cursor: not-allowed; }
+.sheet-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 1.1rem 0 0.4rem;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.chip {
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  min-height: 40px;
+  font-size: 0.82rem;
+}
+.chip:hover { border-color: var(--oxide); color: var(--oxide); }
+.hint {
+  margin: 0.35rem 0 0.8rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.new-store {
+  display: flex;
+  gap: 0.4rem;
+  align-items: stretch;
+}
+#new-store-name {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+}
+.sheet-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+@media (max-width: 560px) {
+  .sheet {
+    top: auto;
+    bottom: 0;
+    height: min(90dvh, 100%);
+    width: 100%;
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+    border-radius: 1rem 1rem 0 0;
+    transform: translateY(105%);
+  }
+  .sheet.open { transform: translateY(0); }
+  .row {
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    grid-template-rows: auto auto;
+  }
+  .dept-sel {
+    grid-column: 2;
+    max-width: none;
+    margin: 0 0 0.4rem;
+  }
+  .del { grid-column: 3; grid-row: 1 / 3; }
+}
+</style>
+<script>
+(function () {
+  try {
+    var d = JSON.parse(localStorage.getItem("einkauf_v1") || "{}");
+    var t = d.theme === "dark" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute("content", t === "dark" ? "#14110e" : "#f3eee4");
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#add">Zur Eingabe</a>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+  <div class="sheet-head">
+    <h2 id="sheet-title">Layout</h2>
+    <button type="button" class="iconbtn" id="sheet-close" aria-label="Schließen">Schließen</button>
+  </div>
+  <div class="sheet-body">
+    <p class="sheet-store" id="sheet-store"></p>
+    <ol class="layout-list" id="layout-list"></ol>
+    <p class="hint">Sonstiges erscheint in der Liste immer zuletzt.</p>
+    <p class="sheet-label">Abteilung hinzufügen</p>
+    <div class="chips" id="unused-depts"></div>
+    <div class="sheet-actions">
+      <button type="button" class="chipbtn" id="btn-reset">Layout zurücksetzen</button>
+    </div>
+    <p class="sheet-label">Laden anlegen</p>
+    <div class="new-store">
+      <input id="new-store-name" type="text" placeholder="Name des Ladens" maxlength="60" autocomplete="off">
+      <button type="button" class="chipbtn primary" id="btn-new-store">Anlegen</button>
+    </div>
+    <p class="hint">Übernimmt das aktuelle Layout.</p>
+    <div class="sheet-actions">
+      <button type="button" class="chipbtn danger" id="btn-delete-store">Laden löschen</button>
+    </div>
+  </div>
+</aside>
+<div class="wrap">
+  <header class="mast">
+    <p class="kicker"><a href="../">supervised-info</a> · 03</p>
+    <button type="button" class="iconbtn" id="theme-btn" aria-pressed="false">Dunkel</button>
+  </header>
+  <h1>Einkaufsliste</h1>
+  <p class="lede">im Ladenweg</p>
+  <form id="add-form" class="add">
+    <label class="sr-only" for="add">Artikel hinzufügen</label>
+    <input id="add" type="text" placeholder="Milch, Äpfel, Klopapier…" autocomplete="off" enterkeyhint="enter">
+    <button type="submit" class="add-btn" aria-label="Hinzufügen">+</button>
+  </form>
+  <div class="toolbar">
+    <label class="store-lab">Laden
+      <select id="store"></select>
+    </label>
+    <p class="count" id="count" aria-live="polite"></p>
+  </div>
+  <div class="actions">
+    <button type="button" class="chipbtn" id="btn-layout" aria-controls="sheet" aria-expanded="false">Layout</button>
+    <button type="button" class="chipbtn" id="btn-copy">Kopieren</button>
+    <button type="button" class="chipbtn" id="btn-share">Teilen</button>
+    <button type="button" class="chipbtn" id="btn-file">Datei</button>
+    <button type="button" class="chipbtn" id="btn-clear">Erledigte löschen</button>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+  <div id="list"></div>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "einkauf_v1";
+  var THEME_DARK = "#14110e";
+  var THEME_LIGHT = "#f3eee4";
+
+  var DEPTS = {
+    obst: "Obst & Gemüse",
+    brot: "Brot & Backwaren",
+    bedienung: "Fleisch, Wurst, Käse",
+    kuehlung: "Kühlregal",
+    tiefkuehl: "Tiefkühl",
+    trocken: "Trockenwaren",
+    suess: "Süßwaren & Snacks",
+    getraenke: "Getränke",
+    drogerie: "Drogerie & Haushalt",
+    sonstiges: "Sonstiges"
+  };
+
+  var SEEDS = [
+    { id: "rewe", name: "Rewe", layout: ["obst", "brot", "bedienung", "trocken", "suess", "kuehlung", "tiefkuehl", "getraenke", "drogerie", "sonstiges"] },
+    { id: "edeka", name: "Edeka", layout: ["obst", "bedienung", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges"] },
+    { id: "aldi", name: "Aldi", layout: ["obst", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges"] },
+    { id: "lidl", name: "Lidl", layout: ["obst", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges"] },
+    { id: "dm", name: "dm", layout: ["drogerie", "trocken", "getraenke", "sonstiges"] },
+    { id: "eigenes", name: "Eigenes Layout", layout: ["sonstiges"] }
+  ];
+
+  var DICT_SRC = {
+    obst: "apfel,birne,banane,tomate,gurke,salat,paprika,zwiebel,kartoffel,karotte,moehre,möhre,zitrone,avocado,avokado,beere,erdbeere,himbeere,heidelbeere,johannisbeere,brombeere,blaubeere,preiselbeere,stachelbeere,kohl,brokkoli,broccoli,spinat,pilz,champignon,pfirsich,nektarine,pflaume,kirsche,traube,weintraube,orange,mandarine,clementine,klementine,grapefruit,mango,ananas,kiwi,melone,wassermelone,honigmelone,kuerbis,kürbis,zucchini,aubergine,lauch,porree,sellerie,fenchel,radieschen,rettich,rotebete,rucola,ruccola,feldsalat,eisbergsalat,eisberg,kopfsalat,romanasalat,endivie,chicoree,maiskolben,zuckerschote,erbse,edamame,kresse,petersilie,schnittlauch,basilikum,koriander,minze,dill,ingwer,knoblauch,schalotte,fruehlingszwiebel,frühlingszwiebel,suesskartoffel,süßkartoffel,batate,pastinake,kohlrabi,rotkohl,weisskohl,wirsing,gruenkohl,pakchoi,chinakohl,blumenkohl,romanesco,artischocke,spargel,rhabarber,olive,dattel,feige,granatapfel,physalis,maracuja,papaya,aprikose,mirabelle,zwetschge,limette,limone,hokkaido,butternut,radicchio,mangold,spitzkohl,meerrettich,chili,peperoni,jalapeno,quitte,kaki,sharon,nashi,kumquat,litschi,lychee,kokosnuss,rübe,rube,steckrube,gruenebohne,prinzessbohne,zuckererbse,obst,gemuese,gemüse,fruechte,früchte,blaetterspinat,romanasalat,eisbergsalat,feldsalat,rucola,sprossen,kresse,rosmarin,thymian,oregano,salbeiblatt",
+    brot: "brot,broetchen,brötchen,semmel,croissant,toast,baguette,kuchen,knaeckebrot,knäckebrot,ciabatta,focaccia,bagel,brezel,breze,laugenstange,laugenbrezel,berliner,muffin,torte,zwieback,pita,naan,sandwichbrot,burgerbroetchen,hotdogbroetchen,vollkornbrot,toastbrot,roggenbrot,dinkelbrot,weissbrot,mischbrot,hefezopf,stollen,panettone,laugengebaeck,hoernchen,hörnchen,krapfen,windbeutel,blechkuchen,apfelkuchen,kaesekuchen,käsekuchen,brotlaib,landbrot,kornbrot,saatenbrot,fladenbrot,laugensemmel,kaisersemmel,milchbroetchen,rosinenbroetchen,eiweissbrot,eiweißbrot,baeckerei,bäckerei,gebaeck,gebäck,weckle,schrippe,laugenstange,ciabatta,focaccia,brot",
+    bedienung: "wurst,salami,schinken,kaese,käse,aufschnitt,hackfleisch,steak,haehnchen,hähnchen,lachs,fleisch,mettwurst,leberwurst,bratwurst,bockwurst,fleischwurst,bierschinken,putenbrust,pute,huhn,huehnchen,hühnchen,rindersteak,rinderhack,schweinefilet,schnitzel,kotelett,grillfleisch,gyros,fisch,forelle,lachsfilet,garnele,shrimp,meeresfruechte,mozzarella,gouda,emmentaler,bergkaese,camembert,brie,feta,schafskaese,ziegenkaese,parmesan,pecorino,ricotta,harzer,limburger,butterkaese,butterkäse,schnittkaese,reibekaese,leberkaese,leberkäse,suelze,sülze,speck,bacon,bauchspeck,schinkenspeck,kassler,kasseler,leber,gulasch,currywurst,mortadella,lyoner,jagdwurst,teewurst,cervelat,chorizo,coppa,bresaola,parmaschinken,serrano,prosciutto,haehnchenbrust,hähnchenbrust,rinderfilet,roastbeef,entenbrust,hack,faschiertes,weisswurst,weißwurst,kaesekrainer,fischfilet,scholle,zander,kabeljau,seelachs,garnelen,muscheln,calamari,raeucherlachs,räucherlachs,matjes,hering,makrele,burrata,halloumi,cheddar,maasdamer,tilsiter,edamer,gorgonzola,grillkaese,grillkäse,raclette,fonduekaese,putengeschnetzeltes,wiener,bockwurst,leberkaese,aufschnitt,wursttheke,kaesetheke,fleischtheke",
+    kuehlung: "milch,joghurt,quark,butter,sahne,ei,eier,pudding,margarine,schmand,jogurt,yoghurt,kefir,buttermilch,cremefraiche,cremedouble,schlagsahne,sauerahne,sauerrahm,skyr,frischkaese,frischkäse,philadelphia,kraeuterquark,kräuterquark,speisequark,huettenkaese,hüttenkäse,tofu,tempeh,hummus,haferdrink,hafermilch,mandelmilch,sojamilch,reisdrink,kokosdrink,pflanzenmilch,laktosefrei,vollmilch,fettarm,frischmilch,landmilch,weidemilch,kaffeesahne,trinkjoghurt,fruchtquark,vanillequark,proteinquark,mascarpone,tzatziki,tsatsiki,milchschnitte,blueterteig,blätterteig,hefeteig,pizzateig,gnocchi,tortellini,ravioli,seitan,falafel,creme fraiche,schlagsahne,saure sahne,eigelb,eiweiss,eiweiß,aktivia,dessert,kuehlregal,kühlregal,hmilch",
+    tiefkuehl: "eis,pizza,tiefkuehl,tiefkühl,tiefkuhl,pommes,speiseeis,eiscreme,fischstaebchen,fischstäbchen,kroketten,nuggets,lasagne,magnum,cornetto,langnese,haagen,frozen,tkpizza,gemuesemischung,gemüsemischung,schlemmerfilet,iglo,frosta,tiefkuehlpizza,tiefkühlkost,pfannengemuese,wokgemuese,kartoffelpuffer,roesti,rösti,scampi,vanilleeis,schokoeis,erdbeereis,eiswuerfel,eiswürfel,gelato,sorbet,fishfingers,chickenwings,spinach,beerenmischung,puffteig,tk-",
+    trocken: "nudel,nudeln,spaghetti,penne,fusilli,macaroni,pasta,reis,milchreis,basmati,jasminreis,mehl,zucker,oel,öl,essig,dose,konserven,muesli,müsli,hafer,haferflocken,sauce,sosse,soße,gewuerz,gewürz,kaffee,tee,salz,pfeffer,backpulver,hefe,vanille,kakao,marmelade,honig,cornflakes,quinoa,couscous,bulgur,linsen,kichererbsen,kidney,tomatenmark,passierte,olivenoel,olivenöl,sonnenblumenoel,rapsoel,rapsöl,balsamico,senf,ketchup,mayonnaise,mayo,remoulade,sojasauce,worcester,bruehe,brühe,bouillon,suppe,tuetensuppe,tütensuppe,instant,filterkaffee,espresso,kapsel,teebeutel,kamille,pfefferminz,zimt,paprikapulver,curry,kurkuma,lorbeer,nelke,muskat,vanillezucker,puderzucker,weizenmehl,dinkelmehl,backmischung,semmelbroesel,paniermehl,natron,speisestaerke,gelatine,dosentomaten,thunfischdose,kokosmilch,kondensmilch,puddingpulver,knorr,maggi,risotto,polenta,griess,grieß,knuspermuesli,mandeln,walnuss,cashew,erdnuss,sonnenblumenkerne,kuerbiskerne,chia,leinsamen,sesam,wrap,tortilla,porridge,nuesse,nüsse,pistazie,haselnuss,pinienkerne,backkakao,kakaopulver,nescafe,pads,nespresso,fruechtetee,kraeutertee,rooibos,matcha,gruentee,schwarztee,braunzucker,suessstoff,süßstoff,agavendicksaft,ahornsirup,konfituere,erdnussbutter,trockenhefe,vanilleschote,kardamom,safran,chiliflocken,cayenne,harissa,passata,panko,ramen,reisnudeln,glasnudeln,hirse,amaranth,kartoffelstaerke,pektin,einmachzucker,konserve,dosenmais,maisdose,terrine,fix,nudeln,spaghetti,penne,linsen,kicher,bohnen,kidneybohnen,weizenmehl,zucker",
+    suess: "schokolade,chips,gummibaer,gummibär,keks,suessigkeit,süßigkeit,popcorn,bonbon,knabber,salzstangen,pringles,nachos,cracker,leibniz,cookie,riegel,schokoriegel,kinder,duplo,hanuta,knoppers,weingummi,marshmallow,kaugummi,lutscher,nougat,milka,ritter,toblerone,haribo,lakritz,gummibaerchen,gummibärchen,zartbitter,vollmilchschokolade,oreo,bahlsen,printen,lebkuchen,spekulatius,dominosteine,marzipan,nutella,nutnougat,studentenfutter,erdnussflips,flips,nicnacs,doritos,tortillachips,paprikachips,knabbergebaeck,laugengebäck,proteinriegel,corny,muesliriegel,colaflaschen,salmiak,mentos,tictac,schaumkuss,praline,merci,lindt,kitkat,snickers,mars,bounty,twix,lion,smarties,suesswaren,süßwaren,snack,chips,schoko,keks,kekse,cookie,riegel",
+    getraenke: "wasser,cola,saft,bier,wein,sprudel,limo,limonade,fanta,sprite,mezzomix,apfelschorle,schorle,orangensaft,apfelsaft,multivitamin,eistee,icetea,energy,redbull,mate,volvic,gerolsteiner,adelholzener,hefeweizen,pils,weizenbier,sekt,prosecco,champagner,schnaps,vodka,gin,rum,whisky,likoer,likör,aperol,mineralwasser,smoothie,bionade,clubmate,fritz,africola,pepsi,tonic,gingerale,bitterlemon,sirup,grenadine,saftschorle,direktsaft,fruchtsaft,gemuesesaft,tomatensaft,traubensaft,kirschsaft,ananassaft,rhabarbersaft,nektar,most,spezi,radler,alkoholfrei,weisswein,weißwein,rotwein,rosewein,cava,campari,lillet,martini,jaegermeister,jäger,korn,doppelkorn,whiskey,bourbon,tequila,ouzo,grappa,obstler,eierlikoer,eierlikör,baileys,caprisonne,mineral,selters,isotonic,gatorade,powerade,lipton,nestea,getraenk,getränk,saft,schorle,limo,wasser,sprudel",
+    drogerie: "shampoo,seife,zahnpasta,zahnbuerste,zahnbürste,klopapier,toilettenpapier,spuelmittel,spülmittel,waschmittel,windel,pflaster,duschgel,deodorant,deo,rasierer,rasierschaum,watte,wattepad,binden,tampons,slipeinlage,feuchttuch,kuechenrolle,küchenrolle,alufolie,frischhaltefolie,gefrierbeutel,muellbeutel,müllbeutel,spuelmaschinentabs,spülmaschinentabs,weichspueler,weichspüler,allzweckreiniger,badreiniger,wcreiniger,glasreiniger,schwamm,mundspuelung,mundspülung,zahnseide,bodylotion,sonnencreme,taschentuch,tempo,scheuermilch,backofenreiniger,kalkreiniger,entkalker,spuelschwamm,mikrofasertuch,batterie,gluehbirne,glühbirne,desinfektion,haargel,conditioner,duschbad,wattestaebchen,wattestäbchen,nagellack,rasierklinge,aftershave,parfum,elmex,meridol,colgate,oralb,always,kotex,pampers,persil,frosch,denkmit,nivea,palmolive,blendamed,putzmittel,spuelmaschinensalz,klarspueler,waschpulver,colorwaschmittel,vollwaschmittel,fleckentferner,trocknertuecher,gelbersack,backpapier,zipbeutel,streichholz,feuerzeug,kerze,ledlampe,putztuch,handseife,fluessigseife,flüssigseife,koerperlotion,körperlotion,handcreme,gesichtscreme,tagescreme,zahnbuerste,zahnstocher,rasiergel,antiperspirant,haarspray,haarwachs,trockenshampoo,windeln,babyfeuchttuecher,babyoel,slipeinlagen,intimseife,haushaltstuch,wcstein,rohrreiniger,abflussreiniger,moebelpolitur,spuelbuerste,feinwaschmittel,wollwaschmittel,gallseife,frischhalte,muelltuete,mülltüte,biotuete,streichhoelzer,teelicht,verband,wundsalbe,lippenbalsam,kosmetiktuecher,hygiene,drogerie,haushalt,spuelmaschinen,waschmaschine,wc,klo"
+  };
+
+  var KW = [];
+  (function buildKw() {
+    var seen = {};
+    Object.keys(DICT_SRC).forEach(function (dept) {
+      DICT_SRC[dept].split(",").forEach(function (w) {
+        w = canon(w.trim());
+        if (!w || seen[w]) return;
+        seen[w] = true;
+        KW.push({ k: w, d: dept });
+      });
+    });
+    KW.sort(function (a, b) { return b.k.length - a.k.length; });
+  })();
+
+  var els = {
+    addForm: document.getElementById("add-form"),
+    add: document.getElementById("add"),
+    store: document.getElementById("store"),
+    count: document.getElementById("count"),
+    list: document.getElementById("list"),
+    status: document.getElementById("status"),
+    themeBtn: document.getElementById("theme-btn"),
+    layoutBtn: document.getElementById("btn-layout"),
+    copyBtn: document.getElementById("btn-copy"),
+    shareBtn: document.getElementById("btn-share"),
+    fileBtn: document.getElementById("btn-file"),
+    clearBtn: document.getElementById("btn-clear"),
+    scrim: document.getElementById("scrim"),
+    sheet: document.getElementById("sheet"),
+    sheetClose: document.getElementById("sheet-close"),
+    sheetStore: document.getElementById("sheet-store"),
+    layoutList: document.getElementById("layout-list"),
+    unused: document.getElementById("unused-depts"),
+    resetBtn: document.getElementById("btn-reset"),
+    newName: document.getElementById("new-store-name"),
+    newStoreBtn: document.getElementById("btn-new-store"),
+    deleteBtn: document.getElementById("btn-delete-store"),
+    themeMeta: document.querySelector('meta[name="theme-color"]')
+  };
+
+  var state = load();
+  var saveTimer = null;
+  var statusTimer = null;
+  var sheetOpen = false;
+  var sheetCloser = null;
+
+  applyTheme();
+  if (!navigator.share) els.shareBtn.hidden = true;
+  renderStoreSelect();
+  renderCount();
+  renderList();
+
+  els.addForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    addItem(els.add.value);
+    els.add.value = "";
+    els.add.focus();
+  });
+  els.store.addEventListener("change", function () {
+    state.currentStoreId = els.store.value;
+    scheduleSave();
+    renderList();
+    if (sheetOpen) renderSheet();
+  });
+  els.themeBtn.addEventListener("click", function () {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    applyTheme();
+    scheduleSave();
+  });
+  els.layoutBtn.addEventListener("click", openSheet);
+  els.sheetClose.addEventListener("click", closeSheet);
+  els.scrim.addEventListener("click", closeSheet);
+  els.copyBtn.addEventListener("click", copyMd);
+  els.shareBtn.addEventListener("click", shareMd);
+  els.fileBtn.addEventListener("click", downloadMd);
+  els.clearBtn.addEventListener("click", function () {
+    state.items = state.items.filter(function (it) { return !it.done; });
+    scheduleSave();
+    renderList();
+    renderCount();
+  });
+  els.resetBtn.addEventListener("click", resetLayout);
+  els.newStoreBtn.addEventListener("click", createStore);
+  els.newName.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      createStore();
+    }
+  });
+  els.deleteBtn.addEventListener("click", deleteStore);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && sheetOpen) {
+      e.preventDefault();
+      closeSheet();
+    }
+  });
+  window.addEventListener("pagehide", flushSave);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") flushSave();
+  });
+
+  function canon(s) {
+    return String(s).toLowerCase()
+      .replace(/ä/g, "a")
+      .replace(/ö/g, "o")
+      .replace(/ü/g, "u")
+      .replace(/ß/g, "ss")
+      .replace(/ae/g, "a")
+      .replace(/oe/g, "o")
+      .replace(/ue/g, "u");
+  }
+
+  function stripQty(s) {
+    return s
+      .replace(/[-–—]/g, " ")
+      .replace(/\b\d+([.,]\d+)?\s*x\b/g, " ")
+      .replace(/\b\d+([.,]\d+)?\s*(kg|g|mg|ml|cl|dl|l|stk|stueck|pck|pack)\b/g, " ")
+      .replace(/\b\d+([.,]\d+)?\b/g, " ")
+      .replace(/\b(kg|g|mg|ml|cl|dl|l|stk|stueck|x)\b/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function mappingKey(name) {
+    var c = canon(String(name).trim());
+    var s = stripQty(c);
+    return s || c;
+  }
+
+  function guessDept(name) {
+    var folded = canon(name);
+    var search = stripQty(folded) || folded.trim();
+    if (!search) return "sonstiges";
+
+    if (
+      search.indexOf("tiefkuhl") !== -1 ||
+      /(^|[\s-])tk([\s-]|$)/.test(folded) ||
+      /(^|[\s-])tk([\s-]|$)/.test(search)
+    ) {
+      return "tiefkuehl";
+    }
+    if (/ice\s*tea/.test(search) || search.indexOf("eistee") !== -1) return "getraenke";
+    if (/schorle/.test(search) || /saft$/.test(search) || search === "saft") return "getraenke";
+    if (search.indexOf("chips") !== -1) return "suess";
+    if (search === "eis" || (/eis$/.test(search) && search.indexOf("eisberg") === -1)) {
+      return "tiefkuehl";
+    }
+
+    var best = null;
+    var bestLen = 0;
+    for (var i = 0; i < KW.length; i++) {
+      var kw = KW[i];
+      if (kw.k.length < bestLen) break;
+      var hit = false;
+      if (kw.k.length <= 2) {
+        hit = new RegExp("(^|[^a-z])" + kw.k + "([^a-z]|$)").test(search);
+      } else if (search.indexOf(kw.k) !== -1) {
+        hit = true;
+      }
+      if (hit) {
+        best = kw.d;
+        bestLen = kw.k.length;
+      }
+    }
+    if (best) return best;
+    var mk = mappingKey(name);
+    if (state.mappings[mk] && DEPTS[state.mappings[mk]]) return state.mappings[mk];
+    return "sonstiges";
+  }
+
+  function uid(prefix) {
+    return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function seedStores() {
+    return SEEDS.map(function (s) {
+      return { id: s.id, name: s.name, layout: s.layout.slice(), builtin: true };
+    });
+  }
+
+  function sanitizeLayout(layout) {
+    var seen = {};
+    var out = [];
+    (layout || []).forEach(function (id) {
+      if (DEPTS[id] && !seen[id]) {
+        seen[id] = true;
+        out.push(id);
+      }
+    });
+    if (!out.length) out.push("sonstiges");
+    return out;
+  }
+
+  function load() {
+    var fallback = {
+      theme: "light",
+      currentStoreId: "rewe",
+      items: [],
+      mappings: {},
+      stores: seedStores()
+    };
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return fallback;
+      var d = JSON.parse(raw);
+      var stores = Array.isArray(d.stores) ? d.stores : [];
+      stores = stores.map(function (s) {
+        if (!s || !s.id || !s.name) return null;
+        return {
+          id: String(s.id),
+          name: String(s.name),
+          layout: sanitizeLayout(s.layout),
+          builtin: !!s.builtin
+        };
+      }).filter(Boolean);
+      SEEDS.forEach(function (seed) {
+        var found = null;
+        stores.forEach(function (s) {
+          if (s.id === seed.id) found = s;
+        });
+        if (!found) {
+          stores.push({ id: seed.id, name: seed.name, layout: seed.layout.slice(), builtin: true });
+        } else {
+          found.builtin = true;
+        }
+      });
+      if (!stores.length) stores = seedStores();
+      var items = Array.isArray(d.items) ? d.items : [];
+      items = items.map(function (it) {
+        if (!it || typeof it.name !== "string") return null;
+        var dept = DEPTS[it.dept] ? it.dept : "sonstiges";
+        return {
+          id: it.id ? String(it.id) : uid("i"),
+          name: it.name,
+          dept: dept,
+          done: !!it.done,
+          added: typeof it.added === "number" ? it.added : Date.now()
+        };
+      }).filter(Boolean);
+      var mappings = {};
+      if (d.mappings && typeof d.mappings === "object") {
+        Object.keys(d.mappings).forEach(function (k) {
+          if (DEPTS[d.mappings[k]]) mappings[k] = d.mappings[k];
+        });
+      }
+      var current = String(d.currentStoreId || "rewe");
+      var has = stores.some(function (s) { return s.id === current; });
+      if (!has) current = stores[0].id;
+      return {
+        theme: d.theme === "dark" ? "dark" : "light",
+        currentStoreId: current,
+        items: items,
+        mappings: mappings,
+        stores: stores
+      };
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flushSave, 80);
+  }
+
+  function flushSave() {
+    clearTimeout(saveTimer);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        theme: state.theme,
+        currentStoreId: state.currentStoreId,
+        items: state.items,
+        mappings: state.mappings,
+        stores: state.stores
+      }));
+    } catch (e) {}
+  }
+
+  function applyTheme() {
+    document.documentElement.setAttribute("data-theme", state.theme);
+    if (els.themeMeta) {
+      els.themeMeta.setAttribute("content", state.theme === "dark" ? THEME_DARK : THEME_LIGHT);
+    }
+    els.themeBtn.textContent = state.theme === "dark" ? "Hell" : "Dunkel";
+    els.themeBtn.setAttribute("aria-pressed", state.theme === "dark" ? "true" : "false");
+  }
+
+  function currentStore() {
+    var id = state.currentStoreId;
+    var found = null;
+    state.stores.forEach(function (s) {
+      if (s.id === id) found = s;
+    });
+    return found || state.stores[0];
+  }
+
+  function groupItems() {
+    var store = currentStore();
+    var layout = store.layout.slice();
+    var six = layout.indexOf("sonstiges");
+    if (six !== -1) {
+      layout.splice(six, 1);
+      layout.push("sonstiges");
+    }
+    var byDept = {};
+    state.items.forEach(function (it) {
+      var d = DEPTS[it.dept] ? it.dept : "sonstiges";
+      if (!byDept[d]) byDept[d] = [];
+      byDept[d].push(it);
+    });
+    var groups = [];
+    var used = {};
+    layout.forEach(function (d) {
+      if (byDept[d] && byDept[d].length) {
+        groups.push({ id: d, items: byDept[d] });
+        used[d] = true;
+      }
+    });
+    Object.keys(DEPTS).forEach(function (d) {
+      if (d === "sonstiges") return;
+      if (!used[d] && byDept[d] && byDept[d].length) {
+        groups.push({ id: d, items: byDept[d] });
+        used[d] = true;
+      }
+    });
+    if (!used.sonstiges && byDept.sonstiges && byDept.sonstiges.length) {
+      groups.push({ id: "sonstiges", items: byDept.sonstiges });
+    }
+    return groups;
+  }
+
+  function addItem(name) {
+    name = String(name || "").replace(/\s+/g, " ").trim();
+    if (!name) return;
+    state.items.push({
+      id: uid("i"),
+      name: name,
+      dept: guessDept(name),
+      done: false,
+      added: Date.now()
+    });
+    scheduleSave();
+    renderList();
+    renderCount();
+  }
+
+  function setItemDept(id, dept) {
+    if (!DEPTS[dept]) return;
+    state.items.forEach(function (it) {
+      if (it.id === id) {
+        it.dept = dept;
+        state.mappings[mappingKey(it.name)] = dept;
+      }
+    });
+    scheduleSave();
+    renderList();
+  }
+
+  function renderCount() {
+    var offen = 0;
+    var erledigt = 0;
+    state.items.forEach(function (it) {
+      if (it.done) erledigt += 1;
+      else offen += 1;
+    });
+    els.count.textContent = offen + " offen, " + erledigt + " erledigt";
+  }
+
+  function renderStoreSelect() {
+    var cur = state.currentStoreId;
+    var keep = els.store.value;
+    els.store.textContent = "";
+    state.stores.forEach(function (s) {
+      var opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.name;
+      if (s.id === cur) opt.selected = true;
+      els.store.appendChild(opt);
+    });
+    if (keep && keep !== els.store.value) {
+      /* re-assert current */
+    }
+  }
+
+  function renderList() {
+    els.list.textContent = "";
+    if (!state.items.length) {
+      var empty = document.createElement("p");
+      empty.className = "empty";
+      empty.textContent = "Noch nichts auf der Liste.";
+      els.list.appendChild(empty);
+      return;
+    }
+    var groups = groupItems();
+    groups.forEach(function (g) {
+      var sec = document.createElement("section");
+      sec.className = "dept";
+      var h = document.createElement("h2");
+      h.textContent = DEPTS[g.id];
+      sec.appendChild(h);
+      var ul = document.createElement("ul");
+      ul.className = "items";
+      g.items.forEach(function (it) {
+        ul.appendChild(renderRow(it));
+      });
+      sec.appendChild(ul);
+      els.list.appendChild(sec);
+    });
+  }
+
+  function renderRow(it) {
+    var li = document.createElement("li");
+    li.className = "row" + (it.done ? " done" : "");
+
+    var lab = document.createElement("label");
+    lab.className = "chk";
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = it.done;
+    cb.setAttribute("aria-label", (it.done ? "Erledigt: " : "Offen: ") + it.name);
+    cb.addEventListener("change", function () {
+      it.done = cb.checked;
+      scheduleSave();
+      renderList();
+      renderCount();
+    });
+    lab.appendChild(cb);
+
+    var name = document.createElement("span");
+    name.className = "name";
+    name.textContent = it.name;
+
+    var sel = document.createElement("select");
+    sel.className = "dept-sel";
+    sel.setAttribute("aria-label", "Abteilung für " + it.name);
+    Object.keys(DEPTS).forEach(function (d) {
+      var opt = document.createElement("option");
+      opt.value = d;
+      opt.textContent = DEPTS[d];
+      if (d === it.dept) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener("change", function () {
+      setItemDept(it.id, sel.value);
+    });
+
+    var del = document.createElement("button");
+    del.type = "button";
+    del.className = "iconbtn del";
+    del.setAttribute("aria-label", "Löschen");
+    del.textContent = "×";
+    del.addEventListener("click", function () {
+      state.items = state.items.filter(function (x) { return x.id !== it.id; });
+      scheduleSave();
+      renderList();
+      renderCount();
+    });
+
+    li.appendChild(lab);
+    li.appendChild(name);
+    li.appendChild(sel);
+    li.appendChild(del);
+    return li;
+  }
+
+  function setStatus(msg) {
+    els.status.textContent = msg || "";
+    clearTimeout(statusTimer);
+    if (msg) {
+      statusTimer = setTimeout(function () {
+        els.status.textContent = "";
+      }, 2500);
+    }
+  }
+
+  function toMarkdown() {
+    var store = currentStore();
+    var groups = groupItems();
+    var lines = ["# Einkauf — " + store.name, ""];
+    groups.forEach(function (g) {
+      lines.push("## " + DEPTS[g.id]);
+      g.items.forEach(function (it) {
+        lines.push("- [" + (it.done ? "x" : " ") + "] " + it.name);
+      });
+      lines.push("");
+    });
+    return lines.join("\n").replace(/\n+$/, "\n");
+  }
+
+  function slugify(name) {
+    var s = canon(name).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return s || "liste";
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function copyMd() {
+    var md = toMarkdown();
+    function ok() { setStatus("Kopiert."); }
+    function fail() { setStatus("Kopieren fehlgeschlagen."); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(md).then(ok).catch(function () {
+        if (fallbackCopy(md)) ok();
+        else fail();
+      });
+    } else if (fallbackCopy(md)) {
+      ok();
+    } else {
+      fail();
+    }
+  }
+
+  function shareMd() {
+    if (!navigator.share) return;
+    var store = currentStore();
+    var md = toMarkdown();
+    navigator.share({ title: "Einkauf — " + store.name, text: md }).then(function () {
+      setStatus("Geteilt.");
+    }).catch(function (err) {
+      if (err && err.name === "AbortError") return;
+      setStatus("Teilen nicht möglich.");
+    });
+  }
+
+  function downloadMd() {
+    var store = currentStore();
+    var md = toMarkdown();
+    var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+    var a = document.createElement("a");
+    var url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = "einkauf-" + slugify(store.name) + ".md";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    setStatus("Datei gespeichert.");
+  }
+
+  function openSheet() {
+    if (sheetOpen) return;
+    sheetOpen = true;
+    els.sheet.hidden = false;
+    els.scrim.hidden = false;
+    els.layoutBtn.setAttribute("aria-expanded", "true");
+    document.body.classList.add("locked");
+    renderSheet();
+    requestAnimationFrame(function () {
+      els.sheet.classList.add("open");
+      els.scrim.classList.add("open");
+    });
+    els.sheetClose.focus();
+  }
+
+  function closeSheet() {
+    if (!sheetOpen) return;
+    sheetOpen = false;
+    els.sheet.classList.remove("open");
+    els.scrim.classList.remove("open");
+    els.layoutBtn.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("locked");
+    clearTimeout(sheetCloser);
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var done = function () {
+      els.sheet.hidden = true;
+      els.scrim.hidden = true;
+      els.layoutBtn.focus();
+    };
+    if (reduce) done();
+    else sheetCloser = setTimeout(done, 230);
+  }
+
+  function renderSheet() {
+    var store = currentStore();
+    els.sheetStore.textContent = store.name;
+    els.layoutList.textContent = "";
+    store.layout.forEach(function (id, idx) {
+      var li = document.createElement("li");
+      li.className = "layout-row";
+      var nm = document.createElement("span");
+      nm.className = "layout-name";
+      nm.textContent = DEPTS[id] || id;
+      var btns = document.createElement("div");
+      btns.className = "layout-btns";
+
+      var up = document.createElement("button");
+      up.type = "button";
+      up.textContent = "Nach oben";
+      up.disabled = idx === 0;
+      up.addEventListener("click", function () { moveDept(idx, -1); });
+
+      var down = document.createElement("button");
+      down.type = "button";
+      down.textContent = "Nach unten";
+      down.disabled = idx === store.layout.length - 1;
+      down.addEventListener("click", function () { moveDept(idx, 1); });
+
+      var rm = document.createElement("button");
+      rm.type = "button";
+      rm.textContent = "Entfernen";
+      rm.disabled = store.layout.length <= 1;
+      rm.addEventListener("click", function () { removeDept(id); });
+
+      btns.appendChild(up);
+      btns.appendChild(down);
+      btns.appendChild(rm);
+      li.appendChild(nm);
+      li.appendChild(btns);
+      els.layoutList.appendChild(li);
+    });
+
+    els.unused.textContent = "";
+    var unusedCount = 0;
+    Object.keys(DEPTS).forEach(function (d) {
+      if (store.layout.indexOf(d) !== -1) return;
+      unusedCount += 1;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = DEPTS[d];
+      b.addEventListener("click", function () { addDeptToLayout(d); });
+      els.unused.appendChild(b);
+    });
+    if (!unusedCount) {
+      var p = document.createElement("p");
+      p.className = "hint";
+      p.textContent = "Alle Abteilungen sind im Layout.";
+      els.unused.appendChild(p);
+    }
+
+    els.resetBtn.hidden = !store.builtin;
+    els.deleteBtn.hidden = !!store.builtin;
+  }
+
+  function moveDept(idx, dir) {
+    var store = currentStore();
+    var j = idx + dir;
+    if (j < 0 || j >= store.layout.length) return;
+    var t = store.layout[idx];
+    store.layout[idx] = store.layout[j];
+    store.layout[j] = t;
+    scheduleSave();
+    renderList();
+    renderSheet();
+  }
+
+  function addDeptToLayout(id) {
+    var store = currentStore();
+    if (!DEPTS[id] || store.layout.indexOf(id) !== -1) return;
+    store.layout.push(id);
+    scheduleSave();
+    renderList();
+    renderSheet();
+  }
+
+  function removeDept(id) {
+    var store = currentStore();
+    if (store.layout.length <= 1) return;
+    store.layout = store.layout.filter(function (d) { return d !== id; });
+    if (!store.layout.length) store.layout.push("sonstiges");
+    scheduleSave();
+    renderList();
+    renderSheet();
+  }
+
+  function resetLayout() {
+    var store = currentStore();
+    var seed = null;
+    SEEDS.forEach(function (s) { if (s.id === store.id) seed = s; });
+    if (!seed) return;
+    store.layout = seed.layout.slice();
+    scheduleSave();
+    renderList();
+    renderSheet();
+    setStatus("Layout zurückgesetzt.");
+  }
+
+  function createStore() {
+    var name = String(els.newName.value || "").replace(/\s+/g, " ").trim();
+    if (!name) {
+      setStatus("Bitte einen Namen eingeben.");
+      els.newName.focus();
+      return;
+    }
+    var id = uid("s");
+    state.stores.push({
+      id: id,
+      name: name,
+      layout: currentStore().layout.slice(),
+      builtin: false
+    });
+    state.currentStoreId = id;
+    els.newName.value = "";
+    scheduleSave();
+    renderStoreSelect();
+    renderList();
+    renderSheet();
+    setStatus("Laden angelegt.");
+  }
+
+  function deleteStore() {
+    var store = currentStore();
+    if (store.builtin) return;
+    if (!window.confirm("Laden „" + store.name + "“ wirklich löschen?")) return;
+    state.stores = state.stores.filter(function (s) { return s.id !== store.id; });
+    if (!state.stores.length) state.stores = seedStores();
+    state.currentStoreId = state.stores[0].id;
+    scheduleSave();
+    renderStoreSelect();
+    renderList();
+    renderSheet();
+    setStatus("Laden gelöscht.");
+  }
+})();
+</script>
+</body>
+</html>
