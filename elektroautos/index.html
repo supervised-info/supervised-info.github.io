@@ -187,6 +187,13 @@ h1 {
   display: grid;
   grid-template-columns: var(--rail) 1fr;
 }
+.work.filters-off { grid-template-columns: 1fr; }
+.work.filters-off .rail { display: none; }
+#filterBtn[aria-expanded="true"] {
+  background: var(--oxide);
+  border-color: var(--oxide);
+  color: #fff;
+}
 .rail {
   min-height: 0;
   overflow: auto;
@@ -653,6 +660,7 @@ thead .col-filter::placeholder { color: rgba(255,255,255,.4); }
 .importbar.show { display: flex; }
 @media (max-width: 860px) {
   .work { grid-template-columns: 1fr; }
+  .work.filters-off .rail { display: block; }
   .rail {
     position: fixed;
     top: 0;
@@ -686,7 +694,7 @@ thead .col-filter::placeholder { color: rgba(255,255,255,.4); }
     <div class="mast-row">
       <p class="kicker"><a href="../">supervised-info</a> · 02</p>
       <div class="mast-actions">
-        <button type="button" class="iconbtn only-narrow" id="filterBtn" aria-controls="rail" aria-expanded="false">Filter</button>
+        <button type="button" class="iconbtn" id="filterBtn" aria-controls="rail" aria-expanded="true">Filter</button>
         <button type="button" class="iconbtn" id="themeBtn" aria-pressed="false">Dunkel</button>
       </div>
     </div>
@@ -696,11 +704,11 @@ thead .col-filter::placeholder { color: rgba(255,255,255,.4); }
       <p class="hero-meta" id="matchCount" aria-live="polite">Lade Daten…</p>
     </div>
   </header>
-  <div class="work">
+  <div class="work" id="work">
     <aside class="rail" id="rail" aria-label="Filter">
       <div class="rail-head">
         <h2>Eingrenzen</h2>
-        <button type="button" class="iconbtn only-narrow" id="closeRail" aria-label="Filter schließen">Schließen</button>
+        <button type="button" class="iconbtn" id="closeRail" aria-label="Filter schließen">Schließen</button>
       </div>
       <fieldset>
         <legend>Klasse</legend>

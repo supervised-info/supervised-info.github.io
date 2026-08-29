@@ -845,19 +845,30 @@
     renderBody();
     if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (e) {}
   }
-  function openRail() {
-    $("rail").classList.add("open");
-    $("scrim").hidden = false;
-    $("scrim").classList.add("show");
-    $("filterBtn").setAttribute("aria-expanded", "true");
+  function isNarrow() {
+    return window.matchMedia && window.matchMedia("(max-width: 860px)").matches;
   }
-  function closeRail() {
-    $("rail").classList.remove("open");
-    $("filterBtn").setAttribute("aria-expanded", "false");
-    if (!$("sheet").classList.contains("open")) {
+  function setRail(on) {
+    $("rail").classList.toggle("open", !!on);
+    $("work").classList.toggle("filters-off", !on);
+    $("filterBtn").setAttribute("aria-expanded", on ? "true" : "false");
+    if (on && isNarrow()) {
+      $("scrim").hidden = false;
+      $("scrim").classList.add("show");
+    } else if (!$("sheet").classList.contains("open")) {
       $("scrim").classList.remove("show");
       $("scrim").hidden = true;
     }
+    try { localStorage.setItem(LS + "filters", on ? "on" : "off"); } catch (e) {}
+  }
+  function openRail() { setRail(true); }
+  function closeRail() { setRail(false); }
+  function initFilters() {
+    var v = null;
+    try { v = localStorage.getItem(LS + "filters"); } catch (e) {}
+    if (v === "on") setRail(true);
+    else if (v === "off") setRail(false);
+    else setRail(!isNarrow());
   }
 
   function applyAll(opts) {
@@ -1303,6 +1314,7 @@
   }
   function boot() {
     initTheme();
+    initFilters();
     bind();
     fetch("./data.json")
       .then(function (r) {
