@@ -1180,21 +1180,24 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     }
   }
 
-  function toBringText() {
-    var store = currentStore();
-    var groups = groupItems();
+  function toBringIngredients() {
     var n = 0;
-    var lines = [];
-    groups.forEach(function (g) {
+    var ings = [];
+    groupItems().forEach(function (g) {
       g.items.forEach(function (it) {
         if (it.done) return;
         n += 1;
         var num = n < 10 ? "0" + n : String(n);
-        lines.push(num + " " + it.name);
+        ings.push(num + " " + it.name);
       });
     });
-    if (!lines.length) return "";
-    return "Einkauf " + store.name + "\n\n" + lines.join("\n") + "\n";
+    return ings;
+  }
+
+  function toBringText() {
+    var ings = toBringIngredients();
+    if (!ings.length) return "";
+    return "Einkauf " + currentStore().name + "\n\n" + ings.join("\n") + "\n";
   }
 
   function copyBringText(text, okMsg) {
@@ -1208,23 +1211,44 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     }
   }
 
+  function utf8ToB64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
   function shareBring() {
-    var text = toBringText();
-    if (!text) {
+    var ings = toBringIngredients();
+    if (!ings.length) {
       setStatus("Nichts Offenes zum Mitnehmen.");
       return;
     }
     var store = currentStore();
-    if (navigator.share) {
-      navigator.share({ title: "Einkauf — " + store.name, text: text }).then(function () {
-        setStatus("Bring im Teilen-Menü wählen.");
-      }).catch(function (err) {
-        if (err && err.name === "AbortError") return;
-        copyBringText(text, "Kopiert. In Bring einfügen.");
-      });
+    var title = "Einkauf " + store.name;
+    var recipe = {
+      "@context": "https://schema.org",
+      "@type": "Recipe",
+      name: title,
+      author: { "@type": "Person", name: "supervised-info" },
+      recipeIngredient: ings
+    };
+    var html = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title></title>" +
+      "<script type=\"application/ld+json\">" +
+      JSON.stringify(recipe).replace(/</g, "\\u003c") +
+      "</script></head><body></body></html>";
+    var src = "https://httpbin.org/base64/" + utf8ToB64(html);
+    var href = "https://api.getbring.com/rest/bringrecipes/deeplink?url=" +
+      encodeURIComponent(src) + "&source=web&baseQuantity=1&requestedQuantity=1";
+    if (href.length > 7500) {
+      copyBringText(toBringText(), "Liste zu lang für den Bring-Link. Kopiert.");
       return;
     }
-    copyBringText(text, "Kopiert. In Bring einfügen.");
+    setStatus("Öffnet Bring…");
+    var a = document.createElement("a");
+    a.href = href;
+    a.target = "_blank";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   function shareMd() {
