@@ -558,19 +558,22 @@
     });
     tb.innerHTML = html;
   }
+  function filtersActive() {
+    if (state.q && state.q.trim()) return true;
+    if (!state.classes.pkw || !state.classes.camper || !state.classes.nutz) return true;
+    if (!state.status.aktuell || !state.status.alt) return true;
+    if (RANGE_DEFS.some(function (d) { return !rangeAtFull(d.key); })) return true;
+    if ((state.marken && state.marken.length) || (state.segments && state.segments.length) ||
+        (state.drives && state.drives.length) || (state.chemie && state.chemie.length)) return true;
+    var tog = state.tog || {};
+    for (var k in tog) { if (tog[k]) return true; }
+    var cf = state.colFilters || {};
+    for (var c in cf) { if (String(cf[c] || "").trim()) return true; }
+    return false;
+  }
   function renderCount() {
     var txt = "<strong>" + filtered.length + "</strong> von " + data.length;
-    var bits = [];
-    if (state.q.trim()) bits.push("Suche aktiv");
-    var cls = [];
-    if (state.classes.pkw) cls.push("Pkw");
-    if (state.classes.camper) cls.push("Camper");
-    if (state.classes.nutz) cls.push("Nutzfahrzeuge");
-    if (cls.length === 1) bits.push("nur " + cls[0]);
-    else if (cls.length === 2) bits.push(cls.join(" + "));
-    if (state.status.aktuell && !state.status.alt) bits.push("nur aktuell");
-    else if (!state.status.aktuell && state.status.alt) bits.push("nur veraltet");
-    if (bits.length) txt += " · " + bits.join(", ");
+    if (filtersActive()) txt += " (gefiltert)";
     $("matchCount").innerHTML = txt;
   }
   function renderFoot() {
