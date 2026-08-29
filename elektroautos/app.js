@@ -1118,6 +1118,9 @@
     $("themeBtn").addEventListener("click", function () {
       applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
     });
+    $("paletteBtn").addEventListener("click", function () {
+      applyPalette(document.documentElement.getAttribute("data-palette") === "vintage" ? "navy" : "vintage");
+    });
     $("filterBtn").addEventListener("click", function () {
       if ($("rail").classList.contains("open")) closeRail(); else openRail();
     });
@@ -1294,13 +1297,27 @@
     });
   }
 
+  function chromeColor() {
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+    var vintage = document.documentElement.getAttribute("data-palette") === "vintage";
+    if (vintage) return dark ? "#14110e" : "#f3eee4";
+    return dark ? "#060c1a" : "#f0f4ff";
+  }
   function applyTheme(t) {
     document.documentElement.setAttribute("data-theme", t);
     $("themeBtn").textContent = t === "dark" ? "Hell" : "Dunkel";
     $("themeBtn").setAttribute("aria-pressed", t === "dark" ? "true" : "false");
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute("content", t === "dark" ? "#060c1a" : "#f0f4ff");
+    if (m) m.setAttribute("content", chromeColor());
     lsSet("theme", t);
+  }
+  function applyPalette(p) {
+    document.documentElement.setAttribute("data-palette", p);
+    $("paletteBtn").textContent = p === "vintage" ? "Blau" : "Creme";
+    $("paletteBtn").setAttribute("aria-pressed", p === "vintage" ? "true" : "false");
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute("content", chromeColor());
+    lsSet("palette", p);
   }
   function initTheme() {
     var t = null;
@@ -1315,6 +1332,14 @@
       t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
     }
     applyTheme(t);
+    var p = null;
+    try {
+      var praw = localStorage.getItem(LS + "palette");
+      if (praw === "vintage" || praw === "navy") p = praw;
+      else if (praw) p = JSON.parse(praw);
+    } catch (e) {}
+    if (p !== "vintage" && p !== "navy") p = "navy";
+    applyPalette(p);
   }
   function afterData() {
     applyWish();
