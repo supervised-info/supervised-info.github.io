@@ -121,13 +121,16 @@
     { key: "preis.versicherung_eur_jahr", label: "Vers. €/J", kind: "range", group: "Kosten" },
     { key: "service.wartungsintervall", label: "Wartung", group: "Kosten" },
     { key: "service.wartungskosten_eur", label: "Wartung €", kind: "range", group: "Kosten" },
+    { key: "service.garantie_relevant", label: "Wartung relevant für Garantie", kind: "bool", group: "Kosten" },
     { key: "abmessungen.nutzlast_kg", label: "Nutzlast kg", kind: "num", group: "LKW" },
     { key: "abmessungen.anzahl_achsen", label: "Achsen", kind: "num", group: "LKW" },
     { key: "antrieb.achskonfiguration", label: "Achskonf.", group: "LKW" },
     { key: "abmessungen.laderaum_m3", label: "Laderaum m3", kind: "num", group: "LKW" },
     { key: "abmessungen.fuehrerhaus", label: "Führerhaus", group: "LKW" },
     { key: "produktionsland", label: "Prod.land", group: "Specs" },
-    { key: "modelljahr", label: "Modelljahr", group: "Specs" }
+    { key: "modelljahr", label: "Modelljahr", group: "Specs" },
+    { key: "produkt_url", label: "Link zur Internetseite", kind: "link", group: "Specs" },
+    { key: "bild_url", label: "Link zum Bild des Fahrzeuges", kind: "link", group: "Specs" }
   ];
 
   var GROUPS = ["Sicherheit", "Motor", "Batterie", "Laden", "Reichweite", "Abmessungen", "Specs", "Kosten", "LKW"];
@@ -476,6 +479,12 @@
       if (v == null || v === "") return '<span class="muted">-</span>';
       if (v === "Option") return "Option";
       return truthy(v) ? '<span class="bool-y">Ja</span>' : '<span class="bool-n">Nein</span>';
+    }
+    if (col.kind === "link") {
+      if (v == null || v === "" || !isSafeUrl(v)) return '<span class="muted">-</span>';
+      var safe = esc(v);
+      var txt = col.key === "bild_url" ? "Bild" : "Seite";
+      return '<a class="cell-link" href="' + safe + '" target="_blank" rel="noopener noreferrer" title="' + safe + '">' + txt + '</a>';
     }
     if (col.kind === "eur") {
       var n = pickNum(v, "min");
