@@ -539,6 +539,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     <button type="button" class="chipbtn" id="btn-share">Teilen</button>
     <button type="button" class="chipbtn" id="btn-bring">Bring</button>
     <button type="button" class="chipbtn" id="btn-file">Datei</button>
+    <button type="button" class="chipbtn" id="btn-import">Import</button>
+    <input id="import-file" class="sr-only" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain">
     <button type="button" class="chipbtn" id="btn-clear">Erledigte löschen</button>
   </div>
   <p class="status" id="status" role="status" aria-live="polite"></p>
@@ -613,6 +615,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     shareBtn: document.getElementById("btn-share"),
     bringBtn: document.getElementById("btn-bring"),
     fileBtn: document.getElementById("btn-file"),
+    importBtn: document.getElementById("btn-import"),
+    importFile: document.getElementById("import-file"),
     clearBtn: document.getElementById("btn-clear"),
     scrim: document.getElementById("scrim"),
     sheet: document.getElementById("sheet"),
@@ -663,6 +667,12 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   els.shareBtn.addEventListener("click", shareMd);
   els.bringBtn.addEventListener("click", shareBring);
   els.fileBtn.addEventListener("click", downloadMd);
+  els.importBtn.addEventListener("click", function () { els.importFile.click(); });
+  els.importFile.addEventListener("change", function () {
+    var f = els.importFile.files && els.importFile.files[0];
+    els.importFile.value = "";
+    importMdFile(f);
+  });
   els.clearBtn.addEventListener("click", function () {
     state.items = state.items.filter(function (it) { return !it.done; });
     scheduleSave();
@@ -1129,6 +1139,85 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
         els.status.textContent = "";
       }, 2500);
     }
+  }
+
+  function deptFromHeading(line) {
+    var h = line.replace(/^#+\s*/, "").trim();
+    var c = canon(h);
+    var id;
+    for (id in DEPTS) {
+      if (Object.prototype.hasOwnProperty.call(DEPTS, id) && (canon(DEPTS[id]) === c || id === c)) {
+        return id;
+      }
+    }
+    return "";
+  }
+
+  function parseMarkdown(text) {
+    var lines = String(text).replace(/\r\n/g, "\n").split("\n");
+    var dept = "";
+    var items = [];
+    var now = Date.now();
+    lines.forEach(function (raw) {
+      var line = raw.trim();
+      if (!line) return;
+      if (/^#+\s+/.test(line)) {
+        dept = deptFromHeading(line);
+        return;
+      }
+      var name = "";
+      var done = false;
+      var m = line.match(/^[-*+]\s+\[([ xX])\]\s+(.*)$/);
+      if (m) {
+        done = m[1] !== " ";
+        name = m[2];
+      } else {
+        m = line.match(/^[-*+]\s+(.*)$/);
+        if (m) name = m[1];
+        else {
+          m = line.match(/^\d+[.)]\s+(.*)$/);
+          if (m) name = m[1];
+        }
+      }
+      name = String(name || "").replace(/\s+/g, " ").trim();
+      name = name.replace(/^\d{2}\s+/, "");
+      if (!name) return;
+      items.push({
+        id: uid("i"),
+        name: name,
+        dept: dept || guessDept(name),
+        done: done,
+        added: now
+      });
+    });
+    return items;
+  }
+
+  function importMdFile(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var items = parseMarkdown(String(reader.result || ""));
+      if (!items.length) {
+        setStatus("Keine Artikel in der Datei.");
+        return;
+      }
+      if (state.items.length) {
+        var replace = window.confirm("Aktuelle Liste ersetzen?\nOK = ersetzen, Abbrechen = dazunehmen.");
+        if (replace) state.items = items;
+        else state.items = state.items.concat(items);
+      } else {
+        state.items = items;
+      }
+      scheduleSave();
+      renderList();
+      renderCount();
+      setStatus(items.length + " Artikel importiert.");
+    };
+    reader.onerror = function () {
+      setStatus("Datei konnte nicht gelesen werden.");
+    };
+    reader.readAsText(file, "utf-8");
   }
 
   function toMarkdown() {
