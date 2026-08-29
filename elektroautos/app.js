@@ -1261,11 +1261,11 @@
     $("themeBtn").textContent = t === "dark" ? "Hell" : "Dunkel";
     $("themeBtn").setAttribute("aria-pressed", t === "dark" ? "true" : "false");
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute("content", t === "dark" ? "#14110e" : "#f3eee4");
+    if (m) m.setAttribute("content", t === "dark" ? "#060c1a" : "#f0f4ff");
     lsSet("theme", t);
   }
   function initTheme() {
-    var t = "light";
+    var t = null;
     try {
       var raw = localStorage.getItem(LS + "theme");
       if (raw) {
@@ -1273,7 +1273,10 @@
         else t = JSON.parse(raw);
       }
     } catch (e) {}
-    applyTheme(t === "dark" ? "dark" : "light");
+    if (t !== "dark" && t !== "light") {
+      t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+    }
+    applyTheme(t);
   }
   function afterData() {
     applyWish();

@@ -5,44 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Elektroautos, im Vergleich</title>
 <meta name="description" content="Eigenständige Vergleichstabelle für Elektroautos: Suche, Filter, merken, gegenüberstellen.">
-<meta name="theme-color" content="#f3eee4">
+<meta name="theme-color" content="#f0f4ff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect fill=%22%231c1814%22 width=%2232%22 height=%2232%22/%3E%3Cpath fill=%22none%22 stroke=%22%23e8d9c0%22 stroke-width=%221.4%22 d=%22M16 4 L28 28 H4 Z%22/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect fill=%22%23060c1a%22 width=%2232%22 height=%2232%22/%3E%3Cpath fill=%22none%22 stroke=%22%234a94ff%22 stroke-width=%221.4%22 d=%22M16 4 L28 28 H4 Z%22/%3E%3C/svg%3E">
 <style>
 :root {
-  --paper: #f3eee4;
-  --paper-2: #e9e1d2;
-  --paper-3: #dfd5c4;
-  --ink: #1c1814;
-  --muted: #5e564d;
-  --rule: #d2c8b8;
-  --oxide: #9c3424;
-  --oxide-soft: rgba(156, 52, 36, 0.11);
-  --slate: #2a5564;
-  --ochre: #c4a35a;
-  --good: #2c6a4a;
-  --hit: rgba(196, 163, 90, 0.32);
+  --paper: #f0f4ff;
+  --paper-2: #ffffff;
+  --paper-3: #e8ecf8;
+  --ink: #08102a;
+  --muted: #4a6080;
+  --rule: #bfcfe8;
+  --oxide: #2060df;
+  --oxide-soft: #dce6ff;
+  --slate: #2060df;
+  --ochre: #d97706;
+  --good: #059669;
+  --hit: rgba(32, 96, 223, 0.18);
   --serif: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
   --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
   --mono: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
   --rail: 19.25rem;
   --mast: 0px;
-  --shadow: 0 18px 50px rgba(28, 24, 20, 0.18);
+  --shadow: 0 18px 50px rgba(8, 16, 42, 0.18);
+  --header-bg: #08102a;
+  --header-text: #ffffff;
 }
 html[data-theme="dark"] {
-  --paper: #14110e;
-  --paper-2: #1d1915;
-  --paper-3: #2a241d;
-  --ink: #f3eee4;
-  --muted: #b3aa9c;
-  --rule: #3d362c;
-  --oxide: #e07060;
-  --oxide-soft: rgba(224, 112, 96, 0.16);
-  --slate: #8eb8c8;
-  --ochre: #d4b56c;
-  --good: #7dba96;
-  --hit: rgba(212, 181, 108, 0.22);
+  --paper: #060c1a;
+  --paper-2: #0c1828;
+  --paper-3: #102038;
+  --ink: #edf2ff;
+  --muted: #6e8fb0;
+  --rule: #1b2f4a;
+  --oxide: #4a94ff;
+  --oxide-soft: #0a1e40;
+  --slate: #4a94ff;
+  --ochre: #fbbf24;
+  --good: #34d399;
+  --hit: rgba(74, 148, 255, 0.22);
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  --header-bg: #060c1a;
+  --header-text: #edf2ff;
   color-scheme: dark;
 }
 html[data-theme="light"] { color-scheme: light; }
@@ -73,8 +77,8 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse at 0% 0%, rgba(156, 52, 36, 0.05), transparent 42%),
-    radial-gradient(ellipse at 100% 8%, rgba(42, 85, 100, 0.045), transparent 40%);
+    radial-gradient(ellipse at 0% 0%, rgba(74, 148, 255, 0.08), transparent 42%),
+    radial-gradient(ellipse at 100% 8%, rgba(32, 96, 223, 0.06), transparent 40%);
 }
 .skip {
   position: absolute;
@@ -173,11 +177,7 @@ h1 {
 .chip[aria-pressed="true"], .chip.active, .gchip.active {
   background: var(--oxide);
   border-color: var(--oxide);
-  color: #f7efe6;
-}
-html[data-theme="dark"] .chip[aria-pressed="true"],
-html[data-theme="dark"] .gchip.active {
-  color: #1c1814;
+  color: #fff;
 }
 .work {
   flex: 1;
@@ -432,8 +432,8 @@ thead th {
   position: sticky;
   top: 0;
   z-index: 4;
-  background: var(--paper-2);
-  color: var(--muted);
+  background: var(--header-bg);
+  color: var(--header-text);
   font-size: 0.65rem;
   font-weight: 650;
   letter-spacing: 0.08em;
@@ -446,7 +446,7 @@ thead th {
   user-select: none;
   vertical-align: bottom;
 }
-thead th.sorted { color: var(--oxide); }
+thead th.sorted { color: var(--header-text); }
 thead .sort { opacity: 0.35; font-size: 0.58rem; margin-left: 0.2rem; }
 thead th.sorted .sort { opacity: 1; }
 td {
@@ -461,7 +461,7 @@ tbody tr { cursor: pointer; }
 tbody tr:hover td { background: var(--paper-2); }
 tbody tr.pinned td { background: var(--oxide-soft); }
 tbody tr.open td { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--oxide) 45%, transparent); }
-tbody tr.stale td.modell { }
+tbody tr.stale td, tbody tr.alt td { background: rgba(239, 68, 68, .06); }
 .muted { color: var(--muted); }
 .badge {
   display: inline-block;
@@ -493,6 +493,10 @@ td.s0, th.s0, td.s1, th.s1, td.s2, th.s2, td.s3, th.s3 {
   background: var(--paper);
   box-shadow: 1px 0 0 var(--rule);
 }
+thead th.s0, thead th.s1, thead th.s2, thead th.s3 {
+  background: var(--header-bg);
+  color: var(--header-text);
+}
 tbody tr:hover td.s0, tbody tr:hover td.s1, tbody tr:hover td.s2, tbody tr:hover td.s3 { background: var(--paper-2); }
 tbody tr.pinned td.s0, tbody tr.pinned td.s1, tbody tr.pinned td.s2, tbody tr.pinned td.s3 { background: color-mix(in srgb, var(--oxide) 14%, var(--paper)); }
 .pin input, .wish { accent-color: var(--oxide); }
@@ -517,6 +521,12 @@ tbody tr.pinned td.s0, tbody tr.pinned td.s1, tbody tr.pinned td.s2, tbody tr.pi
   font-size: 0.68rem;
   border-radius: 3px;
 }
+thead .col-filter {
+  background: rgba(255,255,255,.1);
+  color: var(--header-text);
+  border-color: rgba(255,255,255,.2);
+}
+thead .col-filter::placeholder { color: rgba(255,255,255,.4); }
 .show-cf .col-filter { display: block; }
 .compare {
   flex-shrink: 0;
@@ -540,7 +550,7 @@ tbody tr.pinned td.s0, tbody tr.pinned td.s1, tbody tr.pinned td.s2, tbody tr.pi
   flex-wrap: wrap;
 }
 .compare table { min-width: 100%; font-size: 0.75rem; }
-.compare th, .compare td { background: var(--paper); }
+.compare th, .compare td { background: var(--paper); color: var(--ink); }
 .compare td.diff { font-weight: 650; }
 .compare .same { color: var(--muted); }
 .compare .unpin {
@@ -561,7 +571,7 @@ tbody tr.pinned td.s0, tbody tr.pinned td.s1, tbody tr.pinned td.s2, tbody tr.pi
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(28, 24, 20, 0.38);
+  background: rgba(8, 16, 42, 0.38);
   z-index: 30;
 }
 .sheet {
