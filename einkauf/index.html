@@ -279,6 +279,26 @@ h1 {
   min-width: 0;
   overflow-wrap: anywhere;
   padding: 0.35rem 0.15rem;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  border-radius: 6px;
+  cursor: text;
+}
+.name:hover { background: var(--oxide-soft); }
+.name-edit {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  border: 0;
+  border-bottom: 1.5px solid var(--oxide);
+  background: transparent;
+  padding: 0.35rem 0.15rem;
+  font: inherit;
+  color: inherit;
+  border-radius: 0;
 }
 .row.done .name {
   text-decoration: line-through;
@@ -681,9 +701,9 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     return s
       .replace(/[-–—]/g, " ")
       .replace(/\b\d+([.,]\d+)?\s*x\b/g, " ")
-      .replace(/\b\d+([.,]\d+)?\s*(kg|g|mg|ml|cl|dl|l|stk|stueck|pck|pack)\b/g, " ")
+      .replace(/\b\d+([.,]\d+)?\s*(kg|g|mg|ml|cl|dl|l|stk|stueck|stuck|packung|packungen|pck|pack)\b/g, " ")
       .replace(/\b\d+([.,]\d+)?\b/g, " ")
-      .replace(/\b(kg|g|mg|ml|cl|dl|l|stk|stueck|x)\b/g, " ")
+      .replace(/\b(kg|g|mg|ml|cl|dl|l|stk|stueck|stuck|packung|packungen|pck|pack|x)\b/g, " ")
       .replace(/\s+/g, " ")
       .trim();
   }
@@ -923,6 +943,51 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     renderList();
   }
 
+  function renameItem(it, newName) {
+    newName = String(newName || "").replace(/\s+/g, " ").trim();
+    if (!newName) {
+      renderList();
+      return;
+    }
+    var oldKey = mappingKey(it.name);
+    it.name = newName;
+    var newKey = mappingKey(it.name);
+    if (newKey !== oldKey) it.dept = guessDept(newName);
+    state.mappings[newKey] = it.dept;
+    scheduleSave();
+    renderList();
+    renderCount();
+  }
+
+  function startEdit(it, nameEl) {
+    var input = document.createElement("input");
+    input.type = "text";
+    input.className = "name-edit";
+    input.value = it.name;
+    input.setAttribute("aria-label", "Artikel bearbeiten");
+    nameEl.replaceWith(input);
+    input.focus();
+    input.select();
+    var done = false;
+    function finish(save) {
+      if (done) return;
+      done = true;
+      if (save) renameItem(it, input.value);
+      else renderList();
+    }
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        finish(true);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        finish(false);
+      }
+    });
+    input.addEventListener("blur", function () { finish(true); });
+  }
+
   function renderCount() {
     var offen = 0;
     var erledigt = 0;
@@ -993,9 +1058,12 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     });
     lab.appendChild(cb);
 
-    var name = document.createElement("span");
+    var name = document.createElement("button");
+    name.type = "button";
     name.className = "name";
     name.textContent = it.name;
+    name.title = "Tippen zum Bearbeiten";
+    name.addEventListener("click", function () { startEdit(it, name); });
 
     var sel = document.createElement("select");
     sel.className = "dept-sel";
