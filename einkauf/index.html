@@ -905,7 +905,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
 
   function groupItems() {
-    var store = currentStore();
     var layout = store.layout.slice();
     var six = layout.indexOf("sonstiges");
     if (six !== -1) {
@@ -1132,7 +1131,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
 
   function toMarkdown() {
-    var store = currentStore();
     var groups = groupItems();
     var lines = ["# Einkauf — " + store.name, ""];
     groups.forEach(function (g) {
@@ -1221,39 +1219,35 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       setStatus("Nichts Offenes zum Mitnehmen.");
       return;
     }
-    var store = currentStore();
     var title = "Einkauf " + store.name;
     var recipe = {
       "@context": "https://schema.org",
       "@type": "Recipe",
       name: title,
       author: { "@type": "Person", name: "supervised-info" },
-      recipeIngredient: ings
+      recipeIngredient: ings,
+      recipeInstructions: ["Einkaufen"],
+      recipeYield: "1"
     };
     var html = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title></title>" +
       "<script type=\"application/ld+json\">" +
       JSON.stringify(recipe).replace(/</g, "\\u003c") +
       "</scr" + "ipt></head><body></body></html>";
-    var src = "https://httpbin.org/base64/" + utf8ToB64(html);
-    var href = "https://api.getbring.com/rest/bringrecipes/deeplink?url=" +
-      encodeURIComponent(src) + "&source=web&baseQuantity=1&requestedQuantity=1";
+    var recipeUrl = "https://httpbin.org/base64/" + utf8ToB64(html);
+    var parserUrl = "https://api.getbring.com/rest/bringrecipes/parser?url=" +
+      encodeURIComponent(recipeUrl);
+    var href = "https://web.getbring.com/import?type=RECIPE&src=" +
+      encodeURIComponent(utf8ToB64(parserUrl));
     if (href.length > 7500) {
       copyBringText(toBringText(), "Liste zu lang für den Bring-Link. Kopiert.");
       return;
     }
-    setStatus("Öffnet Bring…");
-    var a = document.createElement("a");
-    a.href = href;
-    a.target = "_blank";
-    a.rel = "noopener";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    setStatus("Öffnet Bring-Import…");
+    window.location.assign(href);
   }
 
   function shareMd() {
     if (!navigator.share) return;
-    var store = currentStore();
     var md = toMarkdown();
     navigator.share({ title: "Einkauf — " + store.name, text: md }).then(function () {
       setStatus("Geteilt.");
@@ -1264,7 +1258,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
 
   function downloadMd() {
-    var store = currentStore();
     var md = toMarkdown();
     var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
     var a = document.createElement("a");
@@ -1312,7 +1305,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
 
   function renderSheet() {
-    var store = currentStore();
     els.sheetStore.textContent = store.name;
     els.layoutList.textContent = "";
     store.layout.forEach(function (id, idx) {
@@ -1374,7 +1366,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
 
   function moveDept(idx, dir) {
-    var store = currentStore();
     var j = idx + dir;
     if (j < 0 || j >= store.layout.length) return;
     var t = store.layout[idx];
@@ -1386,7 +1377,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
 
   function addDeptToLayout(id) {
-    var store = currentStore();
     if (!DEPTS[id] || store.layout.indexOf(id) !== -1) return;
     store.layout.push(id);
     scheduleSave();
@@ -1395,7 +1385,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
 
   function removeDept(id) {
-    var store = currentStore();
     if (store.layout.length <= 1) return;
     store.layout = store.layout.filter(function (d) { return d !== id; });
     if (!store.layout.length) store.layout.push("sonstiges");
@@ -1405,7 +1394,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
 
   function resetLayout() {
-    var store = currentStore();
     var seed = null;
     SEEDS.forEach(function (s) { if (s.id === store.id) seed = s; });
     if (!seed) return;
@@ -1440,7 +1428,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
 
   function deleteStore() {
-    var store = currentStore();
     if (store.builtin) return;
     if (!window.confirm("Laden „" + store.name + "“ wirklich löschen?")) return;
     state.stores = state.stores.filter(function (s) { return s.id !== store.id; });
