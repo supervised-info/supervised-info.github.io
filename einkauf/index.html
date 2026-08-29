@@ -538,6 +538,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     <button type="button" class="chipbtn" id="btn-copy">Kopieren</button>
     <button type="button" class="chipbtn" id="btn-share">Teilen</button>
     <button type="button" class="chipbtn" id="btn-bring">Bring</button>
+    <button type="button" class="chipbtn" id="btn-reminders">Erinnerungen</button>
     <button type="button" class="chipbtn" id="btn-file">Datei</button>
     <button type="button" class="chipbtn" id="btn-import">Import</button>
     <input id="import-file" class="sr-only" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain">
@@ -614,6 +615,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     copyBtn: document.getElementById("btn-copy"),
     shareBtn: document.getElementById("btn-share"),
     bringBtn: document.getElementById("btn-bring"),
+    remindersBtn: document.getElementById("btn-reminders"),
     fileBtn: document.getElementById("btn-file"),
     importBtn: document.getElementById("btn-import"),
     importFile: document.getElementById("import-file"),
@@ -666,6 +668,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   els.copyBtn.addEventListener("click", copyMd);
   els.shareBtn.addEventListener("click", shareMd);
   els.bringBtn.addEventListener("click", shareBring);
+  els.remindersBtn.addEventListener("click", copyReminders);
   els.fileBtn.addEventListener("click", downloadMd);
   els.importBtn.addEventListener("click", function () { els.importFile.click(); });
   els.importFile.addEventListener("change", function () {
@@ -1131,13 +1134,13 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     return li;
   }
 
-  function setStatus(msg) {
+  function setStatus(msg, ms) {
     els.status.textContent = msg || "";
     clearTimeout(statusTimer);
     if (msg) {
       statusTimer = setTimeout(function () {
         els.status.textContent = "";
-      }, 2500);
+      }, ms || 2500);
     }
   }
 
@@ -1287,6 +1290,39 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     var ings = toBringIngredients();
     if (!ings.length) return "";
     return "Einkauf " + currentStore().name + "\n\n" + ings.join("\n") + "\n";
+  }
+
+  function toRemindersText() {
+    var lines = [];
+    groupItems().forEach(function (g) {
+      g.items.forEach(function (it) {
+        if (it.done) return;
+        lines.push(it.name);
+      });
+    });
+    return lines.join("\n");
+  }
+
+  function copyReminders() {
+    var text = toRemindersText();
+    if (!text) {
+      setStatus("Nichts Offenes zum Mitnehmen.");
+      return;
+    }
+    function ok() {
+      setStatus("Kopiert. In Erinnerungen einfügen, dann in mehrere Erinnerungen aufteilen.", 6000);
+    }
+    function fail() { setStatus("Konnte nicht kopieren."); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok).catch(function () {
+        if (fallbackCopy(text)) ok();
+        else fail();
+      });
+    } else if (fallbackCopy(text)) {
+      ok();
+    } else {
+      fail();
+    }
   }
 
   function copyBringText(text, okMsg) {
