@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relativitätstheorie, anschaulich</title>
+<meta name="description" content="Spezielle und allgemeine Relativität mit Lichtuhr, Zwillingswegen und Raumzeitkrümmung. Eine anschauliche Führung, kein Lehrbuch.">
+<meta name="theme-color" content="#f3eee4">
+<meta property="og:title" content="Relativitätstheorie, anschaulich">
+<meta property="og:description" content="Die Lichtgeschwindigkeit ist fest. Zeit und Raum sind es nicht.">
+<meta property="og:locale" content="de_DE">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect fill=%22%231c1814%22 width=%2232%22 height=%2232%22/%3E%3Cpath fill=%22none%22 stroke=%22%23e8d9c0%22 stroke-width=%221.4%22 d=%22M16 4 L28 28 H4 Z%22/%3E%3C/svg%3E">
+<style>
+:root {
+  --paper: #f3eee4;
+  --paper-2: #e9e1d2;
+  --ink: #1c1814;
+  --muted: #5e564d;
+  --rule: #d2c8b8;
+  --oxide: #9c3424;
+  --slate: #2a5564;
+  --ochre: #c4a35a;
+  --demo: #11151c;
+  --demo-2: #1a2230;
+  --demo-line: #8eb4c4;
+  --demo-photon: #f3e6c4;
+  --demo-warm: #e07a5f;
+  --serif: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html:focus-within { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(1.05rem, 0.98rem + 0.35vw, 1.2rem);
+  line-height: 1.62;
+  text-rendering: optimizeLegibility;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(156,52,36,0.045), transparent 40%),
+    radial-gradient(ellipse at 100% 8%, rgba(42,85,100,0.04), transparent 38%);
+}
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5rem 0.8rem;
+  z-index: 20;
+}
+.skip:focus { left: 0.6rem; top: 0.6rem; }
+a { color: var(--oxide); text-underline-offset: 0.16em; }
+a:hover { color: var(--ink); }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--oxide);
+  outline-offset: 3px;
+}
+.site {
+  position: relative;
+  z-index: 1;
+  width: min(44rem, calc(100% - 2.2rem));
+  margin: 0 auto;
+}
+.topnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 1.15rem 0 0;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.topnav a { color: inherit; text-decoration: none; }
+.topnav a:hover { color: var(--oxide); }
+.hero { padding: 2.6rem 0 1.4rem; }
+.kicker {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--oxide);
+  margin: 0 0 0.85rem;
+}
+h1 {
+  font-size: clamp(2.5rem, 7vw, 4.6rem);
+  line-height: 0.92;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  margin: 0 0 1.1rem;
+}
+.dek {
+  font-size: 1.22rem;
+  line-height: 1.45;
+  color: var(--muted);
+  max-width: 36rem;
+  margin: 0;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.4rem;
+  margin: 1.4rem 0 0;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+nav.toc { margin: 1.6rem 0 2.2rem; }
+nav.toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.2rem;
+}
+nav.toc a {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--muted);
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+}
+nav.toc a:hover { color: var(--ink); border-color: var(--ink); }
+
+article section { margin: 2.6rem 0 3.2rem; }
+.numeral {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--oxide);
+  margin-bottom: 0.35rem;
+}
+h2 {
+  font-size: clamp(1.6rem, 3vw, 2.05rem);
+  line-height: 1.15;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.9rem;
+}
+h3 {
+  font-size: 1.15rem;
+  font-weight: 400;
+  font-style: italic;
+  margin: 1.5rem 0 0.5rem;
+}
+p { margin: 0 0 1rem; }
+.lede::first-letter {
+  float: left;
+  font-size: 3.35em;
+  line-height: 0.75;
+  padding: 0.12em 0.1em 0 0;
+  color: var(--oxide);
+  font-style: italic;
+}
+.pull {
+  font-size: 1.35rem;
+  line-height: 1.35;
+  font-style: italic;
+  color: var(--ink);
+  margin: 1.6rem 0;
+  padding: 0.2rem 0 0.2rem 1.1rem;
+  border-left: 2px solid var(--oxide);
+  max-width: 34rem;
+}
+.formula {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  background: var(--paper-2);
+  padding: 0.85rem 1rem;
+  margin: 1.1rem 0 1.3rem;
+  border-left: 3px solid var(--slate);
+  overflow-x: auto;
+}
+.formula span { color: var(--muted); font-family: var(--serif); font-style: italic; margin-left: 0.6rem; }
+ul.plain { margin: 0 0 1rem; padding-left: 1.1rem; }
+ul.plain li { margin: 0.25rem 0; }
+.note {
+  font-size: 0.92rem;
+  color: var(--muted);
+  border-top: 1px solid var(--rule);
+  padding-top: 0.7rem;
+  margin-top: 1.2rem;
+}
+figure.demo {
+  margin: 1.4rem -0.4rem 1.6rem;
+  background: var(--paper);
+  color: #e8e4dc;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(28,24,20,0.18);
+}
+figure.demo canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #11151c;
+}
+figure.demo figcaption {
+  background: var(--paper);
+  color: var(--muted);
+  padding: 0.75rem 0.85rem 0.95rem;
+}
+.demo-controls {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem 1rem;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  background: var(--demo-2);
+}
+.demo-controls label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.2rem 0.8rem;
+  align-items: center;
+}
+.demo-controls label span { grid-column: 1 / -1; color: #c9c2b6; }
+.demo-controls output {
+  font-family: var(--mono);
+  color: var(--ochre);
+  font-size: 0.8rem;
+}
+input[type="range"] {
+  width: 100%;
+  grid-column: 1 / -1;
+  accent-color: var(--demo-warm);
+  height: 1.4rem;
+}
+.demo-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+button.ctrl {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--demo-photon);
+  border: 1px solid #4a5363;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+button.ctrl:hover { border-color: var(--demo-photon); }
+figcaption {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+  padding: 0.7rem 0.2rem 0;
+  margin: 0;
+}
+figure.demo + figcaption, .site figcaption { max-width: 40rem; }
+figure.illu {
+  margin: 1.3rem 0;
+  background: var(--paper-2);
+  padding: 0.8rem 0.8rem 0.3rem;
+  border-radius: 4px;
+}
+figure.illu svg { display: block; width: 100%; height: auto; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0 1.3rem;
+}
+.cardish {
+  background: var(--paper-2);
+  padding: 0.9rem 1rem;
+  border-radius: 4px;
+}
+.cardish h3 { margin-top: 0; }
+.cardish p:last-child { margin-bottom: 0; }
+footer.colophon {
+  margin: 3rem 0 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.fallback { display: none; }
+noscript .fallback, .nojs .fallback { display: block; padding: 0.8rem 1rem; color: #c9c2b6; }
+@media (max-width: 640px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  figure.demo { margin-left: -0.2rem; margin-right: -0.2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  body { background: white; color: black; }
+  figure.demo { break-inside: avoid; box-shadow: none; }
+  nav.toc, .topnav, button.ctrl { display: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#inhalt">Zum Inhalt springen</a>
+
+<header class="site topnav">
+  <a href="../">supervised-info</a>
+  <span>Relativität</span>
+</header>
+<article class="site" id="inhalt">
+<header class="hero">
+  <p class="kicker">Spezielle und allgemeine Relativität</p>
+  <h1>Relativitätstheorie,<br>anschaulich</h1>
+  <p class="dek">Die Lichtgeschwindigkeit ist fest. Zeit und Raum sind es nicht. Eine Führung durch Eigenzeit, Zwillingswege und die Krümmung, in der wir fallen.</p>
+  <div class="meta">
+    <span>Intuition vor Formalismus</span>
+    <span>Drei Experimente zum Anfassen</span>
+    <span>Deutsch</span>
+  </div>
+</header>
+<nav class="toc" aria-label="Abschnitte">
+  <ul>
+    <li><a href="#c">c ist fest</a></li>
+    <li><a href="#gleichzeitig">Gleichzeitig</a></li>
+    <li><a href="#lichtuhr">Lichtuhr</a></li>
+    <li><a href="#laenge">Länge</a></li>
+    <li><a href="#zwillinge">Zwillinge</a></li>
+    <li><a href="#energie">E = mc²</a></li>
+    <li><a href="#allgemein">Krümmung</a></li>
+  </ul>
+</nav>
+
+<section id="c">
+  <span class="numeral">I — Das Prinzip</span>
+  <h2>Warum die Lichtgeschwindigkeit nicht mitmacht</h2>
+  <p class="lede">Das Wort relativ klingt nach Beliebigkeit. Einstein hat das Gegenteil behauptet: Eine Größe ist unbestechlich — die Vakuumlichtgeschwindigkeit c. Jeder Inertialbeobachter misst denselben Wert, rund 299&nbsp;792&nbsp;km/s, unabhängig davon, ob er auf die Quelle zurennt oder von ihr weg.</p>
+  <p>Wenn c feststeht, können Zeit und Länge das nicht mehr sein. Zwei Uhren, die auseinanderfliegen, ticken nicht im Gleichschritt. Zwei Meterstäbe, die aneinander vorbeirauschen, sind nicht gleich lang. Das ist keine optische Täuschung und kein Effekt der Apparate. Es ist die Geometrie der Raumzeit.</p>
+  <blockquote class="pull">Nicht alles ist relativ. Invariant ist c — und das Intervall längs einer Weltlinie.</blockquote>
+  <p>Im 19. Jahrhundert schien Licht eine Welle in einem Medium zu sein, dem Äther. Die Erde bewegt sich um die Sonne, also sollte ein Gegenwind messbar sein. Er war es nicht. Michelson und Morley fanden 1887 keinen Ätherwind.</p>
+  <p>Einstein strich 1905 den Äther und machte aus dem negativen Befund ein Prinzip: Die Maxwell-Gleichungen gelten in jedem Inertialsystem. Daraus folgt, dass c invariant ist. Geschwindigkeiten addiert man nicht mehr mit u + v, sondern mit</p>
+  <p class="formula">(u + v) / (1 + uv/c²) <span>Einstein-Addition</span></p>
+  <p>Bei Fußgänger- und Autobahnwerten ändert das nichts, was man merken würde. Bei 0,8&nbsp;c ändert es alles: Zwei Raumschiffe, die aufeinander zurasen, jeder mit 0,8&nbsp;c relativ zur Erde, nähern sich einander nicht mit 1,6&nbsp;c, sondern mit rund 0,98&nbsp;c. Niemand überholt das Licht.</p>
+</section>
+
+<section id="gleichzeitig">
+  <span class="numeral">II — Jetzt</span>
+  <h2>Gleichzeitigkeit ist lokal</h2>
+  <p>Ohne universelle Lichtgeschwindigkeit gäbe es eine universelle Jetzt-Scheibe: einen Schnitt durch die Welt, auf dem alles „jetzt“ geschieht. Mit festem c zerfällt diese Scheibe.</p>
+  <p>Ein klassisches Bild: Auf einem Bahnsteig zünden zwei Blitze, vorne und hinten am Zug, genau dann, wenn die Zugmitte den Beobachter auf dem Bahnsteig passiert. Für ihn sind die Blitze gleichzeitig — das Licht trifft ihn in der Mitte. Die Reisende in der Zugmitte läuft dem vorderen Blitz entgegen und vom hinteren weg. Das vordere Licht erreicht sie früher. In ihrem Inertialsystem sind die Blitze nicht gleichzeitig.</p>
+  <figure class="illu" aria-hidden="false">
+    <svg viewBox="0 0 640 220" role="img" aria-label="Lichtkegel: zeitartige, lichtartige und raumartige Intervalle.">
+      <rect width="640" height="220" fill="#e9e1d2"/>
+      <g transform="translate(320,120)" fill="none" stroke="#1c1814" stroke-width="1.2">
+        <line x1="-210" y1="0" x2="210" y2="0" stroke="#b7ad9e"/>
+        <line x1="0" y1="88" x2="0" y2="-88" stroke="#b7ad9e"/>
+        <polygon points="0,-82 8,-70 -8,-70" fill="#1c1814" stroke="none"/>
+        <polygon points="200,0 188,8 188,-8" fill="#1c1814" stroke="none"/>
+        <line x1="-90" y1="90" x2="90" y2="-90" stroke="#9c3424" stroke-width="1.6"/>
+        <line x1="90" y1="90" x2="-90" y2="-90" stroke="#9c3424" stroke-width="1.6"/>
+        <circle cx="0" cy="0" r="3.5" fill="#1c1814" stroke="none"/>
+      </g>
+      <text x="332" y="28" font-family="Palatino, Georgia, serif" font-size="14" fill="#1c1814">t</text>
+      <text x="528" y="126" font-family="Palatino, Georgia, serif" font-size="14" fill="#1c1814">x</text>
+      <text x="338" y="58" font-family="Segoe UI, sans-serif" font-size="11" fill="#5e564d">zeitartig</text>
+      <text x="430" y="80" font-family="Segoe UI, sans-serif" font-size="11" fill="#9c3424">lichtartig</text>
+      <text x="430" y="168" font-family="Segoe UI, sans-serif" font-size="11" fill="#5e564d">raumartig</text>
+      <text x="24" y="206" font-family="Segoe UI, sans-serif" font-size="11" fill="#5e564d">Ereignis hier. Zukunft oben, Vergangenheit unten. c = 1, also 45°.</text>
+    </svg>
+    <figcaption>Abb. 1 — Der Lichtkegel teilt die Raumzeit an einem Ereignis: was noch beeinflusst werden kann, was Licht ist, und was „woanders, nicht jetzt im universellen Sinn“ bedeutet.</figcaption>
+  </figure>
+  <p>Raumartige getrennte Ereignisse haben keine absolute Reihenfolge. Welche zuerst war, hängt vom Schnitt ab — vom Beobachter. Kausalität bleibt unangetastet: Innerhalb des Lichtkegels, zeitartig, ist die Reihenfolge fest. Nichts Wirkendes kommt schneller als Licht.</p>
+</section>
+
+<section id="lichtuhr">
+  <span class="numeral">III — Zeit</span>
+  <h2>Eine Uhr aus Licht</h2>
+  <p>Stellen Sie sich eine Uhr vor, die aus nichts als Licht besteht: zwei Spiegel, Abstand L, dazwischen ein Puls. Jeder Hin- und Rückweg ist ein Tick. Im Ruhesystem der Uhr legt das Licht den Weg 2L zurück, die Dauer ist 2L/c. Das ist die Eigenzeit — das, was die Uhr selbst anzeigt.</p>
+  <p>Dieselbe Uhr, von außen gesehen, während sie seitwärts rast: Der Puls läuft Zickzack, weil die Spiegel zwischen den Reflexionen weiterwandern. Der Weg ist länger. c bleibt c. Also dauert der Tick in der Koordinatenzeit des Labors länger.</p>
+  <p class="formula">γ = 1 / √(1 − β²) <span>Lorentzfaktor, β = v/c</span></p>
+  <p class="formula">t = γ τ <span>Koordinatenzeit t, Eigenzeit τ</span></p>
+  <p>Bewegte Uhren gehen nach — vom Laborsystem aus beurteilt. Die mitfliegende Person merkt an ihrer Uhr nichts. Beide haben recht, jede in ihrem Inertialsystem. Der Lorentzfaktor ist bei 0,1&nbsp;c nur 1,005, bei 0,6&nbsp;c schon 1,25, bei 0,9&nbsp;c bereits 2,3.</p>
+  <figure class="demo">
+    <canvas id="cv-clock" width="800" height="340" role="img" aria-label="Zwei Lichtuhren: links ruhend, rechts bewegt. Der Lichtpuls der bewegten Uhr läuft einen längeren Zickzackweg."></canvas>
+    <p class="fallback">Ohne JavaScript entfällt die Animation. Die ruhende Uhr tickt mit 2L/c, die bewegte mit γ-mal dieser Dauer.</p>
+    <div class="demo-controls">
+      <label>
+        <span>Geschwindigkeit β = v/c</span>
+        <input id="clock-beta" type="range" min="0" max="0.94" step="0.01" value="0.6" aria-valuemin="0" aria-valuemax="0.94">
+        <output id="clock-beta-out" for="clock-beta">0,60</output>
+      </label>
+      <div class="demo-bar">
+        <output id="clock-gamma-out">γ = 1,25</output>
+        <button type="button" class="ctrl" id="btn-pause" aria-pressed="false">Animation pausieren</button>
+      </div>
+    </div>
+      <figcaption>Abb. 2 — Links die Lichtuhr im Laborsystem in Ruhe. Rechts dieselbe Uhr in Bewegung: Der Puls hält mit den Spiegeln mit, der Weg wird zum Zickzack, die Ticks werden seltener. Die Zählwerke unten zählen abgeschlossene Umläufe in derselben Laborzeit.</figcaption>
+  </figure>
+  <p>Das ist kein Gedankenspiel ohne Bodenhaftung. Myonen aus der kosmischen Strahlung entstehen in der oberen Atmosphäre und leben, in Ruhe, nur etwa 2,2&nbsp;Mikrosekunden. Ohne Zeitdilatation (und die Längenkontraktion der Atmosphäre in ihrem System) würden sie zerfallen, bevor sie den Boden erreichen. Sie tun es nicht: Detektoren in Kellern klicken.</p>
+</section>
+
+<section id="laenge">
+  <span class="numeral">IV — Länge</span>
+  <h2>Was sich in Flugrichtung stutzt</h2>
+  <p>Im Laborsystem ist die Lebensdauer der Myonen gedehnt. Im Ruhesystem des Myons leben sie ganz gewöhnlich — dafür ist die Atmosphäre dünner, verkürzt in Flugrichtung. Beide Beschreibungen sind wahr, jede in ihrem System. Das ist der Witz der Relativität: nicht zwei Wahrheiten über dieselbe Koordinate, sondern zwei legitime Schnitte durch dieselbe Raumzeit.</p>
+  <p class="formula">L = L₀ / γ <span>nur parallel zur Bewegung</span></p>
+  <p>Senkrecht zur Bewegung bleibt die Länge. Wäre es anders, gäbe es Widersprüche beim Vorbeifliegen zweier Röhren — Einstein und andere haben dieses Argument früh benutzt. Kontraktion ist also gerichtet, nicht ein allgemeines Schrumpfen.</p>
+  <p>Länge ist definiert über Gleichzeitigkeit: Man markiert beide Enden eines Stabes <em>zur selben Zeit</em> und misst den Abstand der Marken. Weil „zur selben Zeit“ vom System abhängt, hängt die Länge mit ab. Es wird nichts gequetscht im materiellen Sinn; die Enden des Stabes sind in einem anderen Schnitt einfach näher beieinander.</p>
+</section>
+
+<section id="zwillinge">
+  <span class="numeral">V — Wege</span>
+  <h2>Das Zwillingsparadoxon ist keines</h2>
+  <p>Zwei Zwillinge. Eine bleibt auf der Erde, eine fliegt mit hoher Geschwindigkeit zu einem Stern und kehrt um. Bei der Wiederkehr ist die Reisende jünger. Zeitungen haben daraus ein Paradoxon gemacht, weil jede die andere in Bewegung sehen sollte. Die Situation ist aber nicht symmetrisch.</p>
+  <p>Nur die Reisende wechselt das Inertialsystem. Sie muss umkehren, also beschleunigen. In der Raumzeit ist ihre Weltlinie geknickt. Die Eigenzeit ist die Minkowski-Länge dieser Linie. Mit der Metrik (+, −, −, −) — Zeit positiv, Raum negativ — kehrt sich die Dreiecksungleichung um: Die gerade Strecke der Daheimgebliebenen ist die <em>längere</em> an Eigenzeit.</p>
+  <p class="formula">τ = t / γ = (2D / v) √(1 − v²/c²) <span>hin und zurück, |v| konstant außer am Umkehrpunkt</span></p>
+  <p>Die Beschleunigungsphasen braucht man für die Asymmetrie; bei einer langen Reise dominieren sie die Bilanz nicht. Man kann sie in Gedanken beliebig kurz machen. Was zählt, ist der Weg durch die Raumzeit, nicht ein vages „wer sich bewegt“.</p>
+  <figure class="demo">
+    <canvas id="cv-twins" width="800" height="360" role="img" aria-label="Minkowski-Diagramm: senkrechte Weltlinie der Erde, geknickte Weltlinie der Reisenden, Marken gleicher Eigenzeit."></canvas>
+    <p class="fallback">Ohne JavaScript: Die Eigenzeit der Reisenden ist die Koordinatenzeit der Erde geteilt durch γ.</p>
+    <div class="demo-controls">
+      <label>
+        <span>Reisegeschwindigkeit β = v/c</span>
+        <input id="twin-beta" type="range" min="0.2" max="0.96" step="0.01" value="0.8" aria-valuemin="0.2" aria-valuemax="0.96">
+        <output id="twin-beta-out" for="twin-beta">0,80</output>
+      </label>
+      <label>
+        <span>Entfernung zum Umkehrpunkt (Lichtjahre)</span>
+        <input id="twin-dist" type="range" min="1" max="12" step="0.1" value="4.3" aria-valuemin="1" aria-valuemax="12">
+        <output id="twin-dist-out" for="twin-dist">4,3 Lj</output>
+      </label>
+      <div class="demo-bar">
+        <output id="twin-readout">—</output>
+      </div>
+    </div>
+      <figcaption>Abb. 3 — Raumzeitdiagramm mit c = 1, also Licht unter 45°. Die Striche auf den Weltlinien sind Jahre Eigenzeit. Mehr Striche auf der Erde: mehr gelebte Zeit. Die Reisende schneidet die Raumzeit schräger; ihre Uhr sammelt weniger τ.</figcaption>
+  </figure>
+</section>
+
+<section id="energie">
+  <span class="numeral">VI — Trägheit</span>
+  <h2>Was E = mc² wirklich sagt</h2>
+  <p>Trägheit und Energie gehören zusammen. Ein Körper mit Ruhemasse m hat die Ruheenergie E₀ = mc². Das ist keine Cartoon-Anleitung zum „Umwandeln von Masse in Energie“. Energie <em>hat</em> Trägheit. Ein warmer Körper ist — winzig — träger als ein kalter. Ein gebundenes System ist leichter als seine getrennten Teile.</p>
+  <p class="formula">E₀ = mc² <span>Ruheenergie</span></p>
+  <div class="grid-2">
+    <div class="cardish">
+      <h3>Massendefekt</h3>
+      <p>Vier Nukleonen als Heliumkern wiegen weniger als einzeln. Die Differenz steckt in der Bindungsenergie, geteilt durch c². Diesen Defekt setzt die Sonne um: Fusion, nicht Magie.</p>
+    </div>
+    <div class="cardish">
+      <h3>Photonen</h3>
+      <p>Licht hat keine Ruhemasse, aber Energie und Impuls, E = pc. Weil Energie die Raumzeit krümmt, gravitieren Photonen mit — sie fallen nicht wie Steine, sie folgen Geodäten.</p>
+    </div>
+  </div>
+  <p>Für ein bewegtes Teilchen gilt E² = (pc)² + (mc²)². Bei v = 0 bleibt mc². Bei m = 0 bleibt pc. Der Lorentzfaktor steckt auch hier: E = γ mc². Je schneller, desto träger; unendliche Energie wäre nötig, um ein massebehaftetes Teilchen auf c zu bringen. Deshalb bleibt c eine Grenze, kein Tempolimit aus Vorschrift.</p>
+</section>
+
+<section id="allgemein">
+  <span class="numeral">VII — Äquivalenz</span>
+  <h2>Freier Fall ist die gerade Bahn</h2>
+  <p>Die spezielle Relativität gilt lokal, in Inertialsystemen. Schwere zieht uns aus dem Inertialsystem — oder? Einstein las das anders.</p>
+  <p>Äquivalenzprinzip: In einem frei fallenden Aufzug sind Mechanik und Optik lokal dieselben wie ohne Gravitation. Umgekehrt fühlt sich eine beschleunigte Rakete im leeren Raum an wie ein Schwerefeld. Gewicht ist das, was man spürt, wenn man <em>nicht</em> frei fällt.</p>
+  <blockquote class="pull">Die Erdoberfläche hält uns von der Geodäte ab. Deshalb haben wir Gewicht. Gravitation ist keine newtonsche Kraft, die an uns zerrt; sie ist Geometrie.</blockquote>
+  <p>Masse und Energie sagen der Raumzeit, wie sie sich krümmt. Die Raumzeit sagt der Materie, wie sie sich bewegt — auf Geodäten, den geradestmöglichen Wegen. Ein Satellit im Orbit „fällt“ um die Erde, ununterbrochen, ohne anzukommen.</p>
+  <p>Das Gummituch-Bild ist eine Krücke mit zwei bekannten Fehlern: Es benutzt eine äußere Schwerkraft, um Schwerkraft zu erklären, und es zeigt vor allem gekrümmten Raum. Für Äpfel und Planeten steckt fast die ganze newtonsche Anziehung in der <em>Zeit</em>: Uhren ticken tiefer im Potenzial langsamer. Räumliche Krümmung wird erst bei Lichtablenkung und Periheldrehung unübersehbar.</p>
+  <p class="formula">dτ ≈ √(1 − rₛ/r) dt <span>statischer Beobachter, Schwarzschild, r &gt; rₛ</span></p>
+  <p>GPS-Satelliten korrigieren beides: spezielle Zeitdilatation wegen ihrer Bahn, gravitative wegen der Höhe. Ohne diese Korrekturen würde die Navigation sichtbar davonlaufen. Relativität steckt in der Hosentasche, nicht nur in Sternen.</p>
+  <figure class="demo">
+    <canvas id="cv-well" width="800" height="400" role="img" aria-label="Schematischer Raumzeitbrunnen: ein Gitter senkt sich um eine Masse, ein Testkörper umkreist, Licht wird abgelenkt."></canvas>
+    <p class="fallback">Ohne JavaScript: Masse senkt ein Gitter. Uhren tiefer im Brunnen ticken langsamer. Licht folgt der Geodäte und wird abgelenkt.</p>
+    <div class="demo-controls">
+      <label>
+        <span>Zentrale Masse (schematisch)</span>
+        <input id="well-mass" type="range" min="0.25" max="2.2" step="0.05" value="1" aria-valuemin="0.25" aria-valuemax="2.2">
+        <output id="well-mass-out" for="well-mass">1,00</output>
+      </label>
+      <div class="demo-bar">
+        <output id="well-readout">—</output>
+      </div>
+    </div>
+      <figcaption>Abb. 4 — Einbettungsbild, keine numerische Geodätenintegration. Das Gitter zeigt, wie eine Masse die Geometrie tief macht. Der Orbit ist eine anschauliche Bahn auf der Fläche; der Lichtstrich biegt sich mit der Masse stärker. Rechts oben zwei Uhren in unterschiedlicher Tiefe — das ist der Teil, den Newton als Kraft verbucht.</figcaption>
+  </figure>
+  <p>Extreme Krümmung: ein Schwarzschildradius rₛ = 2GM/c². Am Horizont eines schwarzen Lochs zeigen alle zukunftsgerichteten Weltlinien nach innen. Von außen betrachtet erstarrt der Fall am Horizont; für die fallende Uhr passiert der Horizont in endlicher Eigenzeit. Das sind zwei Schnitte, kein Widerspruch — dieselbe Lektion wie bei den Myonen, nur härter.</p>
+  <p>1919, bei einer Sonnenfinsternis, wurde die Ablenkung des Lichts am Sonnenrand gemessen. Die allgemeine Theorie hatte mehr als Newtons Korpuskel-Bild verlangt, und der Himmel gab den größeren Wert. Seither sind es Systeme: Gravitationslinsen, Lense-Thirring, Gravitationswellen. Die Anschauung hier ist die Tür, nicht das Haus.</p>
+</section>
+
+<section id="schluss">
+  <span class="numeral">VIII — Was fest bleibt</span>
+  <h2>Kein Freibrief für Beliebigkeit</h2>
+  <p>Die Relativitätstheorie ist keine Lizenz für „alles ist Ansichtssache“. Sie ist eine genaue Aussage darüber, was invariant ist — c, die Raumzeitintervalle, die Eigenzeit längs einer Weltlinie — und was vom Schnitt abhängt: Gleichzeitigkeit, Länge, Koordinatenzeit.</p>
+  <p>Die newtonsche Physik bleibt das richtige Werkzeug für Brücken und Fußbälle. Die Relativität wird nötig, wo Geschwindigkeiten, Präzision oder Schwerefelder groß werden — und wo man verstehen will, was „jetzt“ überhaupt heißen darf.</p>
+  <p class="note">Wenn Sie eine Formel mitnehmen: γ = 1/√(1−v²/c²) für die spezielle Theorie, und die Einsicht, dass Uhren tiefer im Schwerefeld langsamer gehen, für die allgemeine. Der Rest ist Geometrie, die man rechnen kann.</p>
+</section>
+</article>
+<footer class="site colophon">
+  <p>Diese Seite ist eine Anschauungshilfe, kein Ersatz für Lehrbücher. Sie vereinfacht dort, wo die Tensorrechnung beginnen würde, und bleibt in den Simulationen bewusst schematisch.</p>
+  <p><a href="../">Zur Übersicht</a></p>
+</footer>
+
+<script>
+(function () {
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var paused = reduced;
+  var labTime = 2.35;
+  var lastTs = performance.now();
+  var btnPause = document.getElementById("btn-pause");
+  var cvClock = document.getElementById("cv-clock");
+  var clockBeta = document.getElementById("clock-beta");
+  var clockBetaOut = document.getElementById("clock-beta-out");
+  var clockGammaOut = document.getElementById("clock-gamma-out");
+  var cvTwins = document.getElementById("cv-twins");
+  var twinBeta = document.getElementById("twin-beta");
+  var twinDist = document.getElementById("twin-dist");
+  var twinBetaOut = document.getElementById("twin-beta-out");
+  var twinDistOut = document.getElementById("twin-dist-out");
+  var twinReadout = document.getElementById("twin-readout");
+  var cvWell = document.getElementById("cv-well");
+  var wellMass = document.getElementById("well-mass");
+  var wellMassOut = document.getElementById("well-mass-out");
+  var wellReadout = document.getElementById("well-readout");
+
+  document.querySelectorAll(".fallback").forEach(function (el) {
+    el.style.display = "none";
+  });
+
+  function gamma(beta) {
+    var b = Math.min(0.995, Math.max(0, Number(beta)));
+    return 1 / Math.sqrt(1 - b * b);
+  }
+  function deNum(n, d) {
+    return n.toFixed(d).replace(".", ",");
+  }
+  function setupCanvas(canvas, h) {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = Math.max(280, canvas.clientWidth || 300);
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    canvas.style.height = h + "px";
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, w: w, h: h };
+  }
+  function photonY(t, period) {
+    var m = t % period;
+    if (m < 0) m += period;
+    var half = period / 2;
+    if (m < half) return m / half;
+    return 1 - (m - half) / half;
+  }
+  function drawPhoton(ctx, x, y) {
+    ctx.save();
+    ctx.fillStyle = "#f3e6c4";
+    ctx.shadowColor = "#f3e6c4";
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.arc(x, y, 5.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#fff6d8";
+    ctx.beginPath();
+    ctx.arc(x, y, 2.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  function drawMirrors(ctx, x, top, bot) {
+    ctx.strokeStyle = "#c4a35a";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x - 24, top);
+    ctx.lineTo(x + 24, top);
+    ctx.moveTo(x - 24, bot);
+    ctx.lineTo(x + 24, bot);
+    ctx.stroke();
+    ctx.strokeStyle = "#2c3546";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, top + 4);
+    ctx.lineTo(x, bot - 4);
+    ctx.stroke();
+  }
+
+  function drawClock() {
+    if (!cvClock) return;
+    var size = setupCanvas(cvClock, 340);
+    var ctx = size.ctx, w = size.w, h = size.h;
+    ctx.fillStyle = "#11151c";
+    ctx.fillRect(0, 0, w, h);
+    var beta = Number(clockBeta.value);
+    var g = gamma(beta);
+    if (clockBetaOut) clockBetaOut.value = deNum(beta, 2);
+    if (clockGammaOut) clockGammaOut.value = "γ = " + deNum(g, 2) + "   ·   Δt = γ Δτ";
+    ctx.strokeStyle = "#232a38";
+    ctx.beginPath();
+    ctx.moveTo(w * 0.5, 10);
+    ctx.lineTo(w * 0.5, h - 10);
+    ctx.stroke();
+    var pad = 22;
+    var top = 40;
+    var bot = h - 56;
+    var L = bot - top;
+    ctx.fillStyle = "#c9c2b6";
+    ctx.font = "12px Segoe UI, sans-serif";
+    ctx.fillText("Ruhend  ·  Laborsystem", pad, 22);
+    ctx.fillText("Bewegt  ·  β = " + deNum(beta, 2), w * 0.5 + pad, 22);
+    var x0 = w * 0.25;
+    drawMirrors(ctx, x0, top, bot);
+    drawPhoton(ctx, x0, top + photonY(labTime, 2) * L);
+    var wrap = Math.max(90, w * 0.36);
+    var xBase = w * 0.5 + pad + 10;
+    var speedPx = 28 + beta * 90;
+    var span = wrap;
+    var dist = speedPx * labTime;
+    var pass = span > 0 ? dist % span : 0;
+    var xMove = xBase + pass;
+    var periodM = 2 * g;
+    drawMirrors(ctx, xMove, top, bot);
+    if (beta > 0.03) {
+      ctx.strokeStyle = "rgba(224,122,95,0.38)";
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      var tStart = labTime - pass / Math.max(speedPx, 0.001);
+      var n = 70;
+      var k, t, xm, ym, first;
+      first = true;
+      for (k = 0; k <= n; k++) {
+        t = tStart + (labTime - tStart) * (k / n);
+        xm = xBase + speedPx * (t - tStart);
+        ym = top + photonY(t, periodM) * L;
+        if (first) { ctx.moveTo(xm, ym); first = false; }
+        else ctx.lineTo(xm, ym);
+      }
+      ctx.stroke();
+    }
+    drawPhoton(ctx, xMove, top + photonY(labTime, periodM) * L);
+    var ticksRest = Math.floor(labTime / 2);
+    var ticksMove = Math.floor(labTime / periodM);
+    ctx.fillStyle = "#f3e6c4";
+    ctx.font = "13px ui-monospace, Menlo, monospace";
+    ctx.fillText("Ticks: " + ticksRest, pad, h - 20);
+    ctx.fillText("Ticks: " + ticksMove, w * 0.5 + pad, h - 20);
+    ctx.fillStyle = "#8a8378";
+    ctx.font = "11px Segoe UI, sans-serif";
+    ctx.fillText("gleiche Laborzeit", pad, h - 6);
+  }
+
+  function drawTwins() {
+    if (!cvTwins) return;
+    var size = setupCanvas(cvTwins, 360);
+    var ctx = size.ctx, w = size.w, h = size.h;
+    ctx.fillStyle = "#11151c";
+    ctx.fillRect(0, 0, w, h);
+    var beta = Number(twinBeta.value);
+    var D = Number(twinDist.value);
+    var g = gamma(beta);
+    var tEarth = 2 * D / beta;
+    var tShip = tEarth / g;
+    if (twinBetaOut) twinBetaOut.value = deNum(beta, 2);
+    if (twinDistOut) twinDistOut.value = deNum(D, 1) + " Lj";
+    if (twinReadout) twinReadout.value = "Erde " + deNum(tEarth, 1) + " Jahre   ·   Reise " + deNum(tShip, 1) + " Jahre   ·   γ = " + deNum(g, 2);
+    var plotX = 50, plotY = 26, plotW = w * 0.56, plotH = h - 58;
+    var xMax = D * 1.18;
+    var tMax = tEarth * 1.1;
+    function X(x) { return plotX + (x / xMax) * plotW; }
+    function Y(t) { return plotY + plotH - (t / tMax) * plotH; }
+    ctx.strokeStyle = "#3a4456";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(xMax * 0.98), Y(0));
+    ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(0), Y(tMax * 0.96));
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(156,52,36,0.32)";
+    ctx.beginPath();
+    var lim = Math.min(xMax, tMax) * 0.9;
+    ctx.moveTo(X(0), Y(0));
+    ctx.lineTo(X(lim), Y(lim));
+    ctx.stroke();
+    ctx.strokeStyle = "#8eb4c4";
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(0));
+    ctx.lineTo(X(0), Y(tEarth));
+    ctx.stroke();
+    ctx.strokeStyle = "#e07a5f";
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(0));
+    ctx.lineTo(X(D), Y(tEarth / 2));
+    ctx.lineTo(X(0), Y(tEarth));
+    ctx.stroke();
+
+    var i, nE, nS, tau, frac, s, xx, tt;
+    ctx.fillStyle = "#8eb4c4";
+    nE = Math.floor(tEarth);
+    for (i = 1; i <= nE; i++) {
+      ctx.beginPath();
+      ctx.arc(X(0), Y(i), 2.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#e07a5f";
+    nS = Math.floor(tShip);
+    for (i = 1; i <= nS; i++) {
+      tau = i;
+      frac = tau / tShip;
+      if (frac <= 0.5) {
+        s = frac / 0.5;
+        xx = s * D;
+        tt = s * (tEarth / 2);
+      } else {
+        s = (frac - 0.5) / 0.5;
+        xx = D * (1 - s);
+        tt = tEarth / 2 + s * (tEarth / 2);
+      }
+      ctx.beginPath();
+      ctx.arc(X(xx), Y(tt), 2.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#c9c2b6";
+    ctx.font = "12px Segoe UI, sans-serif";
+    ctx.fillText("t (Jahre)", plotX - 8, plotY + 10);
+    ctx.fillText("x (Lichtjahre)", X(xMax) - 92, Y(0) + 18);
+    ctx.fillText("Erde", X(0) + 10, Y(tEarth) - 4);
+    ctx.fillText("Reise", X(D) + 6, Y(tEarth / 2) + 4);
+    ctx.fillStyle = "#8a8378";
+    ctx.font = "11px Segoe UI, sans-serif";
+    ctx.fillText("Punkte: volle Jahre Eigenzeit", plotX, h - 10);
+    var bx = w * 0.72;
+    var by = 36;
+    var bh = h - 86;
+    var hE = bh;
+    var hS = (tShip / tEarth) * bh;
+    ctx.fillStyle = "#243040";
+    ctx.fillRect(bx, by, 28, bh);
+    ctx.fillRect(bx + 52, by, 28, bh);
+    ctx.fillStyle = "#8eb4c4";
+    ctx.fillRect(bx, by + bh - hE, 28, hE);
+    ctx.fillStyle = "#e07a5f";
+    ctx.fillRect(bx + 52, by + bh - hS, 28, hS);
+    ctx.fillStyle = "#c9c2b6";
+    ctx.font = "11px Segoe UI, sans-serif";
+    ctx.fillText("Erde", bx, by + bh + 16);
+    ctx.fillText("Reise", bx + 48, by + bh + 16);
+    ctx.fillStyle = "#f3e6c4";
+    ctx.font = "12px ui-monospace, Menlo, monospace";
+    ctx.fillText(deNum(tEarth, 1) + " a", bx - 2, by - 8);
+    ctx.fillText(deNum(tShip, 1) + " a", bx + 48, by + bh - hS - 8);
+  }
+
+  function wellZ(x, y, mass) {
+    return -mass * 1.65 / Math.sqrt(x * x + y * y + 0.18);
+  }
+  function drawWell() {
+    if (!cvWell) return;
+    var size = setupCanvas(cvWell, 400);
+    var ctx = size.ctx, w = size.w, h = size.h;
+    ctx.fillStyle = "#11151c";
+    ctx.fillRect(0, 0, w, h);
+    var mass = Number(wellMass.value);
+    if (wellMassOut) wellMassOut.value = deNum(mass, 2);
+    var rs = 0.22 * mass;
+    var rNear = Math.max(0.9, rs * 1.85);
+    var rFar = 3.6;
+    function tickRatio(r) {
+      var z = 1 - rs / r;
+      return z > 0.02 ? Math.sqrt(z) : 0.02;
+    }
+    var ratio = tickRatio(rNear) / tickRatio(rFar);
+    if (wellReadout) wellReadout.value = "Uhr nah / Uhr fern ≈ " + deNum(ratio, 2) + "   ·   gravitative Zeitdilatation, schematisch";
+    var yaw = 0.62;
+    var scale = Math.min(w, h) * 0.132;
+    function proj(x, y, z) {
+      var px = (x * Math.cos(yaw) - y * Math.sin(yaw)) * scale;
+      var py = (x * Math.sin(yaw) * 0.32 + y * Math.cos(yaw) * 0.32) * scale - z * scale * 0.72;
+      return [w * 0.5 + px, h * 0.34 + py];
+    }
+    var N = 16;
+    var ext = 4.2;
+    var i, j, x, y, z, p, q, alpha;
+    ctx.lineWidth = 0.9;
+    for (i = 0; i <= N; i++) {
+      y = -ext + (2 * ext * i) / N;
+      ctx.beginPath();
+      for (j = 0; j <= N; j++) {
+        x = -ext + (2 * ext * j) / N;
+        z = wellZ(x, y, mass);
+        p = proj(x, y, z);
+        if (j === 0) ctx.moveTo(p[0], p[1]);
+        else ctx.lineTo(p[0], p[1]);
+      }
+      alpha = 0.16 + 0.4 * (1 - Math.abs(y) / ext);
+      ctx.strokeStyle = "rgba(142,180,196," + alpha + ")";
+      ctx.stroke();
+    }
+    for (j = 0; j <= N; j++) {
+      x = -ext + (2 * ext * j) / N;
+      ctx.beginPath();
+      for (i = 0; i <= N; i++) {
+        y = -ext + (2 * ext * i) / N;
+        z = wellZ(x, y, mass);
+        p = proj(x, y, z);
+        if (i === 0) ctx.moveTo(p[0], p[1]);
+        else ctx.lineTo(p[0], p[1]);
+      }
+      ctx.strokeStyle = "rgba(142,180,196,0.26)";
+      ctx.stroke();
+    }
+
+    var p0 = proj(0, 0, wellZ(0, 0, mass) + 0.12);
+    var grd = ctx.createRadialGradient(p0[0] - 4, p0[1] - 5, 2, p0[0], p0[1], 15);
+    grd.addColorStop(0, "#e8a090");
+    grd.addColorStop(1, "#7a261c");
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(p0[0], p0[1], 11, 0, Math.PI * 2);
+    ctx.fill();
+    var Rorb = 2.15;
+    var theta = labTime * 0.55;
+    var k, th, px, py, pz, op;
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(243,230,196,0.5)";
+    ctx.lineWidth = 1.4;
+    for (k = 0; k <= 64; k++) {
+      th = theta - (k / 64) * 1.9;
+      px = Rorb * Math.cos(th);
+      py = Rorb * Math.sin(th);
+      pz = wellZ(px, py, mass) + 0.08;
+      q = proj(px, py, pz);
+      if (k === 0) ctx.moveTo(q[0], q[1]);
+      else ctx.lineTo(q[0], q[1]);
+    }
+    ctx.stroke();
+    op = proj(Rorb * Math.cos(theta), Rorb * Math.sin(theta), wellZ(Rorb * Math.cos(theta), Rorb * Math.sin(theta), mass) + 0.08);
+    ctx.fillStyle = "#f3e6c4";
+    ctx.beginPath();
+    ctx.arc(op[0], op[1], 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(224,122,95,0.9)";
+    ctx.lineWidth = 1.7;
+    var b = 1.55;
+    var bend = 0.52 * mass;
+    for (k = 0; k <= 42; k++) {
+      x = -ext + (2 * ext * k) / 42;
+      y = b - bend * Math.exp(-x * x / 2.2);
+      z = wellZ(x, y, mass) + 0.12;
+      q = proj(x, y, z);
+      if (k === 0) ctx.moveTo(q[0], q[1]);
+      else ctx.lineTo(q[0], q[1]);
+    }
+    ctx.stroke();
+    ctx.fillStyle = "#c9c2b6";
+    ctx.font = "12px Segoe UI, sans-serif";
+    var farRate = tickRatio(rFar);
+    var nearRate = tickRatio(rNear);
+    function drawMiniClock(cx, cy, rate, label) {
+      var ang = labTime * rate * 2.4;
+      ctx.strokeStyle = "#c9c2b6";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 13, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + 9 * Math.sin(ang), cy - 9 * Math.cos(ang));
+      ctx.stroke();
+      ctx.fillStyle = "#c9c2b6";
+      ctx.font = "11px Segoe UI, sans-serif";
+      ctx.fillText(label, cx - 16, cy + 26);
+    }
+    drawMiniClock(w - 48, 28, farRate, "fern");
+    drawMiniClock(w - 48, 84, nearRate, "nah");
+    ctx.fillText("Lichtstrahl, schematisch gebogen", 16, h - 34);
+
+    ctx.fillText("Testkörper auf einer Bahn um die Masse", 16, h - 16);
+  }
+
+  if (btnPause) {
+    if (reduced) {
+      btnPause.textContent = "Reduzierte Bewegung";
+      btnPause.setAttribute("aria-pressed", "true");
+      btnPause.disabled = true;
+    }
+    btnPause.addEventListener("click", function () {
+      paused = !paused;
+      btnPause.setAttribute("aria-pressed", paused ? "true" : "false");
+      btnPause.textContent = paused ? "Animation fortsetzen" : "Animation pausieren";
+    });
+  }
+
+  function frame(ts) {
+    var dt = Math.min(0.05, (ts - lastTs) / 1000);
+    lastTs = ts;
+    if (!paused) labTime += dt;
+    drawClock();
+    drawTwins();
+    drawWell();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  var resizeTimer = 0;
+  window.addEventListener("resize", function () {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(function () {
+      drawClock();
+      drawTwins();
+      drawWell();
+    }, 80);
+  });
+})();
+</script>
+</body>
+</html>
+

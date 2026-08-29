@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>supervised-info</title>
+<meta name="description" content="Eigenständige Seiten zu Physik, anschaulich erklärt.">
+<meta name="theme-color" content="#f3eee4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect fill=%22%231c1814%22 width=%2232%22 height=%2232%22/%3E%3Cpath fill=%22none%22 stroke=%22%23e8d9c0%22 stroke-width=%221.4%22 d=%22M16 4 L28 28 H4 Z%22/%3E%3C/svg%3E">
+<style>
+:root {
+  --paper: #f3eee4;
+  --ink: #1c1814;
+  --muted: #5e564d;
+  --rule: #d2c8b8;
+  --oxide: #9c3424;
+  --serif: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(156,52,36,0.05), transparent 42%),
+    radial-gradient(ellipse at 100% 100%, rgba(42,85,100,0.05), transparent 46%);
+  z-index: 0;
+}
+a { color: var(--oxide); text-underline-offset: 0.18em; }
+a:hover { color: var(--ink); }
+.wrap {
+  position: relative;
+  z-index: 1;
+  width: min(42rem, calc(100% - 2.4rem));
+  margin: 0 auto;
+  flex: 1;
+}
+header.mast {
+  padding: 1.6rem 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1 {
+  font-size: clamp(2.4rem, 8vw, 4.4rem);
+  line-height: 0.92;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  margin: 2.8rem 0 1rem;
+}
+.dek {
+  font-size: 1.15rem;
+  max-width: 28rem;
+  color: var(--muted);
+  margin: 0 0 3rem;
+}
+.rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+ol.cat {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+ol.cat li { border-bottom: 1px solid var(--rule); }
+ol.cat a.card {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 1.35rem 0;
+  text-decoration: none;
+  color: inherit;
+}
+.num {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--oxide);
+}
+.card h2 {
+  font-size: 1.35rem;
+  font-weight: 400;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.02em;
+}
+.card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+.go {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--oxide);
+  align-self: center;
+}
+ol.cat a.card:hover h2 { color: var(--oxide); }
+ol.cat a.card:focus-visible {
+  outline: 2px solid var(--oxide);
+  outline-offset: 4px;
+}
+footer {
+  position: relative;
+  z-index: 1;
+  width: min(42rem, calc(100% - 2.4rem));
+  margin: 3rem auto 1.6rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+@media (max-width: 560px) {
+  ol.cat a.card { grid-template-columns: 2.4rem 1fr; }
+  .go { display: none; }
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="mast">
+      <span>supervised-info</span>
+      <span>GitHub Pages</span>
+    </header>
+    <h1>Anschauung,<br>nicht Ersatz.</h1>
+    <p class="dek">Eine wachsende Kollektion eigenständiger Seiten. Jede Datei steht für sich — Physik, so erzählt, dass man sie sehen kann.</p>
+    <hr class="rule">
+    <ol class="cat">
+      <li>
+        <a class="card" href="relativitaetstheorie/">
+          <span class="num">01</span>
+          <span>
+            <h2>Relativitätstheorie, anschaulich</h2>
+            <p>Lichtuhr, Eigenzeit, Zwillingswege und die Krümmung, in der wir fallen.</p>
+          </span>
+          <span class="go">Lesen →</span>
+        </a>
+      </li>
+    </ol>
+  </div>
+  <footer>Keine Werkzeugkette. Statische Dateien, absichtlich.</footer>
+</body>
+</html>
