@@ -312,11 +312,73 @@ h1 {
 }
 .row {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) minmax(7.2rem, auto) 44px;
+  grid-template-columns: 38px 44px minmax(0, 1fr) minmax(7.2rem, auto) 44px;
   gap: 0.3rem;
   align-items: center;
   border-bottom: 1px solid var(--rule);
   min-height: 48px;
+  position: relative;
+}
+.grip {
+  width: 38px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  flex-shrink: 0;
+}
+.grip:hover { color: var(--ink); }
+.grip:active, .row.dragging .grip, .layout-row.dragging .grip { cursor: grabbing; }
+.grip-icon {
+  display: block;
+  width: 12px;
+  height: 18px;
+  background-image: radial-gradient(circle, currentColor 1.15px, transparent 1.25px);
+  background-size: 6px 6px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+.row.dragging, .layout-row.dragging {
+  opacity: 0.45;
+  box-shadow: var(--shadow);
+  background: var(--paper-2);
+  z-index: 2;
+}
+.row.drop-before::before,
+.layout-row.drop-before::before,
+.row.drop-after::after,
+.layout-row.drop-after::after,
+.dept h2.drop-target::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--oxide);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 3;
+}
+.row.drop-before::before,
+.layout-row.drop-before::before { top: -2px; }
+.row.drop-after::after,
+.layout-row.drop-after::after { bottom: -2px; }
+.dept h2 { position: relative; }
+.dept h2.drop-target::after { bottom: -2px; }
+body.is-dragging {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grabbing;
 }
 .chk {
   width: 44px;
@@ -361,6 +423,7 @@ h1 {
   color: var(--muted);
 }
 .row.done { opacity: 0.72; }
+.row.dragging, .row.dragging.done { opacity: 0.45; }
 .dept-sel {
   font-size: 0.75rem;
   min-height: 36px;
@@ -448,12 +511,14 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
 }
 .layout-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 36px 1fr auto;
   gap: 0.35rem;
   align-items: center;
   padding: 0.35rem 0;
   border-bottom: 1px solid var(--rule);
+  position: relative;
 }
+.layout-row .grip { width: 36px; height: 40px; }
 .layout-name { font-size: 0.95rem; }
 .layout-btns { display: flex; flex-wrap: wrap; gap: 0.25rem; }
 .layout-btns button {
@@ -520,15 +585,19 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
   .sheet.open { transform: translateY(0); }
   .row {
-    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    grid-template-columns: 38px 44px minmax(0, 1fr) 44px;
     grid-template-rows: auto auto;
   }
+  .grip { grid-column: 1; grid-row: 1; }
+  .chk { grid-column: 2; grid-row: 1; }
+  .name, .name-edit { grid-column: 3; grid-row: 1; }
   .dept-sel {
-    grid-column: 2;
+    grid-column: 3;
+    grid-row: 2;
     max-width: none;
     margin: 0 0 0.4rem;
   }
-  .del { grid-column: 3; grid-row: 1 / 3; }
+  .del { grid-column: 4; grid-row: 1 / 3; }
 }
 </style>
 <script>
@@ -560,6 +629,12 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     <p class="hint">Übernimmt das aktuelle Layout.</p>
     <div class="sheet-actions">
       <button type="button" class="chipbtn danger" id="btn-delete-store">Laden löschen</button>
+    </div>
+    <p class="sheet-label">Alle Läden</p>
+    <div class="sheet-actions">
+      <button type="button" class="chipbtn" id="btn-save-stores">Läden speichern</button>
+      <button type="button" class="chipbtn" id="btn-load-stores">Läden laden</button>
+      <input id="stores-file" class="sr-only" type="file" accept=".json,application/json">
     </div>
   </div>
 </aside>
@@ -682,6 +757,9 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     newName: document.getElementById("new-store-name"),
     newStoreBtn: document.getElementById("btn-new-store"),
     deleteBtn: document.getElementById("btn-delete-store"),
+    saveStoresBtn: document.getElementById("btn-save-stores"),
+    loadStoresBtn: document.getElementById("btn-load-stores"),
+    storesFile: document.getElementById("stores-file"),
     themeMeta: document.querySelector('meta[name="theme-color"]')
   };
 
@@ -740,6 +818,13 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     renderCount();
   });
   els.resetBtn.addEventListener("click", resetLayout);
+  els.saveStoresBtn.addEventListener("click", downloadStores);
+  els.loadStoresBtn.addEventListener("click", function () { els.storesFile.click(); });
+  els.storesFile.addEventListener("change", function () {
+    var f = els.storesFile.files && els.storesFile.files[0];
+    els.storesFile.value = "";
+    importStoresFile(f);
+  });
   els.newStoreBtn.addEventListener("click", createStore);
   els.newName.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
@@ -832,6 +917,36 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   }
 
+  function itemOrd(it) {
+    if (typeof it.ord === "number" && isFinite(it.ord)) return it.ord;
+    if (typeof it.added === "number" && isFinite(it.added)) return it.added;
+    return 0;
+  }
+
+  function nextOrd() {
+    var max = 0;
+    state.items.forEach(function (it) {
+      var v = itemOrd(it);
+      if (v > max) max = v;
+    });
+    return max + 1;
+  }
+
+  function nextOrdBase(offset) {
+    return nextOrd() + offset;
+  }
+
+  function sortDeptItems(arr) {
+    arr.sort(function (a, b) {
+      var d = itemOrd(a) - itemOrd(b);
+      if (d) return d;
+      var aa = typeof a.added === "number" ? a.added : 0;
+      var ba = typeof b.added === "number" ? b.added : 0;
+      if (aa !== ba) return aa - ba;
+      return String(a.name).localeCompare(String(b.name), "de");
+    });
+  }
+
   function seedStores() {
     return SEEDS.map(function (s) {
       return { id: s.id, name: s.name, layout: s.layout.slice(), builtin: true };
@@ -910,14 +1025,19 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       items = items.map(function (it) {
         if (!it || typeof it.name !== "string") return null;
         var dept = DEPTS[it.dept] ? it.dept : "sonstiges";
-        return {
+        var rec = {
           id: it.id ? String(it.id) : uid("i"),
           name: it.name,
           dept: dept,
           done: !!it.done,
           added: typeof it.added === "number" ? it.added : Date.now()
         };
+        if (typeof it.ord === "number" && isFinite(it.ord)) rec.ord = it.ord;
+        return rec;
       }).filter(Boolean);
+      items.forEach(function (it, i) {
+        if (typeof it.ord !== "number" || !isFinite(it.ord)) it.ord = i + 1;
+      });
       var mappings = {};
       if (d.mappings && typeof d.mappings === "object") {
         Object.keys(d.mappings).forEach(function (k) {
@@ -1033,6 +1153,9 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       if (!byDept[d]) byDept[d] = [];
       byDept[d].push(it);
     });
+    Object.keys(byDept).forEach(function (d) {
+      sortDeptItems(byDept[d]);
+    });
     var groups = [];
     var used = {};
     layout.forEach(function (d) {
@@ -1062,7 +1185,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       name: name,
       dept: guessDept(name),
       done: false,
-      added: Date.now()
+      added: Date.now(),
+      ord: nextOrd()
     });
     scheduleSave();
     renderList();
@@ -1165,6 +1289,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     groups.forEach(function (g) {
       var sec = document.createElement("section");
       sec.className = "dept";
+      sec.setAttribute("data-dept", g.id);
       var h = document.createElement("h2");
       h.textContent = DEPTS[g.id];
       sec.appendChild(h);
@@ -1181,6 +1306,18 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   function renderRow(it) {
     var li = document.createElement("li");
     li.className = "row" + (it.done ? " done" : "");
+    li.setAttribute("data-id", it.id);
+
+    var grip = document.createElement("button");
+    grip.type = "button";
+    grip.className = "grip";
+    grip.setAttribute("aria-label", "Verschieben");
+    grip.title = "Verschieben";
+    var gicon = document.createElement("span");
+    gicon.className = "grip-icon";
+    gicon.setAttribute("aria-hidden", "true");
+    grip.appendChild(gicon);
+    bindItemGrip(grip, it, li);
 
     var lab = document.createElement("label");
     lab.className = "chk";
@@ -1229,11 +1366,316 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       renderCount();
     });
 
+    li.appendChild(grip);
     li.appendChild(lab);
     li.appendChild(name);
     li.appendChild(sel);
     li.appendChild(del);
     return li;
+  }
+
+  var DRAG_SLOP = 8;
+
+  function clearDropMarks(root) {
+    var scope = root || document;
+    var marked = scope.querySelectorAll(".drop-before, .drop-after, .drop-target, .dragging");
+    for (var i = 0; i < marked.length; i++) {
+      marked[i].classList.remove("drop-before");
+      marked[i].classList.remove("drop-after");
+      marked[i].classList.remove("drop-target");
+      marked[i].classList.remove("dragging");
+    }
+  }
+
+  function markDrop(el, kind) {
+    if (!el) return;
+    if (kind === "before") el.classList.add("drop-before");
+    else if (kind === "after") el.classList.add("drop-after");
+    else if (kind === "target") el.classList.add("drop-target");
+  }
+
+  function attachPointerDrag(handle, hooks) {
+    handle.addEventListener("pointerdown", function (e) {
+      if (e.button != null && e.button !== 0) return;
+      e.preventDefault();
+      var pid = e.pointerId;
+      try { handle.setPointerCapture(pid); } catch (err) {}
+      var sx = e.clientX;
+      var sy = e.clientY;
+      var active = false;
+      var finished = false;
+      var last = e;
+      function blockScroll(ev) {
+        if (ev.cancelable) ev.preventDefault();
+      }
+      function move(ev) {
+        last = ev;
+        if (!active) {
+          var dx = ev.clientX - sx;
+          var dy = ev.clientY - sy;
+          if (dx * dx + dy * dy < DRAG_SLOP * DRAG_SLOP) return;
+          active = true;
+          document.body.classList.add("is-dragging");
+          if (hooks.start) hooks.start(ev);
+        }
+        if (hooks.move) hooks.move(ev);
+      }
+      function end(ev) {
+        if (finished) return;
+        finished = true;
+        try { handle.releasePointerCapture(pid); } catch (err) {}
+        document.removeEventListener("pointermove", move, true);
+        document.removeEventListener("pointerup", end, true);
+        document.removeEventListener("pointercancel", end, true);
+        document.removeEventListener("touchmove", blockScroll, true);
+        handle.removeEventListener("pointermove", move);
+        handle.removeEventListener("pointerup", end);
+        handle.removeEventListener("pointercancel", end);
+        document.body.classList.remove("is-dragging");
+        if (active) {
+          if (hooks.end) hooks.end(ev || last);
+          var swallow = function (ce) {
+            ce.preventDefault();
+            ce.stopPropagation();
+            handle.removeEventListener("click", swallow, true);
+          };
+          handle.addEventListener("click", swallow, true);
+        }
+      }
+      document.addEventListener("pointermove", move, true);
+      document.addEventListener("pointerup", end, true);
+      document.addEventListener("pointercancel", end, true);
+      handle.addEventListener("pointermove", move);
+      handle.addEventListener("pointerup", end);
+      handle.addEventListener("pointercancel", end);
+      document.addEventListener("touchmove", blockScroll, { capture: true, passive: false });
+    });
+  }
+
+  function findItemDrop(clientY, dragId) {
+    var sections = els.list.querySelectorAll(".dept");
+    var rowHits = [];
+    var headHits = [];
+    var s;
+    for (s = 0; s < sections.length; s++) {
+      var sec = sections[s];
+      var dept = sec.getAttribute("data-dept");
+      var h = sec.querySelector("h2");
+      var nodeList = sec.querySelectorAll(".row");
+      var rows = [];
+      var i;
+      for (i = 0; i < nodeList.length; i++) {
+        if (nodeList[i].getAttribute("data-id") !== dragId) rows.push(nodeList[i]);
+      }
+      if (h) {
+        var hb = h.getBoundingClientRect();
+        headHits.push({
+          top: hb.top,
+          bottom: hb.bottom,
+          dept: dept,
+          beforeId: rows.length ? rows[0].getAttribute("data-id") : null,
+          markEl: h,
+          mark: "target"
+        });
+      }
+      for (i = 0; i < rows.length; i++) {
+        var box = rows[i].getBoundingClientRect();
+        rowHits.push({
+          top: box.top,
+          bottom: box.bottom,
+          mid: box.top + box.height / 2,
+          dept: dept,
+          id: rows[i].getAttribute("data-id"),
+          nextBefore: (i + 1 < rows.length) ? rows[i + 1].getAttribute("data-id") : null,
+          el: rows[i]
+        });
+      }
+    }
+    var j;
+    for (j = 0; j < rowHits.length; j++) {
+      var rh = rowHits[j];
+      if (clientY >= rh.top && clientY <= rh.bottom) {
+        if (clientY < rh.mid) {
+          return { dept: rh.dept, beforeId: rh.id, markEl: rh.el, mark: "before" };
+        }
+        return { dept: rh.dept, beforeId: rh.nextBefore, markEl: rh.el, mark: "after" };
+      }
+    }
+    for (j = 0; j < headHits.length; j++) {
+      var hh = headHits[j];
+      if (clientY >= hh.top && clientY <= hh.bottom) {
+        return { dept: hh.dept, beforeId: hh.beforeId, markEl: hh.markEl, mark: "target" };
+      }
+    }
+    var slots = [];
+    for (j = 0; j < headHits.length; j++) {
+      slots.push({
+        y: (headHits[j].top + headHits[j].bottom) / 2,
+        slot: {
+          dept: headHits[j].dept,
+          beforeId: headHits[j].beforeId,
+          markEl: headHits[j].markEl,
+          mark: "target"
+        }
+      });
+    }
+    for (j = 0; j < rowHits.length; j++) {
+      rh = rowHits[j];
+      slots.push({ y: rh.top, slot: { dept: rh.dept, beforeId: rh.id, markEl: rh.el, mark: "before" } });
+      slots.push({ y: rh.bottom, slot: { dept: rh.dept, beforeId: rh.nextBefore, markEl: rh.el, mark: "after" } });
+    }
+    if (!slots.length) return null;
+    var best = slots[0];
+    var bestDist = Math.abs(clientY - slots[0].y);
+    for (j = 1; j < slots.length; j++) {
+      var dist = Math.abs(clientY - slots[j].y);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = slots[j];
+      }
+    }
+    return best.slot;
+  }
+
+  function itemDropIsNoOp(item, slot) {
+    if (!slot || !slot.dept) return true;
+    if (slot.dept !== item.dept) return false;
+    var groups = groupItems();
+    var g = null;
+    groups.forEach(function (x) { if (x.id === item.dept) g = x; });
+    if (!g) return true;
+    var ids = [];
+    g.items.forEach(function (it) { ids.push(it.id); });
+    var idx = ids.indexOf(item.id);
+    if (idx < 0) return false;
+    if (slot.beforeId) {
+      if (slot.beforeId === item.id) return true;
+      return ids[idx + 1] === slot.beforeId;
+    }
+    return idx === ids.length - 1;
+  }
+
+  function applyItemDrop(item, slot) {
+    if (!slot || !DEPTS[slot.dept]) return false;
+    if (itemDropIsNoOp(item, slot)) return false;
+    if (item.dept !== slot.dept) {
+      item.dept = slot.dept;
+      state.mappings[mappingKey(item.name)] = slot.dept;
+    }
+    var groups = groupItems();
+    var n = 0;
+    var placed = false;
+    groups.forEach(function (g) {
+      var list = g.items.filter(function (it) { return it.id !== item.id; });
+      if (g.id === slot.dept) {
+        if (slot.beforeId) {
+          var out = [];
+          var did = false;
+          list.forEach(function (it) {
+            if (!did && it.id === slot.beforeId) {
+              out.push(item);
+              did = true;
+            }
+            out.push(it);
+          });
+          if (!did) out.push(item);
+          list = out;
+        } else {
+          list.push(item);
+        }
+        placed = true;
+      }
+      list.forEach(function (it) {
+        n += 1;
+        it.ord = n;
+      });
+    });
+    if (!placed) {
+      n += 1;
+      item.ord = n;
+    }
+    return true;
+  }
+
+  function bindItemGrip(handle, it, li) {
+    attachPointerDrag(handle, {
+      start: function () {
+        li.classList.add("dragging");
+      },
+      move: function (ev) {
+        clearDropMarks(els.list);
+        li.classList.add("dragging");
+        var slot = findItemDrop(ev.clientY, it.id);
+        if (slot) markDrop(slot.markEl, slot.mark);
+      },
+      end: function (ev) {
+        var slot = findItemDrop(ev.clientY, it.id);
+        clearDropMarks(els.list);
+        li.classList.remove("dragging");
+        if (applyItemDrop(it, slot)) {
+          scheduleSave();
+          renderList();
+          renderCount();
+        }
+      }
+    });
+  }
+
+  function findLayoutDrop(clientY, dragIdx) {
+    var rows = els.layoutList.querySelectorAll(".layout-row");
+    var last = null;
+    var i;
+    for (i = 0; i < rows.length; i++) {
+      var idx = Number(rows[i].getAttribute("data-idx"));
+      if (idx === dragIdx) continue;
+      var r = rows[i].getBoundingClientRect();
+      var mid = r.top + r.height / 2;
+      if (clientY < mid) {
+        return { index: idx, markEl: rows[i], mark: "before" };
+      }
+      last = { index: idx + 1, markEl: rows[i], mark: "after" };
+    }
+    return last;
+  }
+
+  function applyLayoutDrop(fromIdx, slot) {
+    if (!slot) return false;
+    var toIdx = slot.index;
+    if (fromIdx === toIdx || fromIdx + 1 === toIdx) return false;
+    var store = currentStore();
+    if (toIdx < 0) toIdx = 0;
+    if (toIdx > store.layout.length) toIdx = store.layout.length;
+    var next = store.layout.slice();
+    var moved = next.splice(fromIdx, 1)[0];
+    var insertAt = toIdx;
+    if (fromIdx < toIdx) insertAt = toIdx - 1;
+    next.splice(insertAt, 0, moved);
+    store.layout = next;
+    return true;
+  }
+
+  function bindLayoutGrip(handle, idx, li) {
+    attachPointerDrag(handle, {
+      start: function () {
+        li.classList.add("dragging");
+      },
+      move: function (ev) {
+        clearDropMarks(els.layoutList);
+        li.classList.add("dragging");
+        var slot = findLayoutDrop(ev.clientY, idx);
+        if (slot) markDrop(slot.markEl, slot.mark);
+      },
+      end: function (ev) {
+        var slot = findLayoutDrop(ev.clientY, idx);
+        clearDropMarks(els.layoutList);
+        li.classList.remove("dragging");
+        if (applyLayoutDrop(idx, slot)) {
+          scheduleSave();
+          renderList();
+          renderSheet();
+        }
+      }
+    });
   }
 
   function setStatus(msg, ms) {
@@ -1292,7 +1734,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
         name: name,
         dept: dept || guessDept(name),
         done: done,
-        added: now
+        added: now,
+        ord: nextOrdBase(items.length)
       });
     });
     return items;
@@ -1302,7 +1745,9 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function () {
-      var items = parseMarkdown(String(reader.result || ""));
+      var text = String(reader.result || "");
+      if (tryImportStoresText(text)) return;
+      var items = parseMarkdown(text);
       if (!items.length) {
         setStatus("Keine Artikel in der Datei.");
         return;
@@ -1517,6 +1962,157 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     setStatus("Datei gespeichert.");
   }
 
+  function triggerDownload(blob, filename) {
+    var a = document.createElement("a");
+    var url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  function looksLikeStoresFile(obj) {
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) return false;
+    if (obj.kind === "einkauf-laeden") return true;
+    if (obj.v === 1 && Array.isArray(obj.stores)) return true;
+    return false;
+  }
+
+  function sanitizeMappings(raw) {
+    var mappings = {};
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      Object.keys(raw).forEach(function (k) {
+        if (DEPTS[raw[k]]) mappings[k] = raw[k];
+      });
+    }
+    return mappings;
+  }
+
+  function sanitizeStoresList(rawStores) {
+    var stores = Array.isArray(rawStores) ? rawStores : [];
+    stores = stores.map(function (s) {
+      if (!s || !s.id || !s.name) return null;
+      return {
+        id: String(s.id),
+        name: String(s.name),
+        layout: sanitizeLayout(s.layout),
+        builtin: !!s.builtin
+      };
+    }).filter(Boolean);
+    return stores;
+  }
+
+  function mergeBuiltinSeeds(stores) {
+    SEEDS.forEach(function (seed) {
+      var found = null;
+      stores.forEach(function (s) {
+        if (s.id === seed.id) found = s;
+      });
+      if (!found) {
+        stores.push({ id: seed.id, name: seed.name, layout: seed.layout.slice(), builtin: true });
+      } else {
+        found.builtin = true;
+      }
+    });
+    if (!stores.length) stores = seedStores();
+    return orderStores(stores);
+  }
+
+  function downloadStores() {
+    var payload = {
+      kind: "einkauf-laeden",
+      v: 1,
+      currentStoreId: state.currentStoreId,
+      stores: state.stores.map(function (s) {
+        return {
+          id: s.id,
+          name: s.name,
+          layout: s.layout.slice(),
+          builtin: !!s.builtin
+        };
+      }),
+      mappings: state.mappings
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+    triggerDownload(blob, "einkauf-laeden.json");
+    setStatus("Läden gespeichert.");
+  }
+
+  function applyStoresImport(data, replace) {
+    var imported = sanitizeStoresList(data.stores);
+    var importedMaps = sanitizeMappings(data.mappings);
+    if (replace) {
+      state.stores = mergeBuiltinSeeds(imported);
+      state.mappings = importedMaps;
+    } else {
+      var byId = {};
+      state.stores.forEach(function (s) { byId[s.id] = s; });
+      imported.forEach(function (s) {
+        if (byId[s.id]) {
+          byId[s.id].name = s.name;
+          byId[s.id].layout = s.layout.slice();
+        } else {
+          state.stores.push(s);
+        }
+      });
+      state.stores = mergeBuiltinSeeds(state.stores);
+      Object.keys(importedMaps).forEach(function (k) {
+        state.mappings[k] = importedMaps[k];
+      });
+    }
+    var nextId = data.currentStoreId ? String(data.currentStoreId) : "";
+    var has = state.stores.some(function (s) { return s.id === nextId; });
+    if (has) state.currentStoreId = nextId;
+    var stillHas = state.stores.some(function (s) { return s.id === state.currentStoreId; });
+    if (!stillHas) state.currentStoreId = state.stores[0].id;
+    scheduleSave();
+    renderStoreSelect();
+    renderList();
+    renderSheet();
+    setStatus(imported.length + " Läden geladen.");
+  }
+
+  function runStoresImport(data) {
+    var replace = window.confirm("Läden ersetzen?\nOK = ersetzen, Abbrechen = dazunehmen.");
+    applyStoresImport(data, replace);
+  }
+
+  function tryImportStoresText(text) {
+    var trimmed = String(text || "").replace(/^\uFEFF/, "").trim();
+    if (!trimmed || trimmed.charAt(0) !== "{") return false;
+    var data;
+    try { data = JSON.parse(trimmed); } catch (e) { return false; }
+    if (!looksLikeStoresFile(data)) return false;
+    runStoresImport(data);
+    return true;
+  }
+
+  function importStoresFile(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var raw = String(reader.result || "").replace(/^\uFEFF/, "").trim();
+      var data;
+      try {
+        data = JSON.parse(raw);
+      } catch (e) {
+        setStatus("Ungültige Datei.");
+        return;
+      }
+      if (!looksLikeStoresFile(data)) {
+        setStatus("Keine Laden-Datei.");
+        return;
+      }
+      runStoresImport(data);
+    };
+    reader.onerror = function () {
+      setStatus("Datei konnte nicht gelesen werden.");
+    };
+    reader.readAsText(file, "utf-8");
+  }
+
   function openSheet() {
     if (sheetOpen) return;
     sheetOpen = true;
@@ -1557,6 +2153,18 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     store.layout.forEach(function (id, idx) {
       var li = document.createElement("li");
       li.className = "layout-row";
+      li.setAttribute("data-idx", String(idx));
+      li.setAttribute("data-dept", id);
+      var grip = document.createElement("button");
+      grip.type = "button";
+      grip.className = "grip";
+      grip.setAttribute("aria-label", "Verschieben");
+      grip.title = "Verschieben";
+      var gicon = document.createElement("span");
+      gicon.className = "grip-icon";
+      gicon.setAttribute("aria-hidden", "true");
+      grip.appendChild(gicon);
+      bindLayoutGrip(grip, idx, li);
       var nm = document.createElement("span");
       nm.className = "layout-name";
       nm.textContent = DEPTS[id] || id;
@@ -1584,6 +2192,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       btns.appendChild(up);
       btns.appendChild(down);
       btns.appendChild(rm);
+      li.appendChild(grip);
       li.appendChild(nm);
       li.appendChild(btns);
       els.layoutList.appendChild(li);
