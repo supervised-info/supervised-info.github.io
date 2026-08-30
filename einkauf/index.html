@@ -741,6 +741,7 @@ body.walk .chk input {
           <button type="button" class="chipbtn" id="btn-bring" role="menuitem">Bring</button>
           <button type="button" class="chipbtn" id="btn-reminders" role="menuitem">Erinnerungen</button>
           <button type="button" class="chipbtn" id="btn-layout" role="menuitem" aria-controls="sheet" aria-expanded="false">Layout</button>
+          <button type="button" class="chipbtn" id="btn-backup-share" role="menuitem">Backup teilen</button>
           <button type="button" class="chipbtn" id="btn-backup-save" role="menuitem">Backup speichern</button>
           <button type="button" class="chipbtn" id="btn-backup-load" role="menuitem">Backup laden</button>
           <input id="backup-file" class="sr-only" type="file" accept=".json,application/json">
@@ -830,6 +831,7 @@ body.walk .chk input {
     fileBtn: document.getElementById("btn-file"),
     importBtn: document.getElementById("btn-import"),
     importFile: document.getElementById("import-file"),
+    backupShareBtn: document.getElementById("btn-backup-share"),
     backupSaveBtn: document.getElementById("btn-backup-save"),
     backupLoadBtn: document.getElementById("btn-backup-load"),
     backupFile: document.getElementById("backup-file"),
@@ -920,6 +922,7 @@ body.walk .chk input {
     scheduleSave();
     renderList();
   });
+  els.backupShareBtn.addEventListener("click", shareBackup);
   els.backupSaveBtn.addEventListener("click", downloadBackup);
   els.backupLoadBtn.addEventListener("click", function () { els.backupFile.click(); });
   els.backupFile.addEventListener("change", function () {
@@ -2252,8 +2255,8 @@ body.walk .chk input {
     applyStoresImport(data, replace);
   }
 
-  function downloadBackup() {
-    var payload = {
+  function backupPayload() {
+    return {
       kind: "einkauf-backup",
       v: 1,
       currentStoreId: state.currentStoreId,
@@ -2279,9 +2282,46 @@ body.walk .chk input {
       walkMode: !!state.walkMode,
       layoutTrip: 1
     };
-    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
-    triggerDownload(blob, "einkauf-backup.json");
+  }
+
+  function backupBlob() {
+    return new Blob([JSON.stringify(backupPayload(), null, 2)], { type: "application/json;charset=utf-8" });
+  }
+
+  function downloadBackup() {
+    triggerDownload(backupBlob(), "einkauf-backup.json");
     setStatus("Backup gespeichert.");
+  }
+
+  function shareBackup() {
+    var blob = backupBlob();
+    var name = stampedFilename("einkauf-backup.json");
+    function fallback() {
+      triggerDownload(blob, "einkauf-backup.json");
+      setStatus("Teilen nicht möglich, Datei gespeichert.");
+    }
+    if (!navigator.share || typeof File !== "function") {
+      fallback();
+      return;
+    }
+    var file;
+    try {
+      file = new File([blob], name, { type: "application/json" });
+    } catch (e) {
+      fallback();
+      return;
+    }
+    var data = { files: [file], title: "Einkauf Backup" };
+    if (navigator.canShare && !navigator.canShare(data)) {
+      fallback();
+      return;
+    }
+    navigator.share(data).then(function () {
+      setStatus("Backup geteilt.");
+    }).catch(function (err) {
+      if (err && err.name === "AbortError") return;
+      fallback();
+    });
   }
 
   function applyBackupImport(data) {
