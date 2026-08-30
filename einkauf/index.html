@@ -615,7 +615,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   <div class="sheet-body">
     <p class="sheet-store" id="sheet-store"></p>
     <ol class="layout-list" id="layout-list"></ol>
-    <p class="hint">Sonstiges erscheint in der Liste immer zuletzt.</p>
+    <p class="hint">Vor dem Einkauf steht in der Liste immer vorn, Nach dem Einkauf immer hinten. Sonstiges direkt davor.</p>
     <p class="sheet-label">Abteilung hinzufügen</p>
     <div class="chips" id="unused-depts"></div>
     <div class="sheet-actions">
@@ -682,6 +682,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   var PALETTE_KEY = "supervised-info.palette";
 
   var DEPTS = {
+    vor: "Vor dem Einkauf",
     obst: "Obst & Gemüse",
     brot: "Brot & Backwaren",
     bedienung: "Fleisch, Wurst, Käse",
@@ -691,16 +692,17 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     suess: "Süßwaren & Snacks",
     getraenke: "Getränke",
     drogerie: "Drogerie & Haushalt",
-    sonstiges: "Sonstiges"
+    sonstiges: "Sonstiges",
+    nach: "Nach dem Einkauf"
   };
 
   var SEEDS = [
-    { id: "edeka", name: "Edeka", layout: ["obst", "bedienung", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges"] },
-    { id: "aldi", name: "Aldi", layout: ["obst", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges"] },
-    { id: "rewe", name: "Rewe", layout: ["obst", "brot", "bedienung", "trocken", "suess", "kuehlung", "tiefkuehl", "getraenke", "drogerie", "sonstiges"] },
-    { id: "lidl", name: "Lidl", layout: ["obst", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges"] },
-    { id: "dm", name: "dm", layout: ["drogerie", "trocken", "getraenke", "sonstiges"] },
-    { id: "eigenes", name: "Eigenes Layout", layout: ["sonstiges"] }
+    { id: "edeka", name: "Edeka", layout: ["vor", "obst", "bedienung", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges", "nach"] },
+    { id: "aldi", name: "Aldi", layout: ["vor", "obst", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges", "nach"] },
+    { id: "rewe", name: "Rewe", layout: ["vor", "obst", "brot", "bedienung", "trocken", "suess", "kuehlung", "tiefkuehl", "getraenke", "drogerie", "sonstiges", "nach"] },
+    { id: "lidl", name: "Lidl", layout: ["vor", "obst", "brot", "kuehlung", "tiefkuehl", "trocken", "suess", "getraenke", "drogerie", "sonstiges", "nach"] },
+    { id: "dm", name: "dm", layout: ["vor", "drogerie", "trocken", "getraenke", "sonstiges", "nach"] },
+    { id: "eigenes", name: "Eigenes Layout", layout: ["vor", "sonstiges", "nach"] }
   ];
 
   var DICT_SRC = {
@@ -985,6 +987,13 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     return out;
   }
 
+  function ensureTripDepts(layout) {
+    var out = sanitizeLayout(layout);
+    if (out.indexOf("vor") === -1) out.unshift("vor");
+    if (out.indexOf("nach") === -1) out.push("nach");
+    return out;
+  }
+
   function load() {
     var fallback = {
       theme: readSharedTheme() || preferredTheme(),
@@ -992,7 +1001,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       currentStoreId: "edeka",
       items: [],
       mappings: {},
-      stores: seedStores()
+      stores: seedStores(),
+      layoutTrip: 1
     };
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
@@ -1021,6 +1031,9 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       });
       if (!stores.length) stores = seedStores();
       stores = orderStores(stores);
+      if (d.layoutTrip !== 1) {
+        stores.forEach(function (s) { s.layout = ensureTripDepts(s.layout); });
+      }
       var items = Array.isArray(d.items) ? d.items : [];
       items = items.map(function (it) {
         if (!it || typeof it.name !== "string") return null;
@@ -1055,7 +1068,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
         currentStoreId: current,
         items: items,
         mappings: mappings,
-        stores: stores
+        stores: stores,
+        layoutTrip: 1
       };
     } catch (e) {
       return fallback;
@@ -1075,7 +1089,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
         currentStoreId: state.currentStoreId,
         items: state.items,
         mappings: state.mappings,
-        stores: state.stores
+        stores: state.stores,
+        layoutTrip: 1
       }));
     } catch (e) {}
   }
@@ -1142,11 +1157,13 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   function groupItems() {
     var store = currentStore();
     var layout = store.layout.slice();
-    var six = layout.indexOf("sonstiges");
-    if (six !== -1) {
-      layout.splice(six, 1);
-      layout.push("sonstiges");
+    function pullId(id) {
+      var i = layout.indexOf(id);
+      if (i !== -1) layout.splice(i, 1);
     }
+    pullId("vor");
+    pullId("nach");
+    pullId("sonstiges");
     var byDept = {};
     state.items.forEach(function (it) {
       var d = DEPTS[it.dept] ? it.dept : "sonstiges";
@@ -1158,22 +1175,21 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     });
     var groups = [];
     var used = {};
-    layout.forEach(function (d) {
+    function pushDept(d) {
+      if (used[d]) return;
       if (byDept[d] && byDept[d].length) {
         groups.push({ id: d, items: byDept[d] });
         used[d] = true;
       }
-    });
-    Object.keys(DEPTS).forEach(function (d) {
-      if (d === "sonstiges") return;
-      if (!used[d] && byDept[d] && byDept[d].length) {
-        groups.push({ id: d, items: byDept[d] });
-        used[d] = true;
-      }
-    });
-    if (!used.sonstiges && byDept.sonstiges && byDept.sonstiges.length) {
-      groups.push({ id: "sonstiges", items: byDept.sonstiges });
     }
+    pushDept("vor");
+    layout.forEach(pushDept);
+    Object.keys(DEPTS).forEach(function (d) {
+      if (d === "vor" || d === "nach" || d === "sonstiges") return;
+      pushDept(d);
+    });
+    pushDept("sonstiges");
+    pushDept("nach");
     return groups;
   }
 
