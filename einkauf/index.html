@@ -692,7 +692,7 @@ body.walk .chk input {
 <div class="scrim" id="scrim" hidden></div>
 <aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
   <div class="sheet-head">
-    <h2 id="sheet-title">Layout</h2>
+    <h2 id="sheet-title">Einstellungen</h2>
     <button type="button" class="iconbtn" id="sheet-close" aria-label="Schließen">Schließen</button>
   </div>
   <div class="sheet-body">
@@ -768,12 +768,12 @@ body.walk .chk input {
           <button type="button" class="chipbtn" id="btn-share" role="menuitem">Teilen</button>
           <button type="button" class="chipbtn" id="btn-bring" role="menuitem">Bring</button>
           <button type="button" class="chipbtn" id="btn-reminders" role="menuitem">Erinnerungen</button>
-          <button type="button" class="chipbtn" id="btn-layout" role="menuitem" aria-controls="sheet" aria-expanded="false">Layout</button>
           <button type="button" class="chipbtn" id="btn-backup-share" role="menuitem">Backup teilen</button>
           <button type="button" class="chipbtn" id="btn-backup-save" role="menuitem">Backup speichern</button>
           <button type="button" class="chipbtn" id="btn-backup-load" role="menuitem">Backup laden</button>
           <input id="backup-file" class="sr-only" type="file" accept=".json,application/json">
           <button type="button" class="chipbtn danger" id="btn-clear" role="menuitem">Erledigte löschen</button>
+          <button type="button" class="chipbtn" id="btn-layout" role="menuitem" aria-controls="sheet" aria-expanded="false">Einstellungen</button>
         </div>
       </div>
     </div>
@@ -2776,7 +2776,7 @@ body.walk .chk input {
 
   function applyAllStaples() {
     if (!state.staples.length) {
-      setStatus("Noch keine Stamm-Artikel. Im Layout anlegen.");
+      setStatus("Noch keine Stamm-Artikel. In den Einstellungen anlegen.");
       return;
     }
     var added = 0;
