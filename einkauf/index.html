@@ -605,7 +605,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   gap: 0.4rem;
   align-items: stretch;
 }
-#new-store-name {
+#new-store-name, #new-staple {
   flex: 1;
   min-width: 0;
   min-height: 44px;
@@ -613,6 +613,16 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   background: var(--paper-2);
   border-radius: 999px;
   padding: 0.3rem 0.8rem;
+}
+.staples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+}
+.staples:empty { display: none; }
+#staple-list .layout-row {
+  grid-template-columns: 1fr auto;
 }
 .sheet-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
 @media (max-width: 560px) {
@@ -702,6 +712,13 @@ body.walk .chk input {
       <button type="button" class="chipbtn" id="btn-load-stores">Läden laden</button>
       <input id="stores-file" class="sr-only" type="file" accept=".json,application/json">
     </div>
+    <p class="sheet-label">Stamm-Artikel</p>
+    <p class="hint">Tippen auf der Liste setzt sie auf die Einkaufsliste. Hier anlegen und entfernen.</p>
+    <ul class="layout-list" id="staple-list"></ul>
+    <div class="new-store">
+      <input id="new-staple" type="text" placeholder="z. B. Milch" maxlength="60" autocomplete="off">
+      <button type="button" class="chipbtn primary" id="btn-add-staple">Anlegen</button>
+    </div>
   </div>
 </aside>
 <div class="wrap">
@@ -719,6 +736,7 @@ body.walk .chk input {
     <input id="add" type="text" placeholder="Milch, Äpfel, Klopapier…" autocomplete="off" enterkeyhint="enter">
     <button type="submit" class="add-btn" aria-label="Hinzufügen">+</button>
   </form>
+  <div id="staples" class="staples"></div>
   <div class="toolbar">
     <label class="store-lab">Laden
       <select id="store"></select>
@@ -850,6 +868,10 @@ body.walk .chk input {
     saveStoresBtn: document.getElementById("btn-save-stores"),
     loadStoresBtn: document.getElementById("btn-load-stores"),
     storesFile: document.getElementById("stores-file"),
+    staples: document.getElementById("staples"),
+    stapleList: document.getElementById("staple-list"),
+    newStaple: document.getElementById("new-staple"),
+    addStapleBtn: document.getElementById("btn-add-staple"),
     themeMeta: document.querySelector('meta[name="theme-color"]')
   };
 
@@ -867,6 +889,7 @@ body.walk .chk input {
   renderStoreSelect();
   renderCount();
   renderList();
+  renderStaples();
 
   els.addForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -949,6 +972,13 @@ body.walk .chk input {
     if (e.key === "Enter") {
       e.preventDefault();
       createStore();
+    }
+  });
+  els.addStapleBtn.addEventListener("click", addStaple);
+  els.newStaple.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addStaple();
     }
   });
   els.deleteBtn.addEventListener("click", deleteStore);
@@ -1126,7 +1156,8 @@ body.walk .chk input {
       mappings: {},
       stores: seedStores(),
       layoutTrip: 1,
-      walkMode: false
+      walkMode: false,
+      staples: []
     };
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
@@ -1178,7 +1209,8 @@ body.walk .chk input {
         mappings: mappings,
         stores: stores,
         layoutTrip: 1,
-        walkMode: d.walkMode === true
+        walkMode: d.walkMode === true,
+        staples: sanitizeStaples(d.staples)
       };
     } catch (e) {
       return fallback;
@@ -1200,7 +1232,8 @@ body.walk .chk input {
         mappings: state.mappings,
         stores: state.stores,
         layoutTrip: 1,
-        walkMode: !!state.walkMode
+        walkMode: !!state.walkMode,
+        staples: state.staples
       }));
     } catch (e) {}
   }
@@ -2166,6 +2199,22 @@ body.walk .chk input {
     return mappings;
   }
 
+  function sanitizeStaples(raw) {
+    var seen = {};
+    var out = [];
+    if (!Array.isArray(raw)) return out;
+    raw.forEach(function (name) {
+      if (typeof name !== "string") return;
+      name = name.replace(/\s+/g, " ").trim();
+      if (!name) return;
+      var k = mappingKey(name);
+      if (!k || seen[k]) return;
+      seen[k] = true;
+      out.push(name);
+    });
+    return out;
+  }
+
   function sanitizeStoresList(rawStores) {
     var stores = Array.isArray(rawStores) ? rawStores : [];
     stores = stores.map(function (s) {
@@ -2280,7 +2329,8 @@ body.walk .chk input {
         };
       }),
       walkMode: !!state.walkMode,
-      layoutTrip: 1
+      layoutTrip: 1,
+      staples: state.staples.slice()
     };
   }
 
@@ -2336,10 +2386,12 @@ body.walk .chk input {
     if (!stillHas) state.currentStoreId = state.stores[0].id;
     if (typeof data.walkMode === "boolean") state.walkMode = data.walkMode;
     state.layoutTrip = 1;
+    if (Array.isArray(data.staples)) state.staples = sanitizeStaples(data.staples);
     scheduleSave();
     renderStoreSelect();
     renderList();
     renderCount();
+    renderStaples();
     applyWalkMode();
     if (sheetOpen) renderSheet();
     setStatus("Backup geladen.");
@@ -2538,6 +2590,7 @@ body.walk .chk input {
 
     els.resetBtn.hidden = !store.builtin;
     els.deleteBtn.hidden = !!store.builtin;
+    renderStapleList();
   }
 
   function moveDept(idx, dir) {
@@ -2581,6 +2634,114 @@ body.walk .chk input {
     renderList();
     renderSheet();
     setStatus("Layout zurückgesetzt.");
+  }
+
+  function renderStaples() {
+    els.staples.textContent = "";
+    if (!state.staples.length) return;
+    state.staples.forEach(function (name) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = name;
+      b.addEventListener("click", function () { tapStaple(name); });
+      els.staples.appendChild(b);
+    });
+  }
+
+  function tapStaple(name) {
+    var key = mappingKey(name);
+    var found = null;
+    state.items.forEach(function (it) {
+      if (!found && mappingKey(it.name) === key) found = it;
+    });
+    if (found) {
+      if (found.done) {
+        found.done = false;
+        scheduleSave();
+        renderList();
+        renderCount();
+        setStatus("wieder offen: " + found.name);
+      } else {
+        setStatus("schon auf der Liste.");
+      }
+      return;
+    }
+    addItem(name);
+  }
+
+  function renderStapleList() {
+    els.stapleList.textContent = "";
+    state.staples.forEach(function (name, idx) {
+      var li = document.createElement("li");
+      li.className = "layout-row";
+      var nm = document.createElement("span");
+      nm.className = "layout-name";
+      nm.textContent = name;
+      var btns = document.createElement("div");
+      btns.className = "layout-btns";
+      var up = document.createElement("button");
+      up.type = "button";
+      up.textContent = "Nach oben";
+      up.disabled = idx === 0;
+      up.addEventListener("click", function () { moveStaple(idx, -1); });
+      var down = document.createElement("button");
+      down.type = "button";
+      down.textContent = "Nach unten";
+      down.disabled = idx === state.staples.length - 1;
+      down.addEventListener("click", function () { moveStaple(idx, 1); });
+      var rm = document.createElement("button");
+      rm.type = "button";
+      rm.textContent = "Entfernen";
+      rm.addEventListener("click", function () { removeStaple(idx); });
+      btns.appendChild(up);
+      btns.appendChild(down);
+      btns.appendChild(rm);
+      li.appendChild(nm);
+      li.appendChild(btns);
+      els.stapleList.appendChild(li);
+    });
+  }
+
+  function moveStaple(idx, dir) {
+    var j = idx + dir;
+    if (j < 0 || j >= state.staples.length) return;
+    var t = state.staples[idx];
+    state.staples[idx] = state.staples[j];
+    state.staples[j] = t;
+    scheduleSave();
+    renderStaples();
+    renderSheet();
+  }
+
+  function removeStaple(idx) {
+    state.staples.splice(idx, 1);
+    scheduleSave();
+    renderStaples();
+    renderSheet();
+  }
+
+  function addStaple() {
+    var name = String(els.newStaple.value || "").replace(/\s+/g, " ").trim();
+    if (!name) {
+      setStatus("Bitte einen Namen eingeben.");
+      els.newStaple.focus();
+      return;
+    }
+    var key = mappingKey(name);
+    var dup = false;
+    state.staples.forEach(function (s) {
+      if (mappingKey(s) === key) dup = true;
+    });
+    if (dup) {
+      setStatus("schon in den Stamm-Artikeln.");
+      return;
+    }
+    state.staples.push(name);
+    els.newStaple.value = "";
+    scheduleSave();
+    renderStaples();
+    renderSheet();
   }
 
   function createStore() {
