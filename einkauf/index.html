@@ -304,6 +304,10 @@ h1 {
   text-align: left;
   border-radius: 0.75rem;
 }
+#staple-menu .staple-item {
+  width: calc(100% - 0.85rem);
+  margin-left: 0.85rem;
+}
 .chipbtn, .iconbtn {
   border: 1px solid var(--rule);
   background: var(--paper-2);
@@ -2678,13 +2682,13 @@ body.walk .chk input {
     listBtn.className = "chipbtn";
     listBtn.id = "btn-staple-list";
     listBtn.setAttribute("role", "menuitem");
-    listBtn.textContent = "Liste";
+    listBtn.textContent = "Gesamtliste";
     listBtn.addEventListener("click", applyAllStaples);
     els.stapleMenu.appendChild(listBtn);
     state.staples.forEach(function (name) {
       var b = document.createElement("button");
       b.type = "button";
-      b.className = "chipbtn";
+      b.className = "chipbtn staple-item";
       b.setAttribute("role", "menuitem");
       b.textContent = name;
       b.addEventListener("click", function () { tapStaple(name); });
