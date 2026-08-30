@@ -614,13 +614,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   border-radius: 999px;
   padding: 0.3rem 0.8rem;
 }
-.staples {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin: 0 0 1rem;
-}
-.staples:empty { display: none; }
 #staple-list .layout-row {
   grid-template-columns: 1fr auto;
 }
@@ -713,7 +706,7 @@ body.walk .chk input {
       <input id="stores-file" class="sr-only" type="file" accept=".json,application/json">
     </div>
     <p class="sheet-label">Stamm-Artikel</p>
-    <p class="hint">Tippen auf der Liste setzt sie auf die Einkaufsliste. Hier anlegen und entfernen.</p>
+    <p class="hint">Im Stamm-Menü auf die Einkaufsliste setzen. Hier anlegen und entfernen.</p>
     <ul class="layout-list" id="staple-list"></ul>
     <div class="new-store">
       <input id="new-staple" type="text" placeholder="z. B. Milch" maxlength="60" autocomplete="off">
@@ -736,7 +729,6 @@ body.walk .chk input {
     <input id="add" type="text" placeholder="Milch, Äpfel, Klopapier…" autocomplete="off" enterkeyhint="enter">
     <button type="submit" class="add-btn" aria-label="Hinzufügen">+</button>
   </form>
-  <div id="staples" class="staples"></div>
   <div class="toolbar">
     <label class="store-lab">Laden
       <select id="store"></select>
@@ -744,6 +736,10 @@ body.walk .chk input {
     <div class="toolbar-end">
       <p class="count" id="count" aria-live="polite"></p>
       <button type="button" class="iconbtn" id="btn-walk" aria-pressed="false">Geh-Modus</button>
+      <div class="more" id="staple-more">
+        <button type="button" class="iconbtn" id="btn-staple-menu" aria-haspopup="true" aria-expanded="false" aria-controls="staple-menu">Stamm</button>
+        <div class="actions" id="staple-menu" role="menu"></div>
+      </div>
       <div class="more" id="more">
         <button type="button" class="iconbtn burger" id="btn-more" aria-label="Aktionen" aria-haspopup="true" aria-expanded="false" aria-controls="actions-menu">
           <span aria-hidden="true"></span>
@@ -868,7 +864,9 @@ body.walk .chk input {
     saveStoresBtn: document.getElementById("btn-save-stores"),
     loadStoresBtn: document.getElementById("btn-load-stores"),
     storesFile: document.getElementById("stores-file"),
-    staples: document.getElementById("staples"),
+    stapleMore: document.getElementById("staple-more"),
+    stapleMenuBtn: document.getElementById("btn-staple-menu"),
+    stapleMenu: document.getElementById("staple-menu"),
     stapleList: document.getElementById("staple-list"),
     newStaple: document.getElementById("new-staple"),
     addStapleBtn: document.getElementById("btn-add-staple"),
@@ -881,6 +879,7 @@ body.walk .chk input {
   var sheetOpen = false;
   var sheetCloser = null;
   var menuOpen = false;
+  var stapleMenuOpen = false;
 
   applyTheme();
   applyPalette();
@@ -920,10 +919,19 @@ body.walk .chk input {
     var btn = e.target.closest("button");
     if (btn) closeMenu();
   });
+  els.stapleMenuBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    toggleStapleMenu();
+  });
+  els.stapleMenu.addEventListener("click", function (e) {
+    var btn = e.target.closest("button");
+    if (btn) closeStapleMenu();
+  });
   document.addEventListener("click", function (e) {
-    if (!menuOpen) return;
-    if (els.more.contains(e.target)) return;
-    closeMenu();
+    var inMore = els.more && els.more.contains(e.target);
+    var inStaple = els.stapleMore && els.stapleMore.contains(e.target);
+    if (menuOpen && !inMore) closeMenu();
+    if (stapleMenuOpen && !inStaple) closeStapleMenu();
   });
   els.layoutBtn.addEventListener("click", openSheet);
   els.sheetClose.addEventListener("click", closeSheet);
@@ -987,6 +995,11 @@ body.walk .chk input {
     if (menuOpen) {
       e.preventDefault();
       closeMenu();
+      return;
+    }
+    if (stapleMenuOpen) {
+      e.preventDefault();
+      closeStapleMenu();
       return;
     }
     if (sheetOpen) {
@@ -2466,6 +2479,7 @@ body.walk .chk input {
 
   function openMenu() {
     if (menuOpen) return;
+    closeStapleMenu();
     menuOpen = true;
     els.actions.classList.add("open");
     els.moreBtn.setAttribute("aria-expanded", "true");
@@ -2483,8 +2497,29 @@ body.walk .chk input {
     else openMenu();
   }
 
+  function openStapleMenu() {
+    if (stapleMenuOpen) return;
+    closeMenu();
+    stapleMenuOpen = true;
+    els.stapleMenu.classList.add("open");
+    els.stapleMenuBtn.setAttribute("aria-expanded", "true");
+  }
+
+  function closeStapleMenu() {
+    if (!stapleMenuOpen) return;
+    stapleMenuOpen = false;
+    els.stapleMenu.classList.remove("open");
+    els.stapleMenuBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleStapleMenu() {
+    if (stapleMenuOpen) closeStapleMenu();
+    else openStapleMenu();
+  }
+
   function openSheet() {
     closeMenu();
+    closeStapleMenu();
     if (sheetOpen) return;
     sheetOpen = true;
     els.sheet.hidden = false;
@@ -2637,19 +2672,29 @@ body.walk .chk input {
   }
 
   function renderStaples() {
-    els.staples.textContent = "";
-    if (!state.staples.length) return;
+    els.stapleMenu.textContent = "";
+    var listBtn = document.createElement("button");
+    listBtn.type = "button";
+    listBtn.className = "chipbtn";
+    listBtn.id = "btn-staple-list";
+    listBtn.setAttribute("role", "menuitem");
+    listBtn.textContent = "Liste";
+    listBtn.addEventListener("click", applyAllStaples);
+    els.stapleMenu.appendChild(listBtn);
     state.staples.forEach(function (name) {
       var b = document.createElement("button");
       b.type = "button";
-      b.className = "chip";
+      b.className = "chipbtn";
+      b.setAttribute("role", "menuitem");
       b.textContent = name;
       b.addEventListener("click", function () { tapStaple(name); });
-      els.staples.appendChild(b);
+      els.stapleMenu.appendChild(b);
     });
   }
 
-  function tapStaple(name) {
+  function applyStaple(name) {
+    name = String(name || "").replace(/\s+/g, " ").trim();
+    if (!name) return { added: 0, reopened: 0, already: 0 };
     var key = mappingKey(name);
     var found = null;
     state.items.forEach(function (it) {
@@ -2658,16 +2703,61 @@ body.walk .chk input {
     if (found) {
       if (found.done) {
         found.done = false;
-        scheduleSave();
-        renderList();
-        renderCount();
-        setStatus("wieder offen: " + found.name);
-      } else {
-        setStatus("schon auf der Liste.");
+        return { added: 0, reopened: 1, already: 0, name: found.name };
       }
+      return { added: 0, reopened: 0, already: 1, name: found.name };
+    }
+    state.items.push({
+      id: uid("i"),
+      name: name,
+      dept: guessDept(name),
+      done: false,
+      added: Date.now(),
+      ord: nextOrd()
+    });
+    return { added: 1, reopened: 0, already: 0, name: name };
+  }
+
+  function tapStaple(name) {
+    var r = applyStaple(name);
+    if (r.added || r.reopened) {
+      scheduleSave();
+      renderList();
+      renderCount();
+    }
+    if (r.reopened) setStatus("wieder offen: " + r.name);
+    else if (r.already) setStatus("schon auf der Liste.");
+  }
+
+  function stapleSummary(added, reopened, already) {
+    var parts = [];
+    if (added) parts.push(added + " ergänzt");
+    if (reopened) parts.push(reopened + " wieder offen");
+    if (already) parts.push(already + " schon auf der Liste");
+    if (!parts.length) return "";
+    return parts.join(", ") + ".";
+  }
+
+  function applyAllStaples() {
+    if (!state.staples.length) {
+      setStatus("Noch keine Stamm-Artikel. Im Layout anlegen.");
       return;
     }
-    addItem(name);
+    var added = 0;
+    var reopened = 0;
+    var already = 0;
+    state.staples.forEach(function (name) {
+      var r = applyStaple(name);
+      added += r.added;
+      reopened += r.reopened;
+      already += r.already;
+    });
+    if (added || reopened) {
+      scheduleSave();
+      renderList();
+      renderCount();
+    }
+    setStatus(stapleSummary(added, reopened, already));
   }
 
   function renderStapleList() {
