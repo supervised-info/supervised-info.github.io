@@ -2093,22 +2093,25 @@ body.walk .chk input {
     var store = currentStore();
     var md = toMarkdown();
     var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
-    var a = document.createElement("a");
-    var url = URL.createObjectURL(blob);
-    a.href = url;
-    a.download = "einkauf-" + slugify(store.name) + ".md";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    triggerDownload(blob, "einkauf-" + slugify(store.name) + ".md");
     setStatus("Datei gespeichert.");
+  }
+
+  function fileStamp() {
+    var d = new Date();
+    function pad(n) { return n < 10 ? "0" + n : String(n); }
+    return String(d.getFullYear()) + pad(d.getMonth() + 1) + pad(d.getDate()) + "_" + pad(d.getHours()) + pad(d.getMinutes());
+  }
+
+  function stampedFilename(name) {
+    return fileStamp() + "-" + String(name || "datei");
   }
 
   function triggerDownload(blob, filename) {
     var a = document.createElement("a");
     var url = URL.createObjectURL(blob);
     a.href = url;
-    a.download = filename;
+    a.download = stampedFilename(filename);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
