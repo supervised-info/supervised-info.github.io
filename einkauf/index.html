@@ -642,6 +642,29 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
   .del { grid-column: 4; grid-row: 1 / 3; }
 }
+body.walk .grip,
+body.walk .dept-sel,
+body.walk .del { display: none; }
+body.walk .row {
+  grid-template-columns: 48px 1fr;
+  grid-template-rows: auto;
+}
+body.walk .chk { grid-column: 1; grid-row: 1; }
+body.walk .name, body.walk .name-edit { grid-column: 2; grid-row: 1; }
+body.walk .name {
+  font-size: 1.18rem;
+  pointer-events: none;
+  cursor: default;
+}
+body.walk .name:hover { background: transparent; }
+body.walk .chk input {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+#btn-walk[aria-pressed="true"] {
+  border-color: var(--oxide);
+  color: var(--oxide);
+}
 </style>
 <script>
 (function(){try{var t=localStorage.getItem("supervised-info.theme");var p=localStorage.getItem("supervised-info.palette");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);if(p==="vintage"||p==="navy")document.documentElement.setAttribute("data-palette",p);}catch(e){}})();
@@ -702,6 +725,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     </label>
     <div class="toolbar-end">
       <p class="count" id="count" aria-live="polite"></p>
+      <button type="button" class="iconbtn" id="btn-walk" aria-pressed="false">Geh-Modus</button>
       <div class="more" id="more">
         <button type="button" class="iconbtn burger" id="btn-more" aria-label="Aktionen" aria-haspopup="true" aria-expanded="false" aria-controls="actions-menu">
           <span aria-hidden="true"></span>
@@ -713,6 +737,9 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
           <button type="button" class="chipbtn" id="btn-import" role="menuitem">Import</button>
           <input id="import-file" class="sr-only" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain">
           <button type="button" class="chipbtn" id="btn-file" role="menuitem">Datei</button>
+          <button type="button" class="chipbtn" id="btn-backup-save" role="menuitem">Backup speichern</button>
+          <button type="button" class="chipbtn" id="btn-backup-load" role="menuitem">Backup laden</button>
+          <input id="backup-file" class="sr-only" type="file" accept=".json,application/json">
           <button type="button" class="chipbtn" id="btn-share" role="menuitem">Teilen</button>
           <button type="button" class="chipbtn" id="btn-bring" role="menuitem">Bring</button>
           <button type="button" class="chipbtn" id="btn-reminders" role="menuitem">Erinnerungen</button>
@@ -803,6 +830,10 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     fileBtn: document.getElementById("btn-file"),
     importBtn: document.getElementById("btn-import"),
     importFile: document.getElementById("import-file"),
+    backupSaveBtn: document.getElementById("btn-backup-save"),
+    backupLoadBtn: document.getElementById("btn-backup-load"),
+    backupFile: document.getElementById("backup-file"),
+    walkBtn: document.getElementById("btn-walk"),
     clearBtn: document.getElementById("btn-clear"),
     scrim: document.getElementById("scrim"),
     sheet: document.getElementById("sheet"),
@@ -829,6 +860,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
 
   applyTheme();
   applyPalette();
+  applyWalkMode();
   if (!navigator.share) els.shareBtn.hidden = true;
   renderStoreSelect();
   renderCount();
@@ -881,6 +913,19 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     var f = els.importFile.files && els.importFile.files[0];
     els.importFile.value = "";
     importMdFile(f);
+  });
+  els.walkBtn.addEventListener("click", function () {
+    state.walkMode = !state.walkMode;
+    applyWalkMode();
+    scheduleSave();
+    renderList();
+  });
+  els.backupSaveBtn.addEventListener("click", downloadBackup);
+  els.backupLoadBtn.addEventListener("click", function () { els.backupFile.click(); });
+  els.backupFile.addEventListener("change", function () {
+    var f = els.backupFile.files && els.backupFile.files[0];
+    els.backupFile.value = "";
+    importBackupFile(f);
   });
   els.clearBtn.addEventListener("click", function () {
     state.items = state.items.filter(function (it) { return !it.done; });
@@ -1077,7 +1122,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       items: [],
       mappings: {},
       stores: seedStores(),
-      layoutTrip: 1
+      layoutTrip: 1,
+      walkMode: false
     };
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
@@ -1109,23 +1155,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       if (d.layoutTrip !== 1) {
         stores.forEach(function (s) { s.layout = ensureTripDepts(s.layout); });
       }
-      var items = Array.isArray(d.items) ? d.items : [];
-      items = items.map(function (it) {
-        if (!it || typeof it.name !== "string") return null;
-        var dept = DEPTS[it.dept] ? it.dept : "sonstiges";
-        var rec = {
-          id: it.id ? String(it.id) : uid("i"),
-          name: it.name,
-          dept: dept,
-          done: !!it.done,
-          added: typeof it.added === "number" ? it.added : Date.now()
-        };
-        if (typeof it.ord === "number" && isFinite(it.ord)) rec.ord = it.ord;
-        return rec;
-      }).filter(Boolean);
-      items.forEach(function (it, i) {
-        if (typeof it.ord !== "number" || !isFinite(it.ord)) it.ord = i + 1;
-      });
+      var items = sanitizeItems(d.items);
       var mappings = {};
       if (d.mappings && typeof d.mappings === "object") {
         Object.keys(d.mappings).forEach(function (k) {
@@ -1144,7 +1174,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
         items: items,
         mappings: mappings,
         stores: stores,
-        layoutTrip: 1
+        layoutTrip: 1,
+        walkMode: d.walkMode === true
       };
     } catch (e) {
       return fallback;
@@ -1165,7 +1196,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
         items: state.items,
         mappings: state.mappings,
         stores: state.stores,
-        layoutTrip: 1
+        layoutTrip: 1,
+        walkMode: !!state.walkMode
       }));
     } catch (e) {}
   }
@@ -1218,6 +1250,15 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       els.paletteBtn.setAttribute("aria-pressed", p === "vintage" ? "true" : "false");
     }
     writeShared(state.theme === "dark" ? "dark" : "light", p);
+  }
+
+  function applyWalkMode() {
+    if (state.walkMode) document.body.classList.add("walk");
+    else document.body.classList.remove("walk");
+    if (els.walkBtn) {
+      els.walkBtn.textContent = state.walkMode ? "Bearbeiten" : "Geh-Modus";
+      els.walkBtn.setAttribute("aria-pressed", state.walkMode ? "true" : "false");
+    }
   }
 
   function currentStore() {
@@ -1399,16 +1440,19 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     li.className = "row" + (it.done ? " done" : "");
     li.setAttribute("data-id", it.id);
 
-    var grip = document.createElement("button");
-    grip.type = "button";
-    grip.className = "grip";
-    grip.setAttribute("aria-label", "Verschieben");
-    grip.title = "Verschieben";
-    var gicon = document.createElement("span");
-    gicon.className = "grip-icon";
-    gicon.setAttribute("aria-hidden", "true");
-    grip.appendChild(gicon);
-    bindItemGrip(grip, it, li);
+    if (!state.walkMode) {
+      var grip = document.createElement("button");
+      grip.type = "button";
+      grip.className = "grip";
+      grip.setAttribute("aria-label", "Verschieben");
+      grip.title = "Verschieben";
+      var gicon = document.createElement("span");
+      gicon.className = "grip-icon";
+      gicon.setAttribute("aria-hidden", "true");
+      grip.appendChild(gicon);
+      bindItemGrip(grip, it, li);
+      li.appendChild(grip);
+    }
 
     var lab = document.createElement("label");
     lab.className = "chk";
@@ -1423,45 +1467,52 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       renderCount();
     });
     lab.appendChild(cb);
-
-    var name = document.createElement("button");
-    name.type = "button";
-    name.className = "name";
-    name.textContent = it.name;
-    name.title = "Tippen zum Bearbeiten";
-    name.addEventListener("click", function () { startEdit(it, name); });
-
-    var sel = document.createElement("select");
-    sel.className = "dept-sel";
-    sel.setAttribute("aria-label", "Abteilung für " + it.name);
-    Object.keys(DEPTS).forEach(function (d) {
-      var opt = document.createElement("option");
-      opt.value = d;
-      opt.textContent = DEPTS[d];
-      if (d === it.dept) opt.selected = true;
-      sel.appendChild(opt);
-    });
-    sel.addEventListener("change", function () {
-      setItemDept(it.id, sel.value);
-    });
-
-    var del = document.createElement("button");
-    del.type = "button";
-    del.className = "iconbtn del";
-    del.setAttribute("aria-label", "Löschen");
-    del.textContent = "×";
-    del.addEventListener("click", function () {
-      state.items = state.items.filter(function (x) { return x.id !== it.id; });
-      scheduleSave();
-      renderList();
-      renderCount();
-    });
-
-    li.appendChild(grip);
     li.appendChild(lab);
+
+    var name;
+    if (state.walkMode) {
+      name = document.createElement("span");
+      name.className = "name";
+      name.textContent = it.name;
+    } else {
+      name = document.createElement("button");
+      name.type = "button";
+      name.className = "name";
+      name.textContent = it.name;
+      name.title = "Tippen zum Bearbeiten";
+      name.addEventListener("click", function () { startEdit(it, name); });
+    }
     li.appendChild(name);
-    li.appendChild(sel);
-    li.appendChild(del);
+
+    if (!state.walkMode) {
+      var sel = document.createElement("select");
+      sel.className = "dept-sel";
+      sel.setAttribute("aria-label", "Abteilung für " + it.name);
+      Object.keys(DEPTS).forEach(function (d) {
+        var opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = DEPTS[d];
+        if (d === it.dept) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener("change", function () {
+        setItemDept(it.id, sel.value);
+      });
+
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "iconbtn del";
+      del.setAttribute("aria-label", "Löschen");
+      del.textContent = "×";
+      del.addEventListener("click", function () {
+        state.items = state.items.filter(function (x) { return x.id !== it.id; });
+        scheduleSave();
+        renderList();
+        renderCount();
+      });
+      li.appendChild(sel);
+      li.appendChild(del);
+    }
     return li;
   }
 
@@ -2071,6 +2122,34 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     return false;
   }
 
+  function looksLikeBackupFile(obj) {
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) return false;
+    if (obj.kind === "einkauf-backup") return true;
+    if (obj.v === 1 && Array.isArray(obj.items) && Array.isArray(obj.stores)) return true;
+    return false;
+  }
+
+  function sanitizeItems(rawItems) {
+    var items = Array.isArray(rawItems) ? rawItems : [];
+    items = items.map(function (it) {
+      if (!it || typeof it.name !== "string") return null;
+      var dept = DEPTS[it.dept] ? it.dept : "sonstiges";
+      var rec = {
+        id: it.id ? String(it.id) : uid("i"),
+        name: it.name,
+        dept: dept,
+        done: !!it.done,
+        added: typeof it.added === "number" ? it.added : Date.now()
+      };
+      if (typeof it.ord === "number" && isFinite(it.ord)) rec.ord = it.ord;
+      return rec;
+    }).filter(Boolean);
+    items.forEach(function (it, i) {
+      if (typeof it.ord !== "number" || !isFinite(it.ord)) it.ord = i + 1;
+    });
+    return items;
+  }
+
   function sanitizeMappings(raw) {
     var mappings = {};
     if (raw && typeof raw === "object" && !Array.isArray(raw)) {
@@ -2170,14 +2249,100 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     applyStoresImport(data, replace);
   }
 
+  function downloadBackup() {
+    var payload = {
+      kind: "einkauf-backup",
+      v: 1,
+      currentStoreId: state.currentStoreId,
+      stores: state.stores.map(function (s) {
+        return {
+          id: s.id,
+          name: s.name,
+          layout: s.layout.slice(),
+          builtin: !!s.builtin
+        };
+      }),
+      mappings: state.mappings,
+      items: state.items.map(function (it) {
+        return {
+          id: it.id,
+          name: it.name,
+          dept: it.dept,
+          done: !!it.done,
+          added: it.added,
+          ord: itemOrd(it)
+        };
+      }),
+      walkMode: !!state.walkMode,
+      layoutTrip: 1
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+    triggerDownload(blob, "einkauf-backup.json");
+    setStatus("Backup gespeichert.");
+  }
+
+  function applyBackupImport(data) {
+    var imported = sanitizeStoresList(data.stores);
+    state.stores = mergeBuiltinSeeds(imported);
+    state.mappings = sanitizeMappings(data.mappings);
+    state.items = sanitizeItems(data.items);
+    var nextId = data.currentStoreId ? String(data.currentStoreId) : "";
+    var has = state.stores.some(function (s) { return s.id === nextId; });
+    if (has) state.currentStoreId = nextId;
+    var stillHas = state.stores.some(function (s) { return s.id === state.currentStoreId; });
+    if (!stillHas) state.currentStoreId = state.stores[0].id;
+    if (typeof data.walkMode === "boolean") state.walkMode = data.walkMode;
+    state.layoutTrip = 1;
+    scheduleSave();
+    renderStoreSelect();
+    renderList();
+    renderCount();
+    applyWalkMode();
+    if (sheetOpen) renderSheet();
+    setStatus("Backup geladen.");
+  }
+
+  function runBackupImport(data) {
+    if (!window.confirm("Liste und Läden aus dem Backup ersetzen?")) return;
+    applyBackupImport(data);
+  }
+
   function tryImportStoresText(text) {
     var trimmed = String(text || "").replace(/^\uFEFF/, "").trim();
     if (!trimmed || trimmed.charAt(0) !== "{") return false;
     var data;
     try { data = JSON.parse(trimmed); } catch (e) { return false; }
+    if (looksLikeBackupFile(data)) {
+      runBackupImport(data);
+      return true;
+    }
     if (!looksLikeStoresFile(data)) return false;
     runStoresImport(data);
     return true;
+  }
+
+  function importBackupFile(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var raw = String(reader.result || "").replace(/^\uFEFF/, "").trim();
+      var data;
+      try {
+        data = JSON.parse(raw);
+      } catch (e) {
+        setStatus("Ungültige Datei.");
+        return;
+      }
+      if (!looksLikeBackupFile(data)) {
+        setStatus("Keine Backup-Datei.");
+        return;
+      }
+      runBackupImport(data);
+    };
+    reader.onerror = function () {
+      setStatus("Datei konnte nicht gelesen werden.");
+    };
+    reader.readAsText(file, "utf-8");
   }
 
   function importStoresFile(file) {
