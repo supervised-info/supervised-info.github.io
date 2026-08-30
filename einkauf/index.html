@@ -231,6 +231,13 @@ h1 {
   gap: 0.55rem 1rem;
   margin-bottom: 0.75rem;
 }
+.toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+}
+.more { position: relative; }
 .store-lab {
   display: flex;
   align-items: center;
@@ -256,10 +263,46 @@ h1 {
   font-size: 0.92rem;
   color: var(--muted);
 }
-.actions {
+.burger {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 999px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.burger span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+.actions {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 30;
+  min-width: 13.8rem;
+  padding: 0.35rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  flex-direction: column;
+  gap: 0.12rem;
+}
+.actions.open { display: flex; }
+.actions .chipbtn {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  border-radius: 0.75rem;
 }
 .chipbtn, .iconbtn {
   border: 1px solid var(--rule);
@@ -657,18 +700,27 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     <label class="store-lab">Laden
       <select id="store"></select>
     </label>
-    <p class="count" id="count" aria-live="polite"></p>
-  </div>
-  <div class="actions">
-    <button type="button" class="chipbtn" id="btn-layout" aria-controls="sheet" aria-expanded="false">Layout</button>
-    <button type="button" class="chipbtn" id="btn-copy">Kopieren</button>
-    <button type="button" class="chipbtn" id="btn-share">Teilen</button>
-    <button type="button" class="chipbtn" id="btn-bring">Bring</button>
-    <button type="button" class="chipbtn" id="btn-reminders">Erinnerungen</button>
-    <button type="button" class="chipbtn" id="btn-file">Datei</button>
-    <button type="button" class="chipbtn" id="btn-import">Import</button>
-    <input id="import-file" class="sr-only" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain">
-    <button type="button" class="chipbtn" id="btn-clear">Erledigte löschen</button>
+    <div class="toolbar-end">
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="more" id="more">
+        <button type="button" class="iconbtn burger" id="btn-more" aria-label="Aktionen" aria-haspopup="true" aria-expanded="false" aria-controls="actions-menu">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <div class="actions" id="actions-menu" role="menu">
+          <button type="button" class="chipbtn" id="btn-copy" role="menuitem">Kopieren</button>
+          <button type="button" class="chipbtn" id="btn-import" role="menuitem">Import</button>
+          <input id="import-file" class="sr-only" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain">
+          <button type="button" class="chipbtn" id="btn-file" role="menuitem">Datei</button>
+          <button type="button" class="chipbtn" id="btn-share" role="menuitem">Teilen</button>
+          <button type="button" class="chipbtn" id="btn-bring" role="menuitem">Bring</button>
+          <button type="button" class="chipbtn" id="btn-reminders" role="menuitem">Erinnerungen</button>
+          <button type="button" class="chipbtn" id="btn-layout" role="menuitem" aria-controls="sheet" aria-expanded="false">Layout</button>
+          <button type="button" class="chipbtn danger" id="btn-clear" role="menuitem">Erledigte löschen</button>
+        </div>
+      </div>
+    </div>
   </div>
   <p class="status" id="status" role="status" aria-live="polite"></p>
   <div id="list"></div>
@@ -740,6 +792,9 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     status: document.getElementById("status"),
     themeBtn: document.getElementById("theme-btn") || document.getElementById("themeBtn"),
     paletteBtn: document.getElementById("paletteBtn"),
+    more: document.getElementById("more"),
+    moreBtn: document.getElementById("btn-more"),
+    actions: document.getElementById("actions-menu"),
     layoutBtn: document.getElementById("btn-layout"),
     copyBtn: document.getElementById("btn-copy"),
     shareBtn: document.getElementById("btn-share"),
@@ -770,6 +825,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   var statusTimer = null;
   var sheetOpen = false;
   var sheetCloser = null;
+  var menuOpen = false;
 
   applyTheme();
   applyPalette();
@@ -798,6 +854,19 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   if (els.paletteBtn) els.paletteBtn.addEventListener("click", function () {
     state.palette = state.palette === "vintage" ? "navy" : "vintage";
     applyPalette();
+  });
+  els.moreBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    toggleMenu();
+  });
+  els.actions.addEventListener("click", function (e) {
+    var btn = e.target.closest("button");
+    if (btn) closeMenu();
+  });
+  document.addEventListener("click", function (e) {
+    if (!menuOpen) return;
+    if (els.more.contains(e.target)) return;
+    closeMenu();
   });
   els.layoutBtn.addEventListener("click", openSheet);
   els.sheetClose.addEventListener("click", closeSheet);
@@ -836,7 +905,13 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   });
   els.deleteBtn.addEventListener("click", deleteStore);
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && sheetOpen) {
+    if (e.key !== "Escape") return;
+    if (menuOpen) {
+      e.preventDefault();
+      closeMenu();
+      return;
+    }
+    if (sheetOpen) {
       e.preventDefault();
       closeSheet();
     }
@@ -2129,7 +2204,27 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     reader.readAsText(file, "utf-8");
   }
 
+  function openMenu() {
+    if (menuOpen) return;
+    menuOpen = true;
+    els.actions.classList.add("open");
+    els.moreBtn.setAttribute("aria-expanded", "true");
+  }
+
+  function closeMenu() {
+    if (!menuOpen) return;
+    menuOpen = false;
+    els.actions.classList.remove("open");
+    els.moreBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleMenu() {
+    if (menuOpen) closeMenu();
+    else openMenu();
+  }
+
   function openSheet() {
+    closeMenu();
     if (sheetOpen) return;
     sheetOpen = true;
     els.sheet.hidden = false;
