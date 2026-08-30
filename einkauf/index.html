@@ -618,8 +618,11 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   border-radius: 999px;
   padding: 0.3rem 0.8rem;
 }
-#staple-list .layout-row {
-  grid-template-columns: 1fr auto;
+.layout-row.staple-edit {
+  grid-template-columns: 1fr minmax(7rem, auto) auto;
+}
+.layout-row.staple-edit .dept-sel {
+  min-width: 7rem;
 }
 .sheet-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
 @media (max-width: 560px) {
@@ -648,6 +651,13 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     margin: 0 0 0.4rem;
   }
   .del { grid-column: 4; grid-row: 1 / 3; }
+  .layout-row.staple-edit {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .layout-row.staple-edit .dept-sel {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
 }
 body.walk .grip,
 body.walk .dept-sel,
@@ -1081,7 +1091,7 @@ body.walk .chk input {
     }
     if (best) return best;
     var mk = mappingKey(name);
-    if (state.mappings[mk] && DEPTS[state.mappings[mk]]) return state.mappings[mk];
+    if (state && state.mappings && state.mappings[mk] && DEPTS[state.mappings[mk]]) return state.mappings[mk];
     return "sonstiges";
   }
 
@@ -2220,14 +2230,25 @@ body.walk .chk input {
     var seen = {};
     var out = [];
     if (!Array.isArray(raw)) return out;
-    raw.forEach(function (name) {
+    raw.forEach(function (entry) {
+      var name;
+      var dept = "";
+      if (typeof entry === "string") {
+        name = entry;
+      } else if (entry && typeof entry === "object") {
+        name = entry.name;
+        dept = entry.dept;
+      } else {
+        return;
+      }
       if (typeof name !== "string") return;
       name = name.replace(/\s+/g, " ").trim();
       if (!name) return;
       var k = mappingKey(name);
       if (!k || seen[k]) return;
       seen[k] = true;
-      out.push(name);
+      if (!DEPTS[dept]) dept = guessDept(name);
+      out.push({ name: name, dept: dept });
     });
     return out;
   }
@@ -2347,7 +2368,9 @@ body.walk .chk input {
       }),
       walkMode: !!state.walkMode,
       layoutTrip: 1,
-      staples: state.staples.slice()
+      staples: state.staples.map(function (s) {
+        return { name: s.name, dept: s.dept };
+      })
     };
   }
 
@@ -2685,20 +2708,28 @@ body.walk .chk input {
     listBtn.textContent = "Gesamtliste";
     listBtn.addEventListener("click", applyAllStaples);
     els.stapleMenu.appendChild(listBtn);
-    state.staples.forEach(function (name) {
+    state.staples.forEach(function (staple) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "chipbtn staple-item";
       b.setAttribute("role", "menuitem");
-      b.textContent = name;
-      b.addEventListener("click", function () { tapStaple(name); });
+      b.textContent = staple.name;
+      b.addEventListener("click", function () { tapStaple(staple); });
       els.stapleMenu.appendChild(b);
     });
   }
 
-  function applyStaple(name) {
-    name = String(name || "").replace(/\s+/g, " ").trim();
+  function applyStaple(staple) {
+    var name;
+    var dept = "";
+    if (staple && typeof staple === "object") {
+      name = String(staple.name || "").replace(/\s+/g, " ").trim();
+      dept = staple.dept;
+    } else {
+      name = String(staple || "").replace(/\s+/g, " ").trim();
+    }
     if (!name) return { added: 0, reopened: 0, already: 0 };
+    if (!DEPTS[dept]) dept = guessDept(name);
     var key = mappingKey(name);
     var found = null;
     state.items.forEach(function (it) {
@@ -2707,6 +2738,8 @@ body.walk .chk input {
     if (found) {
       if (found.done) {
         found.done = false;
+        found.dept = dept;
+        state.mappings[key] = dept;
         return { added: 0, reopened: 1, already: 0, name: found.name };
       }
       return { added: 0, reopened: 0, already: 1, name: found.name };
@@ -2714,11 +2747,12 @@ body.walk .chk input {
     state.items.push({
       id: uid("i"),
       name: name,
-      dept: guessDept(name),
+      dept: dept,
       done: false,
       added: Date.now(),
       ord: nextOrd()
     });
+    state.mappings[key] = dept;
     return { added: 1, reopened: 0, already: 0, name: name };
   }
 
@@ -2750,8 +2784,8 @@ body.walk .chk input {
     var added = 0;
     var reopened = 0;
     var already = 0;
-    state.staples.forEach(function (name) {
-      var r = applyStaple(name);
+    state.staples.forEach(function (staple) {
+      var r = applyStaple(staple);
       added += r.added;
       reopened += r.reopened;
       already += r.already;
@@ -2766,12 +2800,30 @@ body.walk .chk input {
 
   function renderStapleList() {
     els.stapleList.textContent = "";
-    state.staples.forEach(function (name, idx) {
+    state.staples.forEach(function (staple, idx) {
       var li = document.createElement("li");
-      li.className = "layout-row";
+      li.className = "layout-row staple-edit";
       var nm = document.createElement("span");
       nm.className = "layout-name";
-      nm.textContent = name;
+      nm.textContent = staple.name;
+      var sel = document.createElement("select");
+      sel.className = "dept-sel";
+      sel.setAttribute("aria-label", "Abteilung für " + staple.name);
+      Object.keys(DEPTS).forEach(function (d) {
+        var opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = DEPTS[d];
+        if (d === staple.dept) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener("change", function () {
+        var dept = sel.value;
+        if (!DEPTS[dept]) return;
+        state.staples[idx].dept = dept;
+        state.mappings[mappingKey(staple.name)] = dept;
+        scheduleSave();
+        renderStaples();
+      });
       var btns = document.createElement("div");
       btns.className = "layout-btns";
       var up = document.createElement("button");
@@ -2792,6 +2844,7 @@ body.walk .chk input {
       btns.appendChild(down);
       btns.appendChild(rm);
       li.appendChild(nm);
+      li.appendChild(sel);
       li.appendChild(btns);
       els.stapleList.appendChild(li);
     });
@@ -2825,13 +2878,13 @@ body.walk .chk input {
     var key = mappingKey(name);
     var dup = false;
     state.staples.forEach(function (s) {
-      if (mappingKey(s) === key) dup = true;
+      if (mappingKey(s.name) === key) dup = true;
     });
     if (dup) {
       setStatus("schon in den Stamm-Artikeln.");
       return;
     }
-    state.staples.push(name);
+    state.staples.push({ name: name, dept: guessDept(name) });
     els.newStaple.value = "";
     scheduleSave();
     renderStaples();
