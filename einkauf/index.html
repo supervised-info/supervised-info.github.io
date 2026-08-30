@@ -18,9 +18,15 @@
   --rule: #d2c8b8;
   --oxide: #9c3424;
   --oxide-soft: rgba(156, 52, 36, 0.11);
+  --slate: #2a5564;
+  --ochre: #c4a35a;
+  --good: #2c6a4a;
+  --hit: rgba(196, 163, 90, 0.32);
   --glow-1: rgba(156, 52, 36, 0.05);
   --glow-2: rgba(42, 85, 100, 0.05);
   --shadow: 0 18px 50px rgba(28, 24, 20, 0.22);
+  --header-bg: #e9e1d2;
+  --header-text: #5e564d;
   --serif: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
   --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
@@ -34,10 +40,54 @@ html[data-theme="dark"] {
   --rule: #3d362c;
   --oxide: #e07060;
   --oxide-soft: rgba(224, 112, 96, 0.16);
+  --slate: #8eb8c8;
+  --ochre: #d4b56c;
+  --good: #7dba96;
+  --hit: rgba(212, 181, 108, 0.22);
   --glow-1: rgba(224, 112, 96, 0.08);
   --glow-2: rgba(142, 184, 200, 0.06);
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  --header-bg: #1d1915;
+  --header-text: #f3eee4;
   color-scheme: dark;
+}
+html[data-palette="navy"] {
+  --paper: #f0f4ff;
+  --paper-2: #ffffff;
+  --paper-3: #e8ecf8;
+  --ink: #08102a;
+  --muted: #4a6080;
+  --rule: #bfcfe8;
+  --oxide: #2060df;
+  --oxide-soft: #dce6ff;
+  --slate: #2060df;
+  --ochre: #d97706;
+  --good: #059669;
+  --hit: rgba(32, 96, 223, 0.18);
+  --shadow: 0 18px 50px rgba(8, 16, 42, 0.18);
+  --header-bg: #08102a;
+  --header-text: #ffffff;
+  --glow-1: rgba(74, 148, 255, 0.08);
+  --glow-2: rgba(32, 96, 223, 0.06);
+}
+html[data-palette="navy"][data-theme="dark"] {
+  --paper: #060c1a;
+  --paper-2: #0c1828;
+  --paper-3: #102038;
+  --ink: #edf2ff;
+  --muted: #6e8fb0;
+  --rule: #1b2f4a;
+  --oxide: #4a94ff;
+  --oxide-soft: #0a1e40;
+  --slate: #4a94ff;
+  --ochre: #fbbf24;
+  --good: #34d399;
+  --hit: rgba(74, 148, 255, 0.22);
+  --shadow: 0 18px 50px rgba(0,0,0,0.45);
+  --header-bg: #060c1a;
+  --header-text: #edf2ff;
+  --glow-1: rgba(74, 148, 255, 0.08);
+  --glow-2: rgba(32, 96, 223, 0.06);
 }
 * { box-sizing: border-box; }
 html:focus-within { scroll-behavior: smooth; }
@@ -112,6 +162,7 @@ button { cursor: pointer; }
   gap: 1rem;
   padding: 1.15rem 0 0;
 }
+.mast-actions { display: flex; gap: 0.4rem; align-items: center; }
 .kicker {
   margin: 0;
   font-size: 0.72rem;
@@ -476,15 +527,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
 }
 </style>
 <script>
-(function () {
-  try {
-    var d = JSON.parse(localStorage.getItem("einkauf_v1") || "{}");
-    var t = d.theme === "dark" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", t);
-    var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute("content", t === "dark" ? "#14110e" : "#f3eee4");
-  } catch (e) {}
-})();
+(function(){try{var t=localStorage.getItem("supervised-info.theme");var p=localStorage.getItem("supervised-info.palette");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);if(p==="vintage"||p==="navy")document.documentElement.setAttribute("data-palette",p);}catch(e){}})();
 </script>
 </head>
 <body>
@@ -518,7 +561,10 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
 <div class="wrap">
   <header class="mast">
     <p class="kicker"><a href="../">supervised-info</a> · 03</p>
-    <button type="button" class="iconbtn" id="theme-btn" aria-pressed="false">Dunkel</button>
+    <div class="mast-actions">
+      <button type="button" class="iconbtn" id="paletteBtn" aria-pressed="true" title="Farbschema">Blau</button>
+      <button type="button" class="iconbtn" id="theme-btn" aria-pressed="false">Dunkel</button>
+    </div>
   </header>
   <h1>Einkaufsliste</h1>
   <p class="lede">im Ladenweg</p>
@@ -552,8 +598,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   "use strict";
 
   var STORAGE_KEY = "einkauf_v1";
-  var THEME_DARK = "#14110e";
-  var THEME_LIGHT = "#f3eee4";
+  var THEME_KEY = "supervised-info.theme";
+  var PALETTE_KEY = "supervised-info.palette";
 
   var DEPTS = {
     obst: "Obst & Gemüse",
@@ -610,7 +656,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     count: document.getElementById("count"),
     list: document.getElementById("list"),
     status: document.getElementById("status"),
-    themeBtn: document.getElementById("theme-btn"),
+    themeBtn: document.getElementById("theme-btn") || document.getElementById("themeBtn"),
+    paletteBtn: document.getElementById("paletteBtn"),
     layoutBtn: document.getElementById("btn-layout"),
     copyBtn: document.getElementById("btn-copy"),
     shareBtn: document.getElementById("btn-share"),
@@ -640,6 +687,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   var sheetCloser = null;
 
   applyTheme();
+  applyPalette();
   if (!navigator.share) els.shareBtn.hidden = true;
   renderStoreSelect();
   renderCount();
@@ -661,6 +709,10 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     state.theme = state.theme === "dark" ? "light" : "dark";
     applyTheme();
     scheduleSave();
+  });
+  if (els.paletteBtn) els.paletteBtn.addEventListener("click", function () {
+    state.palette = state.palette === "vintage" ? "navy" : "vintage";
+    applyPalette();
   });
   els.layoutBtn.addEventListener("click", openSheet);
   els.sheetClose.addEventListener("click", closeSheet);
@@ -815,7 +867,8 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
 
   function load() {
     var fallback = {
-      theme: "light",
+      theme: readSharedTheme() || preferredTheme(),
+      palette: readSharedPalette() || "vintage",
       currentStoreId: "edeka",
       items: [],
       mappings: {},
@@ -869,8 +922,11 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
       var current = String(d.currentStoreId || "edeka");
       var has = stores.some(function (s) { return s.id === current; });
       if (!has) current = stores[0].id;
+      var theme = readSharedTheme();
+      if (!theme) theme = d.theme === "dark" ? "dark" : (d.theme === "light" ? "light" : preferredTheme());
       return {
-        theme: d.theme === "dark" ? "dark" : "light",
+        theme: theme,
+        palette: readSharedPalette() || "vintage",
         currentStoreId: current,
         items: items,
         mappings: mappings,
@@ -899,13 +955,54 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     } catch (e) {}
   }
 
+  function readSharedTheme() {
+    try {
+      var t = localStorage.getItem(THEME_KEY);
+      if (t === "dark" || t === "light") return t;
+    } catch (e) {}
+    return null;
+  }
+  function readSharedPalette() {
+    try {
+      var p = localStorage.getItem(PALETTE_KEY);
+      if (p === "vintage" || p === "navy") return p;
+    } catch (e) {}
+    return null;
+  }
+  function preferredTheme() {
+    return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  }
+  function writeShared(t, p) {
+    try {
+      localStorage.setItem(THEME_KEY, t);
+      localStorage.setItem(PALETTE_KEY, p);
+    } catch (e) {}
+  }
+  function chromeColor() {
+    var dark = state.theme === "dark";
+    var vintage = state.palette !== "navy";
+    if (vintage) return dark ? "#14110e" : "#f3eee4";
+    return dark ? "#060c1a" : "#f0f4ff";
+  }
   function applyTheme() {
     document.documentElement.setAttribute("data-theme", state.theme);
-    if (els.themeMeta) {
-      els.themeMeta.setAttribute("content", state.theme === "dark" ? THEME_DARK : THEME_LIGHT);
+    if (els.themeMeta) els.themeMeta.setAttribute("content", chromeColor());
+    if (els.themeBtn) {
+      els.themeBtn.textContent = state.theme === "dark" ? "Hell" : "Dunkel";
+      els.themeBtn.setAttribute("aria-pressed", state.theme === "dark" ? "true" : "false");
     }
-    els.themeBtn.textContent = state.theme === "dark" ? "Hell" : "Dunkel";
-    els.themeBtn.setAttribute("aria-pressed", state.theme === "dark" ? "true" : "false");
+    writeShared(state.theme, state.palette === "navy" ? "navy" : "vintage");
+  }
+  function applyPalette() {
+    var p = state.palette === "navy" ? "navy" : "vintage";
+    state.palette = p;
+    document.documentElement.setAttribute("data-palette", p);
+    if (els.themeMeta) els.themeMeta.setAttribute("content", chromeColor());
+    if (els.paletteBtn) {
+      els.paletteBtn.textContent = p === "vintage" ? "Blau" : "Creme";
+      els.paletteBtn.setAttribute("aria-pressed", p === "vintage" ? "true" : "false");
+    }
+    writeShared(state.theme === "dark" ? "dark" : "light", p);
   }
 
   function currentStore() {

@@ -735,6 +735,9 @@ html[data-palette="vintage"] thead th.sorted { color: var(--oxide); }
   .s2 { min-width: 10.5rem; }
 }
 </style>
+<script>
+(function(){try{var t=localStorage.getItem("supervised-info.theme");var p=localStorage.getItem("supervised-info.palette");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);if(p==="vintage"||p==="navy")document.documentElement.setAttribute("data-palette",p);}catch(e){}})();
+</script>
 </head>
 <body>
 <a class="skip" href="#search">Zur Suche</a>

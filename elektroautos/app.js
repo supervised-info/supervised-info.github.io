@@ -1303,6 +1303,22 @@
     if (vintage) return dark ? "#14110e" : "#f3eee4";
     return dark ? "#060c1a" : "#f0f4ff";
   }
+  function writeShared(t, p) {
+    try {
+      localStorage.setItem("supervised-info.theme", t);
+      localStorage.setItem("supervised-info.palette", p);
+    } catch (e) {}
+  }
+  function currentPaletteVal() {
+    var p = document.documentElement.getAttribute("data-palette");
+    if (p === "vintage" || p === "navy") return p;
+    return "vintage";
+  }
+  function currentThemeVal() {
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t === "dark" || t === "light") return t;
+    return "light";
+  }
   function applyTheme(t) {
     document.documentElement.setAttribute("data-theme", t);
     $("themeBtn").textContent = t === "dark" ? "Hell" : "Dunkel";
@@ -1310,6 +1326,7 @@
     var m = document.querySelector('meta[name="theme-color"]');
     if (m) m.setAttribute("content", chromeColor());
     lsSet("theme", t);
+    writeShared(t, currentPaletteVal());
   }
   function applyPalette(p) {
     document.documentElement.setAttribute("data-palette", p);
@@ -1318,27 +1335,40 @@
     var m = document.querySelector('meta[name="theme-color"]');
     if (m) m.setAttribute("content", chromeColor());
     lsSet("palette", p);
+    writeShared(currentThemeVal(), p);
   }
   function initTheme() {
     var t = null;
     try {
-      var raw = localStorage.getItem(LS + "theme");
-      if (raw) {
-        if (raw === "dark" || raw === "light") t = raw;
-        else t = JSON.parse(raw);
-      }
+      var shared = localStorage.getItem("supervised-info.theme");
+      if (shared === "dark" || shared === "light") t = shared;
     } catch (e) {}
     if (t !== "dark" && t !== "light") {
-      t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      try {
+        var raw = localStorage.getItem(LS + "theme");
+        if (raw) {
+          if (raw === "dark" || raw === "light") t = raw;
+          else t = JSON.parse(raw);
+        }
+      } catch (e) {}
+    }
+    if (t !== "dark" && t !== "light") {
+      t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
     }
     applyTheme(t);
     var p = null;
     try {
-      var praw = localStorage.getItem(LS + "palette");
-      if (praw === "vintage" || praw === "navy") p = praw;
-      else if (praw) p = JSON.parse(praw);
+      var sp = localStorage.getItem("supervised-info.palette");
+      if (sp === "vintage" || sp === "navy") p = sp;
     } catch (e) {}
-    if (p !== "vintage" && p !== "navy") p = "navy";
+    if (p !== "vintage" && p !== "navy") {
+      try {
+        var praw = localStorage.getItem(LS + "palette");
+        if (praw === "vintage" || praw === "navy") p = praw;
+        else if (praw) p = JSON.parse(praw);
+      } catch (e) {}
+    }
+    if (p !== "vintage" && p !== "navy") p = "vintage";
     applyPalette(p);
   }
   function afterData() {
