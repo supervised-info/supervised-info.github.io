@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>supervised-info</title>
-<meta name="description" content="Eigenständige Seiten zu Physik, anschaulich erklärt.">
+<meta name="description" content="Eigenständige Seiten: Recherche und Tools.">
 <meta name="theme-color" content="#f3eee4">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect fill=%22%231c1814%22 width=%2232%22 height=%2232%22/%3E%3Cpath fill=%22none%22 stroke=%22%23e8d9c0%22 stroke-width=%221.4%22 d=%22M16 4 L28 28 H4 Z%22/%3E%3C/svg%3E">
 <style>
@@ -166,9 +166,34 @@ h1 {
   font-size: 1.15rem;
   max-width: 28rem;
   color: var(--muted);
-  margin: 0 0 3rem;
+  margin: 0 0 2.2rem;
 }
-.rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+.tabs {
+  display: flex;
+  gap: 0.2rem;
+  border-bottom: 1px solid var(--rule);
+  margin: 0;
+  font-family: var(--sans);
+}
+.tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 0.75rem 1.15rem 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--oxide);
+}
+.panel[hidden] { display: none; }
 ol.cat {
   list-style: none;
   padding: 0;
@@ -242,40 +267,49 @@ footer {
       </div>
     </header>
     <h1>Anschauung,<br>nicht Ersatz.</h1>
-    <p class="dek">Eine wachsende Kollektion eigenständiger Seiten. Jede Datei steht für sich — Physik, so erzählt, dass man sie sehen kann.</p>
-    <hr class="rule">
-    <ol class="cat">
-      <li>
-        <a class="card" href="relativitaetstheorie/">
-          <span class="num">01</span>
-          <span>
-            <h2>Relativitätstheorie, anschaulich</h2>
-            <p>Lichtuhr, Eigenzeit, Zwillingswege und die Krümmung, in der wir fallen.</p>
-          </span>
-          <span class="go">Lesen →</span>
-        </a>
-      </li>
-      <li>
-        <a class="card" href="elektroautos/">
-          <span class="num">02</span>
-          <span>
-            <h2>Elektroautos, im Vergleich</h2>
-            <p>Preis, Reichweite, Laden — 395 Modelle, Stand August 2026.</p>
-          </span>
-          <span class="go">Öffnen →</span>
-        </a>
-      </li>
-      <li>
-        <a class="card" href="einkauf/">
-          <span class="num">03</span>
-          <span>
-            <h2>Einkaufsliste</h2>
-            <p>Mit Checkboxen, nach Ladenweg sortiert — von Eingang bis Kasse.</p>
-          </span>
-          <span class="go">Öffnen →</span>
-        </a>
-      </li>
-    </ol>
+    <p class="dek">Eine wachsende Kollektion eigenständiger Seiten. Jede Datei steht für sich.</p>
+    <div class="tabs" role="tablist" aria-label="Bereiche">
+      <button type="button" class="tab" id="tab-recherche" role="tab" aria-controls="panel-recherche" aria-selected="true">Recherche</button>
+      <button type="button" class="tab" id="tab-tools" role="tab" aria-controls="panel-tools" aria-selected="false">Tools</button>
+    </div>
+    <div class="panel" id="panel-recherche" role="tabpanel" aria-labelledby="tab-recherche">
+      <ol class="cat">
+        <li>
+          <a class="card" href="relativitaetstheorie/">
+            <span class="num">01</span>
+            <span>
+              <h2>Relativitätstheorie, anschaulich</h2>
+              <p>Lichtuhr, Eigenzeit, Zwillingswege und die Krümmung, in der wir fallen.</p>
+            </span>
+            <span class="go">Lesen →</span>
+          </a>
+        </li>
+      </ol>
+    </div>
+    <div class="panel" id="panel-tools" role="tabpanel" aria-labelledby="tab-tools" hidden>
+      <ol class="cat">
+        <li>
+          <a class="card" href="elektroautos/">
+            <span class="num">02</span>
+            <span>
+              <h2>Elektroautos, im Vergleich</h2>
+              <p>Preis, Reichweite, Laden — 395 Modelle, Stand August 2026.</p>
+            </span>
+            <span class="go">Öffnen →</span>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="einkauf/">
+            <span class="num">03</span>
+            <span>
+              <h2>Einkaufsliste</h2>
+              <p>Mit Checkboxen, nach Ladenweg sortiert — von Eingang bis Kasse.</p>
+            </span>
+            <span class="go">Öffnen →</span>
+          </a>
+        </li>
+      </ol>
+    </div>
   </div>
   <footer>Keine Werkzeugkette. Statische Dateien, absichtlich.</footer>
 <script>
@@ -341,6 +375,41 @@ footer {
   });
   if (paletteBtn) paletteBtn.addEventListener("click", function () {
     applyPalette(currentPalette() === "vintage" ? "navy" : "vintage");
+  });
+
+  var TAB_KEY = "supervised-info.hub-tab";
+  var tabs = {
+    recherche: {
+      btn: document.getElementById("tab-recherche"),
+      panel: document.getElementById("panel-recherche")
+    },
+    tools: {
+      btn: document.getElementById("tab-tools"),
+      panel: document.getElementById("panel-tools")
+    }
+  };
+  function showTab(id) {
+    if (!tabs[id]) id = "recherche";
+    Object.keys(tabs).forEach(function (k) {
+      var on = k === id;
+      tabs[k].btn.setAttribute("aria-selected", on ? "true" : "false");
+      tabs[k].panel.hidden = !on;
+    });
+    try { localStorage.setItem(TAB_KEY, id); } catch (e) {}
+    if (history.replaceState) history.replaceState(null, "", id === "recherche" ? "#" : "#" + id);
+  }
+  var start = "recherche";
+  if (location.hash === "#tools") start = "tools";
+  else if (location.hash === "#recherche") start = "recherche";
+  else {
+    try {
+      var saved = localStorage.getItem(TAB_KEY);
+      if (saved === "tools" || saved === "recherche") start = saved;
+    } catch (e) {}
+  }
+  showTab(start);
+  Object.keys(tabs).forEach(function (k) {
+    tabs[k].btn.addEventListener("click", function () { showTab(k); });
   });
 })();
 </script>
