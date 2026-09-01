@@ -43,13 +43,15 @@ Ordnernamen ohne Umlaute. Jede Seite heißt `index.html`. CSS und JS inline, au�
 │   ├── index.html
 │   ├── app.js
 │   └── data.json
-└── einkauf/
-    ├── index.html
-    ├── sw.js
-    ├── manifest.webmanifest
-    ├── icon-192.png
-    ├── icon-512.png
-    └── apple-touch-icon.png
+├── einkauf/
+│   ├── index.html
+│   ├── sw.js
+│   ├── manifest.webmanifest
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   └── apple-touch-icon.png
+└── todo/
+    └── index.html
 ```
 
 ---
@@ -78,12 +80,13 @@ Aktueller Katalog:
 - Recherche 01: `relativitaetstheorie/` Relativitätstheorie, anschaulich
 - Tools 01: `elektroautos/` Elektroautos, im Vergleich
 - Tools 02: `einkauf/` Einkaufsliste
+- Tools 03: `todo/` To-Do Liste
 
 ### Unterseite, Kicker
 
 Oben links: `supervised-info · NN`. Der Text `supervised-info` verlinkt nach `../`. **NN** ist die Katalognummer **dieses Tabs**, nicht eine globale Zählung über Tabs hinweg.
 
-Beispiele: Relativitätstheorie = Recherche 01; Elektroautos = Tools 01; Einkaufsliste = Tools 02.
+Beispiele: Relativitätstheorie = Recherche 01; Elektroautos = Tools 01; Einkaufsliste = Tools 02; To-Do Liste = Tools 03.
 
 ---
 
