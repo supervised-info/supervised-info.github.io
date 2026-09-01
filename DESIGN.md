@@ -52,7 +52,9 @@ Ordnernamen ohne Umlaute. Jede Seite heißt `index.html`. CSS und JS inline, au�
 │   └── apple-touch-icon.png
 ├── todo/
 │   └── index.html
-└── braindump/
+├── braindump/
+│   └── index.html
+└── t-konto/
     └── index.html
 ```
 
@@ -84,12 +86,13 @@ Aktueller Katalog:
 - Tools 02: `einkauf/` Einkaufsliste
 - Tools 03: `todo/` To-Do Liste
 - Tools 04: `braindump/` BrainDump
+- Tools 05: `t-konto/` T-Konto Verwaltung
 
 ### Unterseite, Kicker
 
 Oben links: `supervised-info · NN`. Der Text `supervised-info` verlinkt nach `../`. **NN** ist die Katalognummer **dieses Tabs**, nicht eine globale Zählung über Tabs hinweg.
 
-Beispiele: Relativitätstheorie = Recherche 01; Elektroautos = Tools 01; Einkaufsliste = Tools 02; To-Do Liste = Tools 03; BrainDump = Tools 04.
+Beispiele: Relativitätstheorie = Recherche 01; Elektroautos = Tools 01; Einkaufsliste = Tools 02; To-Do Liste = Tools 03; BrainDump = Tools 04; T-Konto Verwaltung = Tools 05.
 
 ---
 
@@ -371,6 +374,10 @@ Bei jedem Deploy den Cache-Namen in `sw.js` hochzählen (`einkauf-offline-v4`, d
 ### Canvas-Tool (`braindump/`)
 
 Eine Datei: `index.html`. Vollflächige Canvas mit Knoten, Kanten, Import/Export. Site-Mast mit Palette/Theme; App-Daten unter `mindmapper_state_v1` (und verwandten BrainDump-Schlüsseln). Tools-Karte 04, CTA Öffnen.
+
+### Buchhaltungs-Tool (`t-konto/`)
+
+Eine Datei: `index.html`. Buchungssätze, T-Konten und Abschlussbuchungen; Excel/CSV sowie Einstellungen als JSON. Site-Mast mit Palette/Theme; App-Daten über Speichern/Laden (keine eigenen Theme-localStorage-Schlüssel). Tools-Karte 05, CTA Öffnen.
 
 ---
 

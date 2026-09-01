@@ -1,0 +1,2350 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Buchungssätze erfassen und T-Konten für die Buchhaltung automatisch erzeugen.">
+<meta name="theme-color" content="#f3eee4">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>T-Konto Verwaltung</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230d1f6e'/><text x='16' y='23' font-family='Arial,sans-serif' font-size='15' font-weight='400' fill='white' text-anchor='middle'>TS</text></svg>">
+<style>
+
+:root {
+  --paper: #f3eee4;
+  --paper-2: #e9e1d2;
+  --paper-3: #dfd5c4;
+  --ink: #1c1814;
+  --muted: #5e564d;
+  --rule: #d2c8b8;
+  --oxide: #9c3424;
+  --oxide-soft: rgba(156, 52, 36, 0.11);
+  --slate: #2a5564;
+  --ochre: #c4a35a;
+  --good: #2c6a4a;
+  --hit: rgba(196, 163, 90, 0.32);
+  --shadow: 0 18px 50px rgba(28, 24, 20, 0.18);
+  --header-bg: #e9e1d2;
+  --header-text: #5e564d;
+  --glow-1: rgba(156, 52, 36, 0.05);
+  --glow-2: rgba(42, 85, 100, 0.045);
+  --serif: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] {
+  --paper: #14110e;
+  --paper-2: #1d1915;
+  --paper-3: #2a241d;
+  --ink: #f3eee4;
+  --muted: #b3aa9c;
+  --rule: #3d362c;
+  --oxide: #e07060;
+  --oxide-soft: rgba(224, 112, 96, 0.16);
+  --slate: #8eb8c8;
+  --ochre: #d4b56c;
+  --good: #7dba96;
+  --hit: rgba(212, 181, 108, 0.22);
+  --shadow: 0 18px 50px rgba(0,0,0,0.45);
+  --header-bg: #1d1915;
+  --header-text: #f3eee4;
+  --glow-1: rgba(224, 112, 96, 0.08);
+  --glow-2: rgba(142, 184, 200, 0.06);
+  color-scheme: dark;
+}
+html[data-palette="navy"] {
+  --paper: #f0f4ff;
+  --paper-2: #ffffff;
+  --paper-3: #e8ecf8;
+  --ink: #08102a;
+  --muted: #4a6080;
+  --rule: #bfcfe8;
+  --oxide: #2060df;
+  --oxide-soft: #dce6ff;
+  --slate: #2060df;
+  --ochre: #d97706;
+  --good: #059669;
+  --hit: rgba(32, 96, 223, 0.18);
+  --shadow: 0 18px 50px rgba(8, 16, 42, 0.18);
+  --header-bg: #08102a;
+  --header-text: #ffffff;
+  --glow-1: rgba(74, 148, 255, 0.08);
+  --glow-2: rgba(32, 96, 223, 0.06);
+}
+html[data-palette="navy"][data-theme="dark"] {
+  --paper: #060c1a;
+  --paper-2: #0c1828;
+  --paper-3: #102038;
+  --ink: #edf2ff;
+  --muted: #6e8fb0;
+  --rule: #1b2f4a;
+  --oxide: #4a94ff;
+  --oxide-soft: #0a1e40;
+  --slate: #4a94ff;
+  --ochre: #fbbf24;
+  --good: #34d399;
+  --hit: rgba(74, 148, 255, 0.22);
+  --shadow: 0 18px 50px rgba(0,0,0,0.45);
+  --header-bg: #060c1a;
+  --header-text: #edf2ff;
+  --glow-1: rgba(74, 148, 255, 0.08);
+  --glow-2: rgba(32, 96, 223, 0.06);
+}
+:focus-visible { outline: 2px solid var(--oxide); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5rem 0.8rem;
+  z-index: 80;
+}
+.skip:focus { left: 0.6rem; top: 0.6rem; }
+.mast {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.4rem 0.55rem;
+  position: relative;
+  z-index: 2;
+  background: transparent;
+}
+.mast-actions { display: flex; gap: 0.4rem; align-items: center; }
+.kicker {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--oxide);
+}
+.kicker a { color: inherit; text-decoration: none; }
+.kicker a:hover { text-decoration: underline; }
+.iconbtn {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.28rem 0.6rem;
+  min-height: 36px;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.iconbtn:hover { border-color: var(--ink); }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 0% 0%, var(--glow-1), transparent 42%),
+    radial-gradient(ellipse at 100% 8%, var(--glow-2), transparent 40%);
+}
+.app-header, .tab-bar, .tab-content { position: relative; z-index: 1; }
+
+/* ── Reset & Basis ────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ── App-Header ───────────────────────────────────────────────────────── */
+.app-header {
+  background: #2E4057;
+  color: #fff;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.app-header h1 { font-size: 18px; letter-spacing: .4px; }
+.app-header .subtitle { font-size: 12px; color: #9ab8d0; margin-top: 2px; }
+
+/* ── Tab-Leiste ───────────────────────────────────────────────────────── */
+.tab-bar {
+  background: #3b5166;
+  display: flex;
+  padding: 0 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 11px 22px;
+  color: #9ab8d0;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-family: inherit;
+  border-bottom: 3px solid transparent;
+  transition: color .15s, border-color .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tab-btn:hover { color: #d0e4f0; }
+.tab-btn.active {
+  color: #fff;
+  border-bottom-color: #7AB0DE;
+  background: rgba(255,255,255,.05);
+}
+.tab-btn .badge {
+  background: #1F7A4A;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 1px 6px;
+  display: none;
+}
+.tab-btn .badge.visible { display: inline; }
+
+/* ── Tab-Inhalte ──────────────────────────────────────────────────────── */
+.tab-content { display: none; padding: 24px 28px; }
+.tab-content.active { display: block; }
+
+/* ── Sektion-Header ───────────────────────────────────────────────────── */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.section-header h2 { font-size: 15px; color: var(--ink); }
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.btn-buchen {
+  background: #1F7A4A;
+  color: #fff;
+  border: none;
+  padding: 9px 26px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  letter-spacing: .5px;
+  box-shadow: 0 2px 5px rgba(31,122,74,.35);
+  transition: background .15s, box-shadow .15s;
+}
+.btn-buchen:hover { background: #176039; }
+.btn-buchen:active { background: #114a2c; }
+#btn-abschluss-durchfuehren:hover { background: #8b4a00 !important; }
+#btn-abschluss-durchfuehren:active { background: #5c3000 !important; }
+
+.btn-export {
+  background: #217346;
+  color: #fff;
+  border: none;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  letter-spacing: .4px;
+  box-shadow: 0 2px 5px rgba(33,115,70,.3);
+  transition: background .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-export:hover { background: #1a5c38; }
+.xls-icon { font-size: 15px; line-height: 1; }
+.btn-group { display: flex; gap: 10px; align-items: center; }
+
+.btn-csv {
+  background: #fff;
+  color: #2E4057;
+  border: 1.5px solid #2E4057;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background .15s, color .15s;
+}
+.btn-csv:hover { background: #2E4057; color: #fff; }
+
+/* ── Validierungsmeldung ──────────────────────────────────────────────── */
+.alert {
+  padding: 10px 14px;
+  border-radius: 5px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  display: none;
+}
+.alert.error { background: #fde8e8; color: #b71c1c; border-left: 4px solid #e53935; }
+.alert.success { background: #e8f5e9; color: #1b5e20; border-left: 4px solid #43a047; }
+.alert.visible { display: block; }
+
+/* ── Buchungen-Tabelle ────────────────────────────────────────────────── */
+.tbl-wrap {
+  background: var(--paper-2);
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.1);
+  overflow: hidden;
+}
+table.buch-table { width: 100%; border-collapse: collapse; }
+table.buch-table thead th {
+  background: #2E4057;
+  color: #fff;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: .3px;
+}
+table.buch-table thead th.right { text-align: right; }
+table.buch-table thead th.center { text-align: center; }
+table.buch-table tbody tr:hover td { background: #f4f8fc; }
+table.buch-table tbody td {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid #e8edf2;
+}
+table.buch-table tbody td.right { text-align: right; }
+table.buch-table tbody td.center { text-align: center; }
+table.buch-table tbody td.muted { color: #aaa; text-align: center; padding: 22px; }
+table.buch-table tfoot td {
+  background: #f8fafc;
+  padding: 8px 10px;
+  border-top: 2px solid #dde3ea;
+}
+
+.inp {
+  width: 100%;
+  border: 1px solid #c8d3de;
+  border-radius: 4px;
+  padding: 6px 9px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color .15s, box-shadow .15s;
+}
+.inp:focus {
+  outline: none;
+  border-color: #7AB0DE;
+  box-shadow: 0 0 0 3px rgba(122,176,222,.2);
+}
+.inp.nr { width: 110px; }
+.inp.betrag { width: 110px; text-align: right; }
+
+.btn-add {
+  background: #2E4057;
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-add:hover { background: #3d5570; }
+
+.btn-del {
+  background: none;
+  border: none;
+  color: #c0392b;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  line-height: 1;
+}
+.btn-del:hover { background: #fde8e8; }
+
+.btn-edit {
+  background: none;
+  border: none;
+  color: #2E6DA4;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  line-height: 1;
+}
+.btn-edit:hover { background: #e8f0fc; }
+
+.btn-edit-save {
+  background: none;
+  border: none;
+  color: #1F7A4A;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 3px;
+  line-height: 1;
+}
+.btn-edit-save:hover { background: #e8f5e9; }
+
+.nr-badge {
+  display: inline-block;
+  background: #2E4057;
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+
+/* ── Hinweis-Box ──────────────────────────────────────────────────────── */
+.hint {
+  background: #e8f4fd;
+  border-left: 4px solid #7AB0DE;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #4a6070;
+  margin-top: 16px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── T-Konto Reiter ───────────────────────────────────────────────────── */
+.tkonto-meta { font-size: 12px; color: #777; margin-bottom: 20px; }
+.tkonto-meta strong { color: #2E4057; }
+.tkonto-grid { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+
+.t-konto {
+  border: 2px solid var(--tk-border, #2E4057);
+  border-radius: 3px;
+  min-width: 270px;
+  max-width: 340px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(46,64,87,.15);
+  background: var(--paper-2);
+  transition: box-shadow .15s, opacity .15s;
+}
+.t-konto.dragging { opacity: .4; box-shadow: 0 6px 20px rgba(46,64,87,.35); }
+.t-konto.drag-over { box-shadow: 0 0 0 3px #1F7A4A, 0 4px 14px rgba(31,122,74,.3); }
+
+.t-konto-titel {
+  background: var(--tk-header, #2E4057);
+  color: var(--tk-header-text, #fff);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 8px 12px;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: .3px;
+  cursor: grab;
+  user-select: none;
+}
+.t-konto-titel:active { cursor: grabbing; }
+.drag-handle { font-size: 15px; opacity: .55; line-height: 1; flex-shrink: 0; margin-left: 6px; letter-spacing: 1px; }
+
+.tkonto-hint { font-size: 11px; color: #7a9ab0; margin-bottom: 14px; }
+
+table.t-tbl { width: 100%; border-collapse: collapse; }
+table.t-tbl thead th {
+  background: var(--tk-subheader, #7AB0DE);
+  color: var(--tk-subheader-text, #fff);
+  text-align: center;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: bold;
+  border: 1px solid #5a90c0;
+}
+table.t-tbl thead th:nth-child(2) { border-right: 2px solid var(--tk-border, #2E4057); }
+table.t-tbl tbody td {
+  padding: 5px 8px;
+  font-size: 12px;
+  border-bottom: 1px solid #edf0f3;
+}
+table.t-tbl tbody td:nth-child(1) { text-align: center; width: 28%; }
+table.t-tbl tbody td:nth-child(2) { text-align: right; width: 22%; border-right: 2px solid var(--tk-border, #2E4057); }
+table.t-tbl tbody td:nth-child(3) { text-align: center; width: 28%; }
+table.t-tbl tbody td:nth-child(4) { text-align: right; width: 22%; }
+table.t-tbl tbody tr.saldo td { background: var(--tk-saldo-bg, #FFF4CC); color: var(--tk-saldo-text, #333333); font-weight: bold; font-style: italic; }
+table.t-tbl tfoot td {
+  background: var(--tk-sum-bg, #DDEEDD);
+  color: var(--tk-sum-text, #333333);
+  font-weight: bold;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-top: 2.5px double #555;
+}
+table.t-tbl tfoot td:nth-child(1) { text-align: center; }
+table.t-tbl tfoot td:nth-child(2) { text-align: right; border-right: 2px solid var(--tk-border, #2E4057); }
+table.t-tbl tfoot td:nth-child(3) { text-align: center; }
+table.t-tbl tfoot td:nth-child(4) { text-align: right; }
+
+/* ── Leer-Zustand ─────────────────────────────────────────────────────── */
+.empty-state { text-align: center; padding: 56px 20px; color: #999; }
+.empty-state .ico { font-size: 52px; margin-bottom: 14px; }
+.empty-state p { font-size: 14px; margin-bottom: 6px; }
+.empty-state small { font-size: 12px; }
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  EINSTELLUNGEN-REITER                                                  */
+/* ═══════════════════════════════════════════════════════════════════════ */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-bottom: 28px;
+}
+@media (max-width: 700px) { .settings-grid { grid-template-columns: 1fr; } }
+
+.settings-card {
+  background: var(--paper-2);
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.1);
+  padding: 20px 22px;
+}
+.settings-card h3 {
+  font-size: 13px;
+  font-weight: bold;
+  color: #2E4057;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #eef1f5;
+  letter-spacing: .3px;
+}
+.color-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+.color-row label {
+  font-size: 12px;
+  color: #555;
+  flex: 1;
+}
+.color-row input[type="color"] {
+  width: 38px;
+  height: 30px;
+  border: 1px solid #c8d3de;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 2px;
+  background: #fff;
+}
+.color-row .hex-val {
+  font-size: 11px;
+  color: #888;
+  font-family: monospace;
+  width: 62px;
+}
+
+/* Preview-Bereich */
+.settings-preview-wrap {
+  background: var(--paper-2);
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.1);
+  padding: 20px 22px;
+  margin-bottom: 28px;
+}
+.settings-preview-wrap h3 {
+  font-size: 13px;
+  font-weight: bold;
+  color: #2E4057;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #eef1f5;
+}
+.preview-tkonto-outer { display: flex; gap: 20px; flex-wrap: wrap; }
+.preview-tkonto-outer .t-konto { pointer-events: none; }
+
+.btn-reset-colors {
+  background: #fff;
+  color: #c0392b;
+  border: 1.5px solid #c0392b;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.btn-reset-colors:hover { background: #c0392b; color: #fff; }
+
+/* Abschlusskonten-Tags */
+.ab-konto-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #2E4057;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  padding: 4px 10px 4px 10px;
+}
+.ab-konto-tag .tag-del {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0 0 0 4px;
+  opacity: .7;
+}
+.ab-konto-tag .tag-del:hover { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  ABSCHLUSSBUCHUNGEN-REITER                                             */
+/* ═══════════════════════════════════════════════════════════════════════ */
+.abschluss-hint {
+  background: #fff8e1;
+  border-left: 4px solid #f9a825;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #5a4000;
+  margin-bottom: 20px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Abschlussbuchungen-Tabelle */
+.ab-buch-wrap {
+  background: var(--paper-2);
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.1);
+  overflow: hidden;
+}
+table.ab-buch-table { width: 100%; border-collapse: collapse; }
+table.ab-buch-table thead th {
+  background: #2E4057;
+  color: #fff;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: .3px;
+}
+table.ab-buch-table thead th.right  { text-align: right; }
+table.ab-buch-table thead th.center { text-align: center; }
+table.ab-buch-table tbody tr:hover td { background: #f4f8fc; }
+table.ab-buch-table tbody td {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid #e8edf2;
+}
+table.ab-buch-table tbody td.right  { text-align: right; }
+table.ab-buch-table tbody td.center { text-align: center; }
+table.ab-buch-table tbody td.muted  { color: #aaa; text-align: center; padding: 22px; }
+table.ab-buch-table tfoot td {
+  background: #f8fafc;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: bold;
+  border-top: 2px solid #dde3ea;
+  text-align: right;
+}
+
+/* Gegenkonto-Dropdown in der Tabelle */
+.sel-gegenkonto {
+  border: 1px solid #c8d3de;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  background: #fff;
+  cursor: pointer;
+  color: #2E4057;
+  font-weight: bold;
+  transition: border-color .15s;
+}
+.sel-gegenkonto:focus { outline: none; border-color: #7AB0DE; box-shadow: 0 0 0 3px rgba(122,176,222,.2); }
+
+.soll-col  { color: #1a5c38; font-weight: bold; }
+.haben-col { color: #8b3a00; font-weight: bold; }
+
+/* Saldo-Zeile in der Abschlusstabelle */
+tr.ab-saldo-row td { background: #fff8e1; font-style: italic; }
+
+/* ── Modal-Dialog ─────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10000; animation: fadeIn .15s ease;
+}
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+.modal-box {
+  background: #fff; border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.25);
+  padding: 28px 32px; max-width: 420px; width: 90%;
+  animation: slideUp .18s ease;
+}
+@keyframes slideUp { from { transform:translateY(12px);opacity:0 } to { transform:translateY(0);opacity:1 } }
+.modal-box h3 { font-size: 15px; color: #2E4057; margin-bottom: 10px; }
+.modal-box p  { font-size: 13px; color: #555; margin-bottom: 22px; line-height: 1.5; }
+.modal-btns   { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .tab-content { padding: 16px; }
+  .t-konto, .ab-konto { min-width: 100%; max-width: 100%; }
+  .section-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+
+/* ── Dark-Mode Toggle Button ──────────────────────────────────────────── */
+
+/* ── Dark Mode ────────────────────────────────────────────────────────── */
+/* dark surfaces via tokens + overrides below */
+html[data-theme="dark"] .app-header { background: #0d1117; }
+html[data-theme="dark"] .tab-bar { background: #0f1520; }
+html[data-theme="dark"] .tab-btn { color: #6a8bad; }
+html[data-theme="dark"] .tab-btn:hover { color: #9ab8d0; }
+html[data-theme="dark"] .tab-btn.active { color: #fff; background: rgba(255,255,255,.07); }
+html[data-theme="dark"] .tbl-wrap,
+html[data-theme="dark"] .settings-card,
+html[data-theme="dark"] .settings-preview-wrap,
+html[data-theme="dark"] .ab-buch-wrap { background: #1c2236; box-shadow: 0 1px 5px rgba(0,0,0,.4); }
+html[data-theme="dark"] table.buch-table thead th,
+html[data-theme="dark"] table.ab-buch-table thead th { background: #1a2540; }
+html[data-theme="dark"] table.buch-table tbody td,
+html[data-theme="dark"] table.ab-buch-table tbody td { border-color: #2a3350; color: #ccd6f0; }
+html[data-theme="dark"] table.buch-table tbody tr:hover td,
+html[data-theme="dark"] table.ab-buch-table tbody tr:hover td { background: #222b45; }
+html[data-theme="dark"] table.buch-table tfoot td,
+html[data-theme="dark"] table.ab-buch-table tfoot td { background: #192033; border-color: #2a3350; color: #9ab8d0; }
+html[data-theme="dark"] .inp { background: #192033; border-color: #2a3350; color: #ccd6f0; }
+html[data-theme="dark"] .inp:focus { border-color: #7AB0DE; }
+html[data-theme="dark"] .inp::placeholder { color: #3a5070; }
+html[data-theme="dark"] .section-header h2 { color: #9ab8d0; }
+html[data-theme="dark"] .hint { background: #0e1e30; border-color: #2a4a70; color: #7a9ab0; }
+html[data-theme="dark"] .abschluss-hint { background: #1f1800; border-color: #7a5000; color: #d4a030; }
+html[data-theme="dark"] .alert.error { background: #2a0808; color: #ff8888; border-color: #c0392b; }
+html[data-theme="dark"] .alert.success { background: #081a0c; color: #60c878; border-color: #1F7A4A; }
+html[data-theme="dark"] .modal-box { background: #1c2236; }
+html[data-theme="dark"] .modal-box h3 { color: #9ab8d0; }
+html[data-theme="dark"] .modal-box p { color: #8898b8; }
+html[data-theme="dark"] .t-konto { background: #1c2236; }
+html[data-theme="dark"] table.t-tbl tbody td { border-color: #2a3350; color: #ccd6f0; }
+html[data-theme="dark"] table.t-tbl tbody tr.saldo td { background: #1f1800; color: #d4b840; }
+html[data-theme="dark"] table.t-tbl tfoot td { background: #0e1e18; }
+html[data-theme="dark"] tr.ab-saldo-row td { background: #1f1800; color: #d4b840; }
+html[data-theme="dark"] .empty-state { color: #3a5070; }
+html[data-theme="dark"] .tkonto-meta { color: #4a6a80; }
+html[data-theme="dark"] .tkonto-meta strong { color: #9ab8d0; }
+html[data-theme="dark"] .tkonto-hint { color: #3a5070; }
+html[data-theme="dark"] .sel-gegenkonto { background: #192033; border-color: #2a3350; color: #9ab8d0; }
+html[data-theme="dark"] .btn-csv { background: #192033; color: #9ab8d0; border-color: #2a3a50; }
+html[data-theme="dark"] .btn-csv:hover { background: #2a3a50; color: #fff; }
+html[data-theme="dark"] .btn-reset-colors { background: #192033; }
+html[data-theme="dark"] .color-row label { color: #8898b8; }
+html[data-theme="dark"] .color-row .hex-val { color: #4a6a80; }
+html[data-theme="dark"] .color-row input[type="color"] { background: #192033; border-color: #2a3350; }
+html[data-theme="dark"] .settings-card h3 { color: #9ab8d0; border-color: #2a3350; }
+html[data-theme="dark"] .settings-preview-wrap h3 { color: #9ab8d0; border-color: #2a3350; }
+html[data-theme="dark"] .nr-badge { background: #2a3a55; }
+html[data-theme="dark"] .btn-del:hover { background: #2a1010; }
+html[data-theme="dark"] .btn-edit:hover { background: #1a2a40; }
+html[data-theme="dark"] .btn-edit-save:hover { background: #0a2010; }
+html[data-theme="dark"] kbd { background: #2a3350; color: #9ab8d0; border: 1px solid #3a5070; border-radius: 3px; padding: 1px 5px; }
+</style>
+<script>
+(function(){try{var t=localStorage.getItem("supervised-info.theme");var p=localStorage.getItem("supervised-info.palette");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);if(p==="vintage"||p==="navy")document.documentElement.setAttribute("data-palette",p);}catch(e){}})();
+</script>
+</head>
+<body>
+<a class="skip" href="#inhalt">Zum Inhalt springen</a>
+<header class="mast">
+  <p class="kicker"><a href="../">supervised-info</a> · 05</p>
+  <div class="mast-actions">
+    <button type="button" class="iconbtn" id="paletteBtn" aria-pressed="true" title="Farbschema">Blau</button>
+    <button type="button" class="iconbtn" id="themeBtn" aria-pressed="false">Dunkel</button>
+  </div>
+</header>
+
+<!-- HEADER -->
+<header class="app-header" id="inhalt">
+  <div>
+    <h1>&#9783; T-Konto Verwaltung</h1>
+    <div class="subtitle">Buchungssätze erfassen &amp; T-Konten automatisch generieren</div>
+  </div>
+</header>
+
+<!-- TAB-LEISTE -->
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="zeigeTab('buchungen')" id="tab-btn-buchungen">
+    &#128203; Buchungen
+  </button>
+  <button class="tab-btn" onclick="zeigeTab('tkonto')" id="tab-btn-tkonto">
+    &#9878; T-Konto
+    <span class="badge" id="tkonto-badge">0</span>
+  </button>
+  <button class="tab-btn" onclick="zeigeTab('abschluss')" id="tab-btn-abschluss">
+    &#9654; Abschlussbuchungen
+    <span class="badge" id="abschluss-badge">0</span>
+  </button>
+  <button class="tab-btn" onclick="zeigeTab('einstellungen')" id="tab-btn-einstellungen">
+    &#9881; Einstellungen
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: BUCHUNGEN                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-buchungen">
+  <div class="section-header">
+    <div class="btn-group">
+      <h2>Buchungssätze erfassen</h2>
+      <button class="btn-csv" onclick="buchungenSpeichern()">&#8659; Speichern</button>
+      <button class="btn-csv" onclick="document.getElementById('csv-input').click()">&#8657; Laden</button>
+      <input type="file" id="csv-input" accept=".csv,.txt" style="display:none" onchange="buchungenLaden(event)">
+    </div>
+    <div class="btn-group">
+      <button class="btn-export" onclick="exportExcel()">
+        <span class="xls-icon">&#8659;</span> Excel-Export
+      </button>
+      <button class="btn-buchen" onclick="buchen()">&#9654; BUCHEN</button>
+    </div>
+  </div>
+
+  <div class="alert error" id="alert-box"></div>
+
+  <div class="tbl-wrap">
+    <table class="buch-table">
+      <thead>
+        <tr>
+          <th style="width:120px">Buchungs-Nr.</th>
+          <th>Soll-Konto</th>
+          <th>Haben-Konto</th>
+          <th class="right" style="width:130px">Betrag&nbsp;(€)</th>
+          <th class="center" style="width:46px"></th>
+        </tr>
+      </thead>
+      <tbody id="buch-body"></tbody>
+      <tfoot>
+        <tr>
+          <td><input class="inp nr" type="text" id="inp-nr" placeholder="B-001" /></td>
+          <td><input class="inp" type="text" id="inp-soll" placeholder="z.B. Kasse" /></td>
+          <td><input class="inp" type="text" id="inp-haben" placeholder="z.B. Eigenkapital" /></td>
+          <td><input class="inp betrag" type="number" id="inp-betrag" placeholder="0.00" min="0.01" step="0.01" /></td>
+          <td style="text-align:center">
+            <button class="btn-add" onclick="buchungHinzufuegen()">+ Add</button>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="hint">
+    <strong>Bedienung:</strong> Buchungsnummer, Soll-Konto, Haben-Konto und Betrag eintragen
+    &rarr; <em>+ Add</em> oder <kbd>Enter</kbd> &rarr; alle Buchungen eingetragen &rarr;
+    <strong>&#9654; BUCHEN</strong> klicken &rarr; T-Konten werden automatisch im Reiter
+    <em>T-Konto</em> erstellt.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: T-KONTO                                                            -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-tkonto">
+  <div class="section-header">
+    <h2>T-Konten</h2>
+    <div class="btn-group">
+      <button class="btn-export" onclick="exportExcel()" style="font-size:12px;padding:7px 16px;">
+        <span class="xls-icon">&#8659;</span> Excel-Export
+      </button>
+      <button class="btn-buchen" onclick="buchen()" style="font-size:12px;padding:7px 18px;">
+        &#8635; Neu generieren
+      </button>
+      <button class="btn-buchen" onclick="abschlussbuchen()" style="font-size:12px;padding:7px 18px;background:#b36200;">
+        &#10003; Mit Abschlussbuchungen
+      </button>
+    </div>
+  </div>
+  <div id="tkonto-meta" class="tkonto-meta" style="display:none"></div>
+  <p class="tkonto-hint" id="tkonto-hint" style="display:none">&#9654; Karten per Drag &amp; Drop in die gewünschte Reihenfolge ziehen.</p>
+  <div id="tkonto-container">
+    <div class="empty-state">
+      <div class="ico">&#9878;</div>
+      <p>Noch keine T-Konten generiert.</p>
+      <small>Buchungen erfassen und auf <strong>&#9654; BUCHEN</strong> klicken.</small>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: ABSCHLUSSBUCHUNGEN                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-abschluss">
+  <div class="section-header">
+    <h2>Abschlussbuchungen (Saldo)</h2>
+    <div class="btn-group">
+      <button class="btn-buchen" onclick="generiereAbschluss()" style="font-size:12px;padding:7px 18px;">
+        &#8635; Aktualisieren
+      </button>
+      <button class="btn-buchen" onclick="abschlussbuchen()" id="btn-abschluss-durchfuehren" style="font-size:12px;padding:7px 18px;background:#b36200;">
+        &#10003; Abschlussbuchungen durchführen
+      </button>
+    </div>
+  </div>
+
+  <div class="abschluss-hint">
+    <strong>Gegenkonto pro Konto wählen:</strong> Spalte <em>Gegenkonto</em> direkt in der Tabelle anpassen.
+    Buchungstext: <em>Saldo (&lt;Gegenkonto&gt;)</em>. Ausgeglichene Konten (Saldo = 0) werden ausgeblendet.
+  </div>
+
+  <div id="ab-container">
+    <div class="empty-state">
+      <div class="ico">&#9654;</div>
+      <p>Noch keine Abschlussbuchungen generiert.</p>
+      <small>Buchungen erfassen und auf <strong>&#9654; BUCHEN</strong> klicken.</small>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: EINSTELLUNGEN                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-einstellungen">
+  <!-- Import / Export Einstellungen -->
+  <div class="settings-card" style="margin-bottom:28px;">
+    <h3>&#128190; Einstellungen speichern &amp; laden</h3>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="btn-export" onclick="einstellungenExportieren()" style="font-size:12px;padding:7px 16px;">
+        &#8659; Einstellungen exportieren (.json)
+      </button>
+      <button class="btn-csv" onclick="document.getElementById('settings-import-input').click()">
+        &#8657; Einstellungen importieren
+      </button>
+      <input type="file" id="settings-import-input" accept=".json" style="display:none" onchange="einstellungenImportieren(event)">
+    </div>
+  </div>
+
+  <!-- Layout-Einstellung -->
+  <div class="settings-card" style="margin-bottom:28px;">
+    <h3>&#9638; Layout T-Konten</h3>
+    <div class="color-row">
+      <label>T-Konten pro Zeile<br><span style="font-weight:normal;color:#999;">(0 = automatisch)</span></label>
+      <input type="number" id="inp-tkonten-pro-zeile" min="0" max="10" value="0"
+        class="inp" style="width:80px;text-align:center;"
+        oninput="tkontenProZeileAendern(this.value)">
+    </div>
+  </div>
+
+  <!-- Abschlusskonten-Einstellung -->
+  <div class="settings-card" style="margin-bottom:28px;">
+    <h3>&#9654; Abschlusskonten</h3>
+    <div id="abschlusskonten-liste" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="text" id="inp-neues-abschlusskonto" class="inp" placeholder="Neues Konto..." style="max-width:200px;"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();abschlusskontoHinzufuegen();}">
+      <button class="btn-add" onclick="abschlusskontoHinzufuegen()">+ Hinzufügen</button>
+      <button class="btn-reset-colors" onclick="abschlusskontenZuruecksetzen()" style="margin-left:auto;">&#8635; Standard</button>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Farbeinstellungen T-Konten</h2>
+    <div class="btn-group">
+      <button class="btn-reset-colors" onclick="farbenDruckversion()" style="color:#333;border-color:#333;">&#128438; Druckversion</button>
+      <button class="btn-reset-colors" onclick="farbenZuruecksetzen()">&#8635; Zurücksetzen</button>
+    </div>
+  </div>
+
+  <div class="settings-grid">
+    <!-- Karte 1: Header & Rahmen -->
+    <div class="settings-card">
+      <h3>&#9635; Kopfzeile &amp; Rahmen</h3>
+      <div class="color-row">
+        <label>Kopfzeile Hintergrund</label>
+        <input type="color" id="col-header" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-header">#2E4057</span>
+      </div>
+      <div class="color-row">
+        <label>Kopfzeile Schriftfarbe</label>
+        <input type="color" id="col-header-text" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-header-text">#ffffff</span>
+      </div>
+      <div class="color-row">
+        <label>Rahmenfarbe</label>
+        <input type="color" id="col-border" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-border">#2E4057</span>
+      </div>
+      <div class="color-row">
+        <label>Soll/Haben-Spalten-Kopf</label>
+        <input type="color" id="col-subheader" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-subheader">#7AB0DE</span>
+      </div>
+      <div class="color-row">
+        <label>Spaltenkopf Schriftfarbe</label>
+        <input type="color" id="col-subheader-text" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-subheader-text">#ffffff</span>
+      </div>
+    </div>
+
+    <!-- Karte 2: Zeilen-Farben -->
+    <div class="settings-card">
+      <h3>&#9646; Zeilenfarben</h3>
+      <div class="color-row">
+        <label>Saldo-Zeile Hintergrund</label>
+        <input type="color" id="col-saldo" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-saldo">#FFF4CC</span>
+      </div>
+      <div class="color-row">
+        <label>Saldo-Zeile Schriftfarbe</label>
+        <input type="color" id="col-saldo-text" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-saldo-text">#333333</span>
+      </div>
+      <div class="color-row">
+        <label>Summenzeile Hintergrund</label>
+        <input type="color" id="col-sum" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-sum">#DDEEDD</span>
+      </div>
+      <div class="color-row">
+        <label>Summenzeile Schriftfarbe</label>
+        <input type="color" id="col-sum-text" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-sum-text">#333333</span>
+      </div>
+    </div>
+
+    <!-- Karte 3: App-Farben -->
+    <div class="settings-card">
+      <h3>&#127759; App-Farben</h3>
+      <div class="color-row">
+        <label>App-Header Hintergrund</label>
+        <input type="color" id="col-appheader" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-appheader">#2E4057</span>
+      </div>
+      <div class="color-row">
+        <label>App-Header Schriftfarbe</label>
+        <input type="color" id="col-appheader-text" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-appheader-text">#ffffff</span>
+      </div>
+      <div class="color-row">
+        <label>Tab-Leiste Hintergrund</label>
+        <input type="color" id="col-tabbar" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-tabbar">#3b5166</span>
+      </div>
+      <div class="color-row">
+        <label>Aktiver Tab-Unterstrich</label>
+        <input type="color" id="col-tabactive" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-tabactive">#7AB0DE</span>
+      </div>
+    </div>
+
+    <!-- Karte 4: Buttons -->
+    <div class="settings-card">
+      <h3>&#9654; Button-Farben</h3>
+      <div class="color-row">
+        <label>Buchen-Button</label>
+        <input type="color" id="col-btnbuchen" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-btnbuchen">#1F7A4A</span>
+      </div>
+      <div class="color-row">
+        <label>Excel-Export-Button</label>
+        <input type="color" id="col-btnexport" oninput="farbeAnwenden()">
+        <span class="hex-val" id="hex-btnexport">#217346</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live-Preview -->
+  <div class="settings-preview-wrap">
+    <h3>&#128065; Live-Vorschau T-Konto</h3>
+    <div class="preview-tkonto-outer" id="preview-container"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                                               -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DATENSPEICHER
+══════════════════════════════════════════════════════════════════════════ */
+let buchungen          = [];
+let nextId             = 1;
+let kontenOrder        = [];
+let dragSrcIdx         = null;
+let editierteBuchungId = null;
+
+// Gegenkonto-Map: kontoName → 'Bilanz'|'GuV'|'Notes'|'Sonstiges'
+let gegenkontoMap = {};
+// Konfigurierbare Abschlusskonten-Liste
+let gegenkontenListe = ['Bilanz', 'GuV', 'Notes', 'Sonstiges'];
+
+// Status Abschlussbuchungen durchgeführt
+let abschlussDurchgefuehrt = false;
+let abschlussKontenOrder   = [];
+let dragSrcAbschlussIdx    = null;
+
+// Layout: T-Konten pro Zeile (0 = automatisch)
+let tkontenProZeile = 0;
+
+// Farb-Defaults
+const FARB_DEFAULTS = {
+  header:         '#2E4057',
+  headerText:     '#ffffff',
+  border:         '#2E4057',
+  subheader:      '#7AB0DE',
+  subheaderText:  '#ffffff',
+  saldo:          '#FFF4CC',
+  saldoText:      '#333333',
+  sum:            '#DDEEDD',
+  sumText:        '#333333',
+  appheader:      '#2E4057',
+  appheaderText:  '#ffffff',
+  tabbar:         '#3b5166',
+  tabactive:      '#7AB0DE',
+  btnbuchen:      '#1F7A4A',
+  btnexport:      '#217346',
+};
+let farben = { ...FARB_DEFAULTS };
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TAB-VERWALTUNG
+══════════════════════════════════════════════════════════════════════════ */
+function zeigeTab(name) {
+  ['buchungen','tkonto','abschluss','einstellungen'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.getElementById('tab-btn-' + t).classList.toggle('active', t === name);
+  });
+  if (name === 'einstellungen') renderPreview();
+  if (name === 'abschluss' && kontenOrder.length > 0) generiereAbschluss();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BUCHUNG HINZUFÜGEN / LÖSCHEN / TABELLE
+══════════════════════════════════════════════════════════════════════════ */
+function buchungHinzufuegen() {
+  const nr     = val('inp-nr').trim();
+  const soll   = val('inp-soll').trim();
+  const haben  = val('inp-haben').trim();
+  const betrag = parseFloat(val('inp-betrag'));
+
+  if (!nr)   return zeigeAlert('Bitte eine Buchungsnummer eingeben (z.B. B-001).');
+  if (!soll) return zeigeAlert('Bitte ein Soll-Konto eingeben.');
+  if (!haben) return zeigeAlert('Bitte ein Haben-Konto eingeben.');
+  if (soll === haben) return zeigeAlert('Soll-Konto und Haben-Konto dürfen nicht identisch sein.');
+  if (isNaN(betrag) || betrag <= 0) return zeigeAlert('Bitte einen gültigen Betrag größer als 0 eingeben.');
+
+  verbergeAlert();
+  buchungen.push({ id: nextId++, nr, soll, haben, betrag });
+  tabelleAktualisieren();
+  eingabeLeeren();
+  vorschlagNr();
+  document.getElementById('inp-soll').focus();
+}
+
+function buchungLoeschen(id) {
+  buchungen = buchungen.filter(b => b.id !== id);
+  if (editierteBuchungId === id) editierteBuchungId = null;
+  tabelleAktualisieren();
+}
+
+function tabelleAktualisieren() {
+  const tbody = document.getElementById('buch-body');
+  if (buchungen.length === 0) {
+    tbody.innerHTML = '<tr><td class="muted" colspan="5">Noch keine Buchungen vorhanden – bitte unten eintragen.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = buchungen.map(b => {
+    if (b.id === editierteBuchungId) {
+      const eid = b.id;
+      return `
+        <tr>
+          <td><input class="inp nr" type="text" id="edit-nr-${eid}" value="${esc(b.nr)}"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('edit-soll-${eid}').focus();}
+                       else if(event.key==='Escape'){buchungAbbrechenInline();}" /></td>
+          <td><input class="inp" type="text" id="edit-soll-${eid}" value="${esc(b.soll)}"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('edit-haben-${eid}').focus();}
+                       else if(event.key==='Escape'){buchungAbbrechenInline();}" /></td>
+          <td><input class="inp" type="text" id="edit-haben-${eid}" value="${esc(b.haben)}"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('edit-betrag-${eid}').focus();}
+                       else if(event.key==='Escape'){buchungAbbrechenInline();}" /></td>
+          <td><input class="inp betrag" type="number" id="edit-betrag-${eid}" value="${b.betrag}" min="0.01" step="0.01"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();buchungSpeichernInline(${eid});}
+                       else if(event.key==='Escape'){buchungAbbrechenInline();}" /></td>
+          <td class="center" style="white-space:nowrap">
+            <button class="btn-edit-save" onclick="buchungSpeichernInline(${eid})" title="Speichern">&#10003;</button>
+            <button class="btn-del" onclick="buchungAbbrechenInline()" title="Abbrechen">&#10005;</button>
+          </td>
+        </tr>`;
+    }
+    return `
+      <tr>
+        <td><span class="nr-badge">${esc(b.nr)}</span></td>
+        <td>${esc(b.soll)}</td>
+        <td>${esc(b.haben)}</td>
+        <td class="right">${fmtBetrag(b.betrag)}</td>
+        <td class="center" style="white-space:nowrap">
+          <button class="btn-edit" onclick="buchungBearbeiten(${b.id})" title="Bearbeiten">&#9998;</button>
+          <button class="btn-del" onclick="buchungLoeschen(${b.id})" title="Löschen">&#10005;</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function buchungBearbeiten(id) {
+  editierteBuchungId = id;
+  verbergeAlert();
+  tabelleAktualisieren();
+  const el = document.getElementById('edit-nr-' + id);
+  if (el) el.focus();
+}
+
+function buchungAbbrechenInline() {
+  editierteBuchungId = null;
+  verbergeAlert();
+  tabelleAktualisieren();
+}
+
+function buchungSpeichernInline(id) {
+  const nr     = document.getElementById('edit-nr-'     + id).value.trim();
+  const soll   = document.getElementById('edit-soll-'   + id).value.trim();
+  const haben  = document.getElementById('edit-haben-'  + id).value.trim();
+  const betrag = parseFloat(document.getElementById('edit-betrag-' + id).value);
+
+  if (!nr)   return zeigeAlert('Bitte eine Buchungsnummer eingeben (z.B. B-001).');
+  if (!soll) return zeigeAlert('Bitte ein Soll-Konto eingeben.');
+  if (!haben) return zeigeAlert('Bitte ein Haben-Konto eingeben.');
+  if (soll === haben) return zeigeAlert('Soll-Konto und Haben-Konto dürfen nicht identisch sein.');
+  if (isNaN(betrag) || betrag <= 0) return zeigeAlert('Bitte einen gültigen Betrag größer als 0 eingeben.');
+
+  const b = buchungen.find(b => b.id === id);
+  if (b) { b.nr = nr; b.soll = soll; b.haben = haben; b.betrag = betrag; }
+  editierteBuchungId = null;
+  verbergeAlert();
+  tabelleAktualisieren();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BUCHEN
+══════════════════════════════════════════════════════════════════════════ */
+function buchen() {
+  if (buchungen.length === 0) {
+    zeigeAlert('Keine Buchungen vorhanden. Bitte zuerst Buchungssätze eintragen.');
+    zeigeTab('buchungen');
+    return;
+  }
+  verbergeAlert();
+  abschlussDurchgefuehrt = false;
+  abschlussKontenOrder   = [];
+  erstelleTKonten();
+  zeigeTab('tkonto');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   T-KONTEN ERSTELLEN
+══════════════════════════════════════════════════════════════════════════ */
+function erstelleTKonten() {
+  const alleKonten = [];
+  buchungen.forEach(b => {
+    if (!alleKonten.includes(b.soll))  alleKonten.push(b.soll);
+    if (!alleKonten.includes(b.haben)) alleKonten.push(b.haben);
+  });
+
+  kontenOrder = kontenOrder.filter(k => alleKonten.includes(k));
+  alleKonten.forEach(k => { if (!kontenOrder.includes(k)) kontenOrder.push(k); });
+
+  const now = new Date();
+  const ts  = now.toLocaleDateString('de-DE') + ' ' + now.toLocaleTimeString('de-DE');
+  const meta = document.getElementById('tkonto-meta');
+  meta.innerHTML = `<strong>${kontenOrder.length} T-Konto(en)</strong> &mdash; generiert am ${ts}`;
+  meta.style.display = 'block';
+  document.getElementById('tkonto-hint').style.display = 'block';
+
+  const badge = document.getElementById('tkonto-badge');
+  badge.textContent = kontenOrder.length;
+  badge.classList.add('visible');
+
+  const abBadge = document.getElementById('abschluss-badge');
+  abBadge.textContent = kontenOrder.length;
+  abBadge.classList.add('visible');
+
+  renderTkontenGrid();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GRID RENDERN
+══════════════════════════════════════════════════════════════════════════ */
+function renderTkontenGrid() {
+  const grid = document.createElement('div');
+  grid.className = 'tkonto-grid';
+  kontenOrder.forEach((k, idx) => grid.appendChild(tkKarteErstellen(k, idx)));
+
+  if (abschlussDurchgefuehrt) {
+    abschlussKontenKartenErstellen().forEach(card => grid.appendChild(card));
+  }
+
+  // Layout: feste Spaltenanzahl anwenden wenn > 0
+  if (tkontenProZeile > 0) {
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = `repeat(${tkontenProZeile}, 1fr)`;
+    grid.querySelectorAll('.t-konto').forEach(card => {
+      card.style.minWidth = '0';
+      card.style.maxWidth = 'none';
+    });
+  }
+
+  const container = document.getElementById('tkonto-container');
+  container.innerHTML = '';
+  container.appendChild(grid);
+}
+
+function tkontenProZeileAendern(val) {
+  tkontenProZeile = Math.max(0, parseInt(val) || 0);
+  if (kontenOrder.length > 0) renderTkontenGrid();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DRAG AND DROP
+══════════════════════════════════════════════════════════════════════════ */
+function onDragStart(e, idx) {
+  dragSrcIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => e.target.closest('.t-konto').classList.add('dragging'), 0);
+}
+function onDragOver(e, idx) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.t-konto').forEach((c, i) => {
+    c.classList.toggle('drag-over', i === idx && i !== dragSrcIdx);
+  });
+}
+function onDragLeave(e) { e.currentTarget.closest('.t-konto').classList.remove('drag-over'); }
+function onDrop(e, idx) {
+  e.preventDefault();
+  if (dragSrcIdx === null || dragSrcIdx === idx) return;
+  const moved = kontenOrder.splice(dragSrcIdx, 1)[0];
+  kontenOrder.splice(idx, 0, moved);
+  dragSrcIdx = null;
+  renderTkontenGrid();
+}
+function onDragEnd() {
+  dragSrcIdx = null;
+  document.querySelectorAll('.t-konto').forEach(c => c.classList.remove('dragging','drag-over'));
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EINZELNE T-KONTO-KARTE
+══════════════════════════════════════════════════════════════════════════ */
+function tkKarteErstellen(kontoName, idx) {
+  const sollPos  = buchungen.filter(b => b.soll  === kontoName).map(b => ({ nr: b.nr, betrag: b.betrag }));
+  const habenPos = buchungen.filter(b => b.haben === kontoName).map(b => ({ nr: b.nr, betrag: b.betrag }));
+  const sollSumme  = sollPos.reduce((s, e)  => s + e.betrag, 0);
+  const habenSumme = habenPos.reduce((s, e) => s + e.betrag, 0);
+  const saldoLabel = abschlussDurchgefuehrt
+    ? 'Saldo (' + (gegenkontoMap[kontoName] || 'Bilanz') + ')'
+    : 'Saldo';
+  const soll  = [...sollPos];
+  const haben = [...habenPos];
+  if (sollSumme > habenSumme)       haben.push({ nr: saldoLabel, betrag: sollSumme - habenSumme, isSaldo: true });
+  else if (habenSumme > sollSumme)  soll.push({ nr: saldoLabel, betrag: habenSumme - sollSumme, isSaldo: true });
+
+  const gesamt   = Math.max(sollSumme, habenSumme);
+  const maxZeilen = Math.max(soll.length, haben.length);
+
+  let zeilenHtml = '';
+  for (let i = 0; i < maxZeilen; i++) {
+    const s = soll[i]  || { nr: '', betrag: null };
+    const h = haben[i] || { nr: '', betrag: null };
+    const istSaldo = s.isSaldo || h.isSaldo;
+    zeilenHtml += `
+      <tr class="${istSaldo ? 'saldo' : ''}">
+        <td>${esc(s.nr)}</td>
+        <td>${s.betrag !== null ? fmtBetrag(s.betrag) : ''}</td>
+        <td>${esc(h.nr)}</td>
+        <td>${h.betrag !== null ? fmtBetrag(h.betrag) : ''}</td>
+      </tr>`;
+  }
+
+  const card = document.createElement('div');
+  card.className = 't-konto';
+  card.draggable = true;
+  card.style.cssText = tkCssVars();
+  card.innerHTML = `
+    <div class="t-konto-titel">
+      <span>${esc(kontoName)}</span>
+      <span class="drag-handle" title="Verschieben">&#8942;&#8942;</span>
+    </div>
+    <table class="t-tbl">
+      <thead><tr>
+        <th>Buch.-Nr.</th><th>Soll</th><th>Buch.-Nr.</th><th>Haben</th>
+      </tr></thead>
+      <tbody>${zeilenHtml}</tbody>
+      <tfoot><tr>
+        <td></td><td>${fmtBetrag(gesamt)}</td><td></td><td>${fmtBetrag(gesamt)}</td>
+      </tr></tfoot>
+    </table>`;
+
+  card.addEventListener('dragstart', e => onDragStart(e, idx));
+  card.addEventListener('dragover',  e => onDragOver(e, idx));
+  card.addEventListener('dragleave', onDragLeave);
+  card.addEventListener('drop',      e => onDrop(e, idx));
+  card.addEventListener('dragend',   onDragEnd);
+  return card;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ABSCHLUSSBUCHUNGEN DURCHFÜHREN
+══════════════════════════════════════════════════════════════════════════ */
+function abschlussbuchen() {
+  if (kontenOrder.length === 0) return;
+
+  // Alle vorhandenen Gegenkonten ermitteln
+  const gegenKontenSet = new Set();
+  kontenOrder.forEach(k => {
+    const sS = buchungen.filter(b => b.soll  === k).reduce((s, b) => s + b.betrag, 0);
+    const hS = buchungen.filter(b => b.haben === k).reduce((s, b) => s + b.betrag, 0);
+    if (Math.abs(sS - hS) > 0.001) gegenKontenSet.add(gegenkontoMap[k] || 'Bilanz');
+  });
+
+  // Reihenfolge beibehalten, neue anhängen, weggefallene entfernen
+  abschlussKontenOrder = abschlussKontenOrder.filter(gk => gegenKontenSet.has(gk));
+  [...gegenKontenSet].forEach(gk => { if (!abschlussKontenOrder.includes(gk)) abschlussKontenOrder.push(gk); });
+
+  abschlussDurchgefuehrt = true;
+  renderTkontenGrid();
+  zeigeTab('tkonto');
+}
+
+function abschlussKontenKartenErstellen() {
+  // Einträge je Gegenkonto berechnen
+  const gegenKontenMap = {};
+  kontenOrder.forEach(k => {
+    const sS = buchungen.filter(b => b.soll  === k).reduce((s, b) => s + b.betrag, 0);
+    const hS = buchungen.filter(b => b.haben === k).reduce((s, b) => s + b.betrag, 0);
+    const saldo = sS - hS;
+    if (Math.abs(saldo) <= 0.001) return;
+    const gk = gegenkontoMap[k] || 'Bilanz';
+    if (!gegenKontenMap[gk]) gegenKontenMap[gk] = { soll: [], haben: [] };
+    if (saldo > 0) gegenKontenMap[gk].soll.push({ nr: k, betrag: saldo });
+    else           gegenKontenMap[gk].haben.push({ nr: k, betrag: Math.abs(saldo) });
+  });
+
+  return abschlussKontenOrder.map((gkName, idx) => {
+    const eintraege = gegenKontenMap[gkName];
+    if (!eintraege) return null;
+
+    const soll = [...eintraege.soll];
+    const haben = [...eintraege.haben];
+    const sollSumme  = soll.reduce((s, e)  => s + e.betrag, 0);
+    const habenSumme = haben.reduce((s, e) => s + e.betrag, 0);
+
+    if (sollSumme > habenSumme)      haben.push({ nr: 'Saldo', betrag: sollSumme - habenSumme, isSaldo: true });
+    else if (habenSumme > sollSumme) soll.push({ nr: 'Saldo', betrag: habenSumme - sollSumme, isSaldo: true });
+
+    const gesamt    = Math.max(sollSumme, habenSumme);
+    const maxZeilen = Math.max(soll.length, haben.length);
+
+    let zeilenHtml = '';
+    for (let i = 0; i < maxZeilen; i++) {
+      const s = soll[i]  || { nr: '', betrag: null };
+      const h = haben[i] || { nr: '', betrag: null };
+      const istSaldo = !!(s.isSaldo || h.isSaldo);
+      zeilenHtml += `
+        <tr class="${istSaldo ? 'saldo' : ''}">
+          <td>${esc(s.nr)}</td>
+          <td>${s.betrag !== null ? fmtBetrag(s.betrag) : ''}</td>
+          <td>${esc(h.nr)}</td>
+          <td>${h.betrag !== null ? fmtBetrag(h.betrag) : ''}</td>
+        </tr>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 't-konto t-konto-abschluss';
+    card.draggable = true;
+    card.style.cssText = tkCssVars();
+    card.innerHTML = `
+      <div class="t-konto-titel" style="background:#b36200;cursor:grab;">
+        <span>&#9660; ${esc(gkName)}</span>
+        <span class="drag-handle" title="Verschieben">&#8942;&#8942;</span>
+      </div>
+      <table class="t-tbl">
+        <thead><tr>
+          <th>T-Konto</th><th>Soll</th><th>T-Konto</th><th>Haben</th>
+        </tr></thead>
+        <tbody>${zeilenHtml}</tbody>
+        <tfoot><tr>
+          <td></td><td>${fmtBetrag(gesamt)}</td><td></td><td>${fmtBetrag(gesamt)}</td>
+        </tr></tfoot>
+      </table>`;
+
+    card.addEventListener('dragstart', e => onAbschlussDragStart(e, idx));
+    card.addEventListener('dragover',  e => onAbschlussDragOver(e, idx));
+    card.addEventListener('dragleave', onAbschlussDragLeave);
+    card.addEventListener('drop',      e => onAbschlussDrop(e, idx));
+    card.addEventListener('dragend',   onAbschlussDragEnd);
+    return card;
+  }).filter(Boolean);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DRAG AND DROP – ABSCHLUSSKONTEN
+══════════════════════════════════════════════════════════════════════════ */
+function onAbschlussDragStart(e, idx) {
+  dragSrcAbschlussIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => e.target.closest('.t-konto-abschluss').classList.add('dragging'), 0);
+}
+function onAbschlussDragOver(e, idx) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.t-konto-abschluss').forEach((c, i) => {
+    c.classList.toggle('drag-over', i === idx && i !== dragSrcAbschlussIdx);
+  });
+}
+function onAbschlussDragLeave(e) { e.currentTarget.closest('.t-konto-abschluss').classList.remove('drag-over'); }
+function onAbschlussDrop(e, idx) {
+  e.preventDefault();
+  if (dragSrcAbschlussIdx === null || dragSrcAbschlussIdx === idx) return;
+  const moved = abschlussKontenOrder.splice(dragSrcAbschlussIdx, 1)[0];
+  abschlussKontenOrder.splice(idx, 0, moved);
+  dragSrcAbschlussIdx = null;
+  renderTkontenGrid();
+}
+function onAbschlussDragEnd() {
+  dragSrcAbschlussIdx = null;
+  document.querySelectorAll('.t-konto-abschluss').forEach(c => c.classList.remove('dragging', 'drag-over'));
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ABSCHLUSSBUCHUNGEN – Tabelle mit individuellem Gegenkonto-Dropdown
+══════════════════════════════════════════════════════════════════════════ */
+function generiereAbschluss() {
+  const container = document.getElementById('ab-container');
+
+  if (kontenOrder.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="ico">&#9654;</div>
+        <p>Noch keine T-Konten vorhanden.</p>
+        <small>Buchungen erfassen und auf <strong>&#9654; BUCHEN</strong> klicken.</small>
+      </div>`;
+    return;
+  }
+
+  const GEGENKONTEN = gegenkontenListe;
+
+  // Saldo pro Konto berechnen (positiv = Soll-Saldo, negativ = Haben-Saldo)
+  const kontenDaten = kontenOrder.map(k => {
+    const sS = buchungen.filter(b => b.soll  === k).reduce((s,b) => s + b.betrag, 0);
+    const hS = buchungen.filter(b => b.haben === k).reduce((s,b) => s + b.betrag, 0);
+    return { name: k, saldo: sS - hS };
+  }).filter(k => Math.abs(k.saldo) > 0.001);
+
+  if (kontenDaten.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="ico">&#10003;</div>
+        <p>Alle Konten sind ausgeglichen.</p>
+        <small>Keine Abschlussbuchungen erforderlich.</small>
+      </div>`;
+    return;
+  }
+
+  const zeilenHtml = kontenDaten.map(kt => {
+    const gk     = gegenkontoMap[kt.name] || 'Bilanz';
+    const betrag  = Math.abs(kt.saldo);
+    const bText   = `Saldo (${gk})`;
+    // Soll-Saldo (saldo > 0): Konto hat mehr Soll → Abschluss per Haben → Gegenkonto im Soll
+    // Haben-Saldo (saldo < 0): Konto hat mehr Haben → Abschluss per Soll → Gegenkonto im Haben
+    const sollKto  = kt.saldo > 0 ? gk      : kt.name;
+    const habenKto = kt.saldo > 0 ? kt.name : gk;
+
+    const opts = GEGENKONTEN.map(g =>
+      `<option value="${g}"${g === gk ? ' selected' : ''}>${g}</option>`
+    ).join('');
+
+    return `
+      <tr class="ab-saldo-row">
+        <td>${esc(kt.name)}</td>
+        <td>
+          <select class="sel-gegenkonto"
+            onchange="gegenkontoBuchen('${esc(kt.name)}', this.value)">${opts}</select>
+        </td>
+        <td><em>${esc(bText)}</em></td>
+        <td class="soll-col">${esc(sollKto)}</td>
+        <td class="haben-col">${esc(habenKto)}</td>
+        <td class="right">${fmtBetrag(betrag)}</td>
+      </tr>`;
+  }).join('');
+
+  const totalBetrag = kontenDaten.reduce((s, k) => s + Math.abs(k.saldo), 0);
+
+  container.innerHTML = `
+    <div class="ab-buch-wrap">
+      <table class="ab-buch-table">
+        <thead>
+          <tr>
+            <th style="width:160px">T-Konto</th>
+            <th style="width:130px">Gegenkonto</th>
+            <th>Buchungstext</th>
+            <th style="width:150px">Soll</th>
+            <th style="width:150px">Haben</th>
+            <th class="right" style="width:120px">Betrag&nbsp;(€)</th>
+          </tr>
+        </thead>
+        <tbody>${zeilenHtml}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="5" style="text-align:right;color:#555;font-size:11px;font-weight:normal;">
+              ${kontenDaten.length}&nbsp;Abschlussbuchung(en) &mdash; Summe der Salden:
+            </td>
+            <td>${fmtBetrag(totalBetrag)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>`;
+}
+
+function gegenkontoBuchen(kontoName, neuesGegenkonto) {
+  gegenkontoMap[kontoName] = neuesGegenkonto;
+  generiereAbschluss();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EINSTELLUNGEN – FARBEN
+══════════════════════════════════════════════════════════════════════════ */
+function farbeAnwenden() {
+  const ids = ['header','header-text','border','subheader','subheader-text','saldo','saldo-text','sum','sum-text','appheader','appheader-text','tabbar','tabactive','btnbuchen','btnexport'];
+  ids.forEach(id => {
+    const inp = document.getElementById('col-' + id);
+    const key = id.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+    farben[key] = inp.value;
+    document.getElementById('hex-' + id).textContent = inp.value;
+  });
+  farbeAufDOM();
+  renderPreview();
+}
+
+function farbeAufDOM() {
+  // App-Header
+  const appHeader = document.querySelector('.app-header');
+  appHeader.style.background = farben.appheader;
+  appHeader.style.color = farben.appheaderText || '#ffffff';
+  // Tab-Bar
+  document.querySelector('.tab-bar').style.background = farben.tabbar;
+  // Aktive Tab-Border-Farbe via CSS-Variable
+  document.documentElement.style.setProperty('--tab-active-color', farben.tabactive);
+  // Buttons
+  document.querySelectorAll('.btn-buchen').forEach(el => el.style.background = farben.btnbuchen);
+  document.querySelectorAll('.btn-export').forEach(el => el.style.background = farben.btnexport);
+  // T-Konten neu rendern falls vorhanden
+  if (kontenOrder.length > 0) renderTkontenGrid();
+}
+
+function tkCssVars() {
+  return `--tk-header:${farben.header};--tk-header-text:${farben.headerText||'#ffffff'};--tk-border:${farben.border};--tk-subheader:${farben.subheader};--tk-subheader-text:${farben.subheaderText||'#ffffff'};--tk-saldo-bg:${farben.saldo};--tk-saldo-text:${farben.saldoText||'#333333'};--tk-sum-bg:${farben.sum};--tk-sum-text:${farben.sumText||'#333333'};`;
+}
+
+function farbenZuruecksetzen() {
+  farben = { ...FARB_DEFAULTS };
+  ladeColorInputs();
+  farbeAufDOM();
+  renderPreview();
+}
+
+function farbenDruckversion() {
+  farben = {
+    header:         '#f0f2f4',
+    headerText:     '#030303',
+    border:         '#2e4057',
+    subheader:      '#f1f2f3',
+    subheaderText:  '#050505',
+    saldo:          '#fbfaf9',
+    saldoText:      '#333333',
+    sum:            '#f7f8f7',
+    sumText:        '#333333',
+    appheader:      '#2e4057',
+    appheaderText:  '#ffffff',
+    tabbar:         '#3b5166',
+    tabactive:      '#7ab0de',
+    btnbuchen:      '#1f7a4a',
+    btnexport:      '#217346',
+  };
+  ladeColorInputs();
+  farbeAufDOM();
+  renderPreview();
+}
+
+function ladeColorInputs() {
+  const map = {
+    'header': farben.header, 'header-text': farben.headerText,
+    'border': farben.border,
+    'subheader': farben.subheader, 'subheader-text': farben.subheaderText,
+    'saldo': farben.saldo, 'saldo-text': farben.saldoText,
+    'sum': farben.sum, 'sum-text': farben.sumText,
+    'appheader': farben.appheader, 'appheader-text': farben.appheaderText,
+    'tabbar': farben.tabbar, 'tabactive': farben.tabactive,
+    'btnbuchen': farben.btnbuchen, 'btnexport': farben.btnexport
+  };
+  Object.entries(map).forEach(([id, hex]) => {
+    document.getElementById('col-' + id).value = hex;
+    document.getElementById('hex-' + id).textContent = hex;
+  });
+}
+
+function renderPreview() {
+  const container = document.getElementById('preview-container');
+  // Beispiel-Daten
+  const previewSoll  = [{ nr:'B-001', betrag:1000 }, { nr:'B-002', betrag:500 }];
+  const previewHaben = [{ nr:'B-003', betrag:750 }];
+  const gesamt = 1500;
+  const saldo  = gesamt - 750;
+
+  const haben = [...previewHaben, { nr:'Saldo', betrag: saldo, isSaldo: true }];
+
+  let zHtml = '';
+  const maxZ = Math.max(previewSoll.length, haben.length);
+  for (let i = 0; i < maxZ; i++) {
+    const s = previewSoll[i] || { nr:'', betrag: null };
+    const h = haben[i]       || { nr:'', betrag: null };
+    const sal = !!(s.isSaldo || h.isSaldo);
+    zHtml += `<tr class="${sal ? 'saldo' : ''}">
+      <td>${esc(s.nr)}</td>
+      <td>${s.betrag !== null ? fmtBetrag(s.betrag) : ''}</td>
+      <td>${esc(h.nr)}</td>
+      <td>${h.betrag !== null ? fmtBetrag(h.betrag) : ''}</td>
+    </tr>`;
+  }
+
+  container.innerHTML = `
+    <div class="t-konto" style="${tkCssVars()}">
+      <div class="t-konto-titel">
+        <span>Vorschau-Konto</span>
+        <span class="drag-handle">&#8942;&#8942;</span>
+      </div>
+      <table class="t-tbl">
+        <thead><tr>
+          <th>Buch.-Nr.</th><th>Soll</th><th>Buch.-Nr.</th><th>Haben</th>
+        </tr></thead>
+        <tbody>${zHtml}</tbody>
+        <tfoot><tr>
+          <td></td><td>${fmtBetrag(gesamt)}</td><td></td><td>${fmtBetrag(gesamt)}</td>
+        </tr></tfoot>
+      </table>
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HILFSFUNKTIONEN
+══════════════════════════════════════════════════════════════════════════ */
+function val(id)  { return document.getElementById(id).value; }
+function eingabeLeeren() {
+  ['inp-soll','inp-haben','inp-betrag'].forEach(id => document.getElementById(id).value = '');
+}
+function vorschlagNr() {
+  const n = buchungen.length + 1;
+  document.getElementById('inp-nr').value = 'B-' + String(n).padStart(3,'0');
+}
+function fmtBetrag(v) {
+  return v.toLocaleString('de-DE', { minimumFractionDigits:2, maximumFractionDigits:2 }) + '\u00a0€';
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function zeigeAlert(msg) {
+  const el = document.getElementById('alert-box');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+function verbergeAlert() { document.getElementById('alert-box').classList.remove('visible'); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TASTATURSTEUERUNG
+══════════════════════════════════════════════════════════════════════════ */
+['inp-nr','inp-soll','inp-haben'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const felder = ['inp-nr','inp-soll','inp-haben','inp-betrag'];
+      const idx = felder.indexOf(id);
+      document.getElementById(felder[idx+1]).focus();
+    }
+  });
+});
+document.getElementById('inp-betrag').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); buchungHinzufuegen(); }
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EXCEL-EXPORT (internes ZIP/OpenXML – keine externe Lib)
+══════════════════════════════════════════════════════════════════════════ */
+const _CRC_TBL = (()=>{
+  const t = new Uint32Array(256);
+  for (let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[i]=c;}
+  return t;
+})();
+function _crc32(d){let c=0xFFFFFFFF;for(let i=0;i<d.length;i++)c=_CRC_TBL[(c^d[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
+function _makeZip(files){
+  const enc=new TextEncoder(),local=[],cd=[],cdEntries=[];let off=0;
+  for(const[name,raw]of files){
+    const nb=enc.encode(name),d=typeof raw==='string'?enc.encode(raw):raw,crc=_crc32(d);
+    const lh=new Uint8Array(30+nb.length),lv=new DataView(lh.buffer);
+    lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);
+    lv.setUint32(14,crc,true);lv.setUint32(18,d.length,true);lv.setUint32(22,d.length,true);
+    lv.setUint16(26,nb.length,true);lh.set(nb,30);
+    cdEntries.push({nb,crc,size:d.length,off});off+=lh.length+d.length;local.push(lh,d);
+  }
+  const cdStart=off;
+  for(const e of cdEntries){
+    const c=new Uint8Array(46+e.nb.length),cv=new DataView(c.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
+    cv.setUint32(16,e.crc,true);cv.setUint32(20,e.size,true);cv.setUint32(24,e.size,true);
+    cv.setUint16(28,e.nb.length,true);cv.setUint32(42,e.off,true);c.set(e.nb,46);
+    cd.push(c);off+=c.length;
+  }
+  const cdSz=off-cdStart,eo=new Uint8Array(22),ev=new DataView(eo.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(8,cdEntries.length,true);
+  ev.setUint16(10,cdEntries.length,true);ev.setUint32(12,cdSz,true);ev.setUint32(16,cdStart,true);
+  const all=[...local,...cd,eo],tot=all.reduce((s,p)=>s+p.length,0),out=new Uint8Array(tot);
+  let p=0;for(const c of all){out.set(c,p);p+=c.length;}return out;
+}
+function _col(n){let s='';n++;while(n>0){s=String.fromCharCode(64+(n%26||26))+s;n=Math.floor((n-1)/26);}return s;}
+function _addr(r,c){return _col(c)+(r+1);}
+function _xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function _wsXml(cells,merges,colW){
+  let maxR=0,maxC=0;
+  for(const k of Object.keys(cells)){const[r,c]=k.split('_').map(Number);if(r>maxR)maxR=r;if(c>maxC)maxC=c;}
+  let x=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`;
+  if(colW.length){x+='<cols>';colW.forEach((w,i)=>{if(w)x+=`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`;});x+='</cols>';}
+  x+='<sheetData>';
+  for(let r=0;r<=maxR;r++){
+    const rowK=Object.keys(cells).filter(k=>k.startsWith(r+'_'));if(!rowK.length)continue;
+    x+=`<row r="${r+1}">`;rowK.sort((a,b)=>+a.split('_')[1]-+b.split('_')[1]);
+    for(const k of rowK){const{v,n,s}=cells[k],c=+k.split('_')[1];const si=s!=null?` s="${s}"`:''
+      if(n){x+=`<c r="${_addr(r,c)}"${si}><v>${v}</v></c>`;}
+      else{const t=_xe(v);x+=t?`<c r="${_addr(r,c)}" t="inlineStr"${si}><is><t>${t}</t></is></c>`:`<c r="${_addr(r,c)}"${si}/>`;}
+    }x+='</row>';
+  }
+  x+='</sheetData>';
+  if(merges.length){x+=`<mergeCells count="${merges.length}">`;merges.forEach(m=>x+=`<mergeCell ref="${_addr(m.r1,m.c1)}:${_addr(m.r2,m.c2)}"/>`);x+='</mergeCells>';}
+  return x+'</worksheet>';
+}
+function _rgb(hex){return'FF'+hex.replace('#','').toUpperCase();}
+function _buildStyles(){
+  const h=_rgb(farben.header),sh=_rgb(farben.subheader),sa=_rgb(farben.saldo),su=_rgb(farben.sum);
+  const ht=_rgb(farben.headerText||'#ffffff'),sht=_rgb(farben.subheaderText||'#ffffff');
+  const sat=_rgb(farben.saldoText||'#333333'),sut=_rgb(farben.sumText||'#333333');
+  const bc=_rgb(farben.border);
+  // Hilfsfunktion: Border-XML (l=links, r=rechts, t=oben, b=unten)
+  const Bx=(l,r,t,b)=>{const S=(n,on)=>on?`<${n} style="medium"><color rgb="${bc}"/></${n}>`:`<${n}/>`;return`<border>${S('left',l)}${S('right',r)}${S('top',t)}${S('bottom',b)}<diagonal/></border>`;};
+  // Doppellinie oben (für Summenzeile, analog zu CSS border-top: double #555)
+  const Bd=(l,r,b)=>{const S=(n,on)=>on?`<${n} style="medium"><color rgb="${bc}"/></${n}>`:`<${n}/>`;return`<border>${S('left',l)}${S('right',r)}<top style="double"><color rgb="FF555555"/></top>${S('bottom',b)}<diagonal/></border>`;};
+  // borderId: 0=keine 1=rechts 2=links 3=oben+links 4=oben 5=oben+rechts 6=unten+links 7=unten+rechts 8=unten
+  // borderId: 9=doppel-oben+unten+links 10=doppel-oben+unten+rechts 11=doppel-oben+unten
+  // borderId: 12=oben+unten+links 13=oben+unten 14=oben+unten+rechts
+  const borders=`<borders count="15">${Bx(0,0,0,0)}${Bx(0,1,0,0)}${Bx(1,0,0,0)}${Bx(1,0,1,0)}${Bx(0,0,1,0)}${Bx(0,1,1,0)}${Bx(1,0,0,1)}${Bx(0,1,0,1)}${Bx(0,0,0,1)}${Bd(1,0,1)}${Bd(0,1,1)}${Bd(0,0,1)}${Bx(1,0,1,1)}${Bx(0,0,1,1)}${Bx(0,1,1,1)}</borders>`;
+  // s=11-13: Titelzeile (oben+links / oben / oben+rechts)
+  // s=14-15: Spaltenkopf (links / rechts)
+  // s=16-17: Datenzeile (links / rechts+Zahl)
+  // s=18-19: Saldo-Zeile (links / rechts+Zahl)
+  // s=20-22: Summenzeile ohne Doppellinie (unten+links / unten+rechts+Zahl / unten) [ungenutzt]
+  // s=23-25: Summenzeile mit Doppellinie oben (links / rechts+Zahl / mitte)
+  // s=26-28: Spaltenkopf mit unterer Linie (links / rechts / mitte)
+  const newXfs=`<xf numFmtId="0" fontId="2" fillId="2" borderId="3" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="4" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="5" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="4" fillId="4" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="164" fontId="4" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="6" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="164" fontId="1" fillId="5" borderId="7" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="8" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="9" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="164" fontId="1" fillId="5" borderId="10" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="11" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="3" borderId="6" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="3" borderId="7" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="3" borderId="8" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="12" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="13" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="14" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>`;
+  return`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00"/></numFmts><fonts count="5"><font><sz val="10"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="${sut}"/><name val="Arial"/></font><font><b/><sz val="11"/><color rgb="${ht}"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="${sht}"/><name val="Arial"/></font><font><b/><i/><sz val="10"/><color rgb="${sat}"/><name val="Arial"/></font></fonts><fills count="6"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="${h}"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="${sh}"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="${sa}"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="${su}"/><bgColor indexed="64"/></patternFill></fill></fills>${borders}<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="32"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="2" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="4" fillId="4" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="164" fontId="4" fillId="4" borderId="0" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="164" fontId="1" fillId="5" borderId="0" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="0" xfId="0" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>${newXfs}</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+}
+
+function _buildBuchSheet(){
+  const cells={},mg=[],cw=[14,22,22,13];
+  const C=(r,c,v,s,n)=>{cells[`${r}_${c}`]={v:v??'',s,n:!!n};};
+  C(0,0,'Buchungserfassung',1);C(0,1,'',1);C(0,2,'',1);C(0,3,'',1);mg.push({r1:0,c1:0,r2:0,c2:3});
+  ['Buchungs-Nr.','Soll-Konto','Haben-Konto','Betrag (\u20ac)'].forEach((h,c)=>C(1,c,h,c===3?3:2));
+  buchungen.forEach((b,i)=>{const r=i+2;C(r,0,b.nr,4);C(r,1,b.soll,6);C(r,2,b.haben,6);C(r,3,b.betrag,5,true);});
+  return _wsXml(cells,mg,cw);
+}
+
+function _buildTKSheet(){
+  const cells={},mg=[],KPZ=tkontenProZeile>0?tkontenProZeile:3,KB=4,SP=1;
+  const cw=[];for(let g=0;g<KPZ;g++){const b=g*(KB+SP);cw[b]=13;cw[b+1]=13;cw[b+2]=13;cw[b+3]=13;if(g<KPZ-1)cw[b+4]=3;}
+  const C=(r,c,v,s,n)=>{cells[`${r}_${c}`]={v:v??'',s,n:!!n};};
+
+  // Hilfsfunktion: eine Gruppe von Karten in den Zellen ablegen
+  function _renderGruppe(kartenArr, gRow, kopfSoll, kopfHaben) {
+    for(let i=0;i<kartenArr.length;i+=KPZ){
+      const grp=kartenArr.slice(i,i+KPZ),maxZ=Math.max(...grp.map(k=>k.maxZ));
+      grp.forEach((kt,j)=>{
+        const c0=j*(KB+SP),r0=gRow;
+        // Titelzeile: s=29 (oben+unten+links), s=30 (oben+unten), s=31 (oben+unten+rechts)
+        C(r0,c0,kt.name,29);C(r0,c0+1,'',30);C(r0,c0+2,'',30);C(r0,c0+3,'',31);
+        mg.push({r1:r0,c1:c0,r2:r0,c2:c0+3});
+        // Spaltenkopf: s=26 (links+unten), s=27 (rechts+unten), s=28 (unten)
+        C(r0+1,c0,kopfSoll,26);C(r0+1,c0+1,'Soll',27);C(r0+1,c0+2,kopfHaben,28);C(r0+1,c0+3,'Haben',27);
+        for(let d=0;d<maxZ;d++){
+          const sE=kt.soll[d]||{nr:'',betrag:null,isSaldo:false},hE=kt.haben[d]||{nr:'',betrag:null,isSaldo:false};
+          const sal=!!(sE.isSaldo||hE.isSaldo),r=r0+2+d;
+          // Daten: s=16/18 (links), s=17/19 (rechts+Zahl), s=4/7 (kein Rahmen)
+          C(r,c0,sE.nr,sal?18:16);C(r,c0+1,sE.betrag??'',sal?19:17,sE.betrag!=null);
+          C(r,c0+2,hE.nr,sal?7:4);C(r,c0+3,hE.betrag??'',sal?19:17,hE.betrag!=null);
+        }
+        // Summenzeile: s=23 (doppel-oben+unten+links), s=24 (doppel-oben+unten+rechts+Zahl), s=25 (doppel-oben+unten)
+        const rS=r0+2+maxZ;
+        C(rS,c0,'',23);C(rS,c0+1,kt.gesamt,24,true);C(rS,c0+2,'',25);C(rS,c0+3,kt.gesamt,24,true);
+      });
+      gRow+=2+maxZ+1+2;
+    }
+    return gRow;
+  }
+
+  // Reguläre T-Konten (mit dynamischem Saldo-Label)
+  const kontoArr=kontenOrder.map(k=>{
+    const sP=buchungen.filter(b=>b.soll===k).map(b=>({nr:b.nr,betrag:b.betrag}));
+    const hP=buchungen.filter(b=>b.haben===k).map(b=>({nr:b.nr,betrag:b.betrag}));
+    const sS=sP.reduce((a,e)=>a+e.betrag,0),hS=hP.reduce((a,e)=>a+e.betrag,0);
+    const s=[...sP],h=[...hP];
+    const saldoLabel=abschlussDurchgefuehrt?'Saldo ('+(gegenkontoMap[k]||'Bilanz')+')':'Saldo';
+    if(sS>hS)h.push({nr:saldoLabel,betrag:sS-hS,isSaldo:true});
+    else if(hS>sS)s.push({nr:saldoLabel,betrag:hS-sS,isSaldo:true});
+    return{name:k,soll:s,haben:h,gesamt:Math.max(sS,hS),maxZ:Math.max(s.length,h.length)};
+  });
+
+  let gRow=_renderGruppe(kontoArr,0,'Buch.-Nr.','Buch.-Nr.');
+
+  // Abschluss-T-Konten (nur wenn durchgeführt)
+  if(abschlussDurchgefuehrt && abschlussKontenOrder.length>0){
+    gRow+=1; // Leerzeile als Trenner
+    const gegenKontenMap={};
+    kontenOrder.forEach(k=>{
+      const sS=buchungen.filter(b=>b.soll===k).reduce((s,b)=>s+b.betrag,0);
+      const hS=buchungen.filter(b=>b.haben===k).reduce((s,b)=>s+b.betrag,0);
+      const saldo=sS-hS;
+      if(Math.abs(saldo)<=0.001)return;
+      const gk=gegenkontoMap[k]||'Bilanz';
+      if(!gegenKontenMap[gk])gegenKontenMap[gk]={soll:[],haben:[]};
+      if(saldo>0)gegenKontenMap[gk].soll.push({nr:k,betrag:saldo});
+      else       gegenKontenMap[gk].haben.push({nr:k,betrag:Math.abs(saldo)});
+    });
+    const abschlussArr=abschlussKontenOrder.map(gkName=>{
+      const e=gegenKontenMap[gkName];if(!e)return null;
+      const s=[...e.soll],h=[...e.haben];
+      const sS=s.reduce((a,e)=>a+e.betrag,0),hS=h.reduce((a,e)=>a+e.betrag,0);
+      if(sS>hS)h.push({nr:'Saldo',betrag:sS-hS,isSaldo:true});
+      else if(hS>sS)s.push({nr:'Saldo',betrag:hS-sS,isSaldo:true});
+      return{name:gkName,soll:s,haben:h,gesamt:Math.max(sS,hS),maxZ:Math.max(s.length,h.length)};
+    }).filter(Boolean);
+    _renderGruppe(abschlussArr,gRow,'T-Konto','T-Konto');
+  }
+
+  return _wsXml(cells,mg,cw);
+}
+
+function _buildAbschlussSheet(){
+  const cells={},mg=[],cw=[20,16,28,20,20,14];
+  const C=(r,c,v,s,n)=>{cells[`${r}_${c}`]={v:v??'',s,n:!!n};};
+
+  // Titelzeile
+  ['T-Konto','Gegenkonto','Buchungstext','Soll','Haben','Betrag (€)'].forEach((h,c)=>{
+    C(0,c,h,c===5?3:2);
+  });
+
+  const kontenDaten=kontenOrder.map(k=>{
+    const sS=buchungen.filter(b=>b.soll===k).reduce((s,b)=>s+b.betrag,0);
+    const hS=buchungen.filter(b=>b.haben===k).reduce((s,b)=>s+b.betrag,0);
+    return{name:k,saldo:sS-hS};
+  }).filter(k=>Math.abs(k.saldo)>0.001);
+
+  if(kontenDaten.length===0){
+    C(1,0,'Keine Abschlussbuchungen erforderlich (alle Konten ausgeglichen).',6);
+    return _wsXml(cells,mg,cw);
+  }
+
+  kontenDaten.forEach((kt,i)=>{
+    const r=i+1;
+    const gk=gegenkontoMap[kt.name]||'Bilanz';
+    const betrag=Math.abs(kt.saldo);
+    const bText='Saldo ('+gk+')';
+    const sollKto=kt.saldo>0?gk:kt.name;
+    const habenKto=kt.saldo>0?kt.name:gk;
+    C(r,0,kt.name,7);C(r,1,gk,4);C(r,2,bText,7);
+    C(r,3,sollKto,6);C(r,4,habenKto,6);C(r,5,betrag,5,true);
+  });
+
+  const totalRow=kontenDaten.length+1;
+  C(totalRow,4,'Summe:',6);
+  C(totalRow,5,kontenDaten.reduce((s,k)=>s+Math.abs(k.saldo),0),9,true);
+
+  return _wsXml(cells,mg,cw);
+}
+
+function _buildEinstellungenSheet(){
+  const cells={},mg=[],cw=[32,24];
+  const C=(r,c,v,s,n)=>{cells[`${r}_${c}`]={v:v??'',s,n:!!n};};
+
+  // Titelzeile
+  C(0,0,'Einstellungen',1);C(0,1,'',1);mg.push({r1:0,c1:0,r2:0,c2:1});
+
+  let r=2;
+  // Layout
+  C(r,0,'LAYOUT',2);C(r,1,'',2);mg.push({r1:r,c1:0,r2:r,c2:1});r++;
+  C(r,0,'T-Konten pro Zeile',6);C(r,1,tkontenProZeile===0?'automatisch':tkontenProZeile,4);r++;
+
+  r++;
+  // Abschlusskonten
+  C(r,0,'ABSCHLUSSKONTEN',2);C(r,1,'',2);mg.push({r1:r,c1:0,r2:r,c2:1});r++;
+  gegenkontenListe.forEach((k,i)=>{C(r,0,(i+1)+'.',4);C(r,1,k,6);r++;});
+
+  r++;
+  // Farben
+  C(r,0,'FARBEN',2);C(r,1,'',2);mg.push({r1:r,c1:0,r2:r,c2:1});r++;
+  const farbLabels={
+    header:'Kopfzeile Hintergrund',headerText:'Kopfzeile Schriftfarbe',
+    border:'Rahmenfarbe',
+    subheader:'Soll/Haben-Spalten-Kopf',subheaderText:'Spaltenkopf Schriftfarbe',
+    saldo:'Saldo-Zeile Hintergrund',saldoText:'Saldo-Zeile Schriftfarbe',
+    sum:'Summenzeile Hintergrund',sumText:'Summenzeile Schriftfarbe',
+    appheader:'App-Header Hintergrund',appheaderText:'App-Header Schriftfarbe',
+    tabbar:'Tab-Leiste Hintergrund',tabactive:'Aktiver Tab-Unterstrich',
+    btnbuchen:'Buchen-Button',btnexport:'Export-Button'
+  };
+  Object.entries(farbLabels).forEach(([key,label])=>{C(r,0,label,6);C(r,1,farben[key]||'',4);r++;});
+
+  return _wsXml(cells,mg,cw);
+}
+
+function exportExcel(){
+  if(buchungen.length===0){zeigeAlert('Keine Buchungen zum Exportieren vorhanden.');zeigeTab('buchungen');return;}
+  verbergeAlert();
+  if(kontenOrder.length===0)erstelleTKonten();
+  const NS='http://schemas.openxmlformats.org/';
+  const PKG=NS+'package/2006/';
+  const DOC=NS+'officeDocument/2006/relationships/';
+  const files=[
+    ['[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="${PKG}content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet3.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet4.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/></Types>`],
+    ['_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${PKG}relationships"><Relationship Id="rId1" Type="${DOC}officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+    ['xl/workbook.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="${NS}spreadsheetml/2006/main" xmlns:r="${NS}officeDocument/2006/relationships"><sheets><sheet name="Buchungen" sheetId="1" r:id="rId1"/><sheet name="T-Konten" sheetId="2" r:id="rId2"/><sheet name="Abschlussbuchungen" sheetId="4" r:id="rId6"/><sheet name="Einstellungen" sheetId="3" r:id="rId5"/></sheets></workbook>`],
+    ['xl/_rels/workbook.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${PKG}relationships"><Relationship Id="rId1" Type="${DOC}worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="${DOC}worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId6" Type="${DOC}worksheet" Target="worksheets/sheet4.xml"/><Relationship Id="rId5" Type="${DOC}worksheet" Target="worksheets/sheet3.xml"/><Relationship Id="rId3" Type="${DOC}styles" Target="styles.xml"/><Relationship Id="rId4" Type="${DOC}sharedStrings" Target="sharedStrings.xml"/></Relationships>`],
+    ['xl/styles.xml',_buildStyles()],
+    ['xl/sharedStrings.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sst xmlns="${NS}spreadsheetml/2006/main" count="0" uniqueCount="0"/>`],
+    ['xl/worksheets/sheet1.xml',_buildBuchSheet()],
+    ['xl/worksheets/sheet2.xml',_buildTKSheet()],
+    ['xl/worksheets/sheet4.xml',_buildAbschlussSheet()],
+    ['xl/worksheets/sheet3.xml',_buildEinstellungenSheet()],
+  ];
+  const bytes=_makeZip(files);
+  let bin='';for(let i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);
+  const b64=btoa(bin);
+  const now=new Date(),d=[now.getDate(),now.getMonth()+1,now.getFullYear()].map(n=>String(n).padStart(2,'0')).join('-');
+  const filename=`T_Konto_Export_${d}.xlsx`;
+  const a=document.createElement('a');
+  a.href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,'+b64;
+  a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();
+  setTimeout(()=>a.remove(),200);
+  zeigeExportErfolg(filename);
+}
+
+function zeigeExportErfolg(filename){
+  const old=document.getElementById('export-toast');if(old)old.remove();
+  const toast=document.createElement('div');toast.id='export-toast';
+  toast.style.cssText=`position:fixed;bottom:28px;right:28px;z-index:9999;background:#1a5c38;color:#fff;border-radius:8px;padding:14px 20px;font-size:13px;font-family:Arial,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:flex;align-items:center;gap:10px;animation:slideIn .25s ease;`;
+  toast.innerHTML=`<style>@keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}</style><span style="font-size:18px">✓</span><div><div style="font-weight:bold">Export erfolgreich</div><div style="opacity:.85;margin-top:2px">${filename}</div></div>`;
+  document.body.appendChild(toast);
+  setTimeout(()=>{toast.style.transition='opacity .4s';toast.style.opacity='0';},3500);
+  setTimeout(()=>toast.remove(),4000);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CSV SPEICHERN / LADEN
+══════════════════════════════════════════════════════════════════════════ */
+function buchungenSpeichern(){
+  if(buchungen.length===0){zeigeAlert('Keine Buchungen zum Speichern vorhanden.');return;}
+  verbergeAlert();
+  const zeilen=['#BUCHUNGEN','Soll-Konto;Haben-Konto;Betrag'];
+  buchungen.forEach(b=>zeilen.push(`${b.soll};${b.haben};${b.betrag.toFixed(2)}`));
+  // Abschlusskonten-Abschnitt: alle Konten aus kontenOrder oder gegenkontoMap
+  const kontenFuerAbschluss = kontenOrder.length > 0 ? kontenOrder : Object.keys(gegenkontoMap);
+  if(kontenFuerAbschluss.length > 0){
+    zeilen.push('');
+    zeilen.push('#ABSCHLUSSKONTEN');
+    kontenFuerAbschluss.forEach(k => zeilen.push(`${k};${gegenkontoMap[k] || 'Bilanz'}`));
+  }
+  const csv=zeilen.join('\r\n');
+  const now=new Date(),d=[now.getDate(),now.getMonth()+1,now.getFullYear()].map(n=>String(n).padStart(2,'0')).join('-');
+  const filename=`Buchungen_${d}.csv`;
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\uFEFF'+csv);
+  a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();
+  setTimeout(()=>a.remove(),200);zeigeExportErfolg(filename);
+}
+
+function buchungenLaden(event){
+  const file=event.target.files[0];if(!file)return;
+  event.target.value='';
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const text=e.target.result;
+    const alleZeilen=text.split(/\r?\n/).map(z=>z.trim());
+    // Abschnitte trennen: #BUCHUNGEN und #ABSCHLUSSKONTEN
+    let buchungsZeilen=[], abschlussZeilen=[], aktAbschnitt='buchungen';
+    for(const z of alleZeilen){
+      if(z==='#BUCHUNGEN'){aktAbschnitt='buchungen';continue;}
+      if(z==='#ABSCHLUSSKONTEN'){aktAbschnitt='abschluss';continue;}
+      if(z==='')continue;
+      if(aktAbschnitt==='buchungen') buchungsZeilen.push(z);
+      else abschlussZeilen.push(z);
+    }
+    if(buchungsZeilen.length<1){zeigeAlert('Die CSV-Datei enthält keine Buchungsdaten.');return;}
+    const sep=buchungsZeilen[0].includes(';')?';':',';
+    const stripQuotes=f=>{const t=f.trim();return t.startsWith('"')&&t.endsWith('"')?t.slice(1,-1).trim():t;};
+    const startIdx=buchungsZeilen[0].toLowerCase().includes('soll')?1:0;
+    const neu=[],fehler=[];
+    buchungsZeilen.slice(startIdx).forEach((zeile,i)=>{
+      const felder=zeile.split(sep).map(stripQuotes);
+      if(felder.length<3){fehler.push(`Zeile ${startIdx+i+1}: zu wenige Felder`);return;}
+      const soll=felder[0],haben=felder[1];
+      const roherBetrag=felder[2];
+      const normBetrag=sep===';'&&roherBetrag.includes(',')?roherBetrag.replace(/\./g,'').replace(',','.'):roherBetrag;
+      const betrag=parseFloat(normBetrag);
+      if(!soll){fehler.push(`Zeile ${startIdx+i+1}: Soll-Konto fehlt`);return;}
+      if(!haben){fehler.push(`Zeile ${startIdx+i+1}: Haben-Konto fehlt`);return;}
+      if(isNaN(betrag)||betrag<=0){fehler.push(`Zeile ${startIdx+i+1}: ungültiger Betrag`);return;}
+      if(soll===haben){fehler.push(`Zeile ${startIdx+i+1}: Soll = Haben`);return;}
+      neu.push({soll,haben,betrag});
+    });
+    if(fehler.length>0){zeigeAlert('Import-Fehler:\n'+fehler.join('\n'));return;}
+    if(neu.length===0){zeigeAlert('Keine gültigen Buchungen in der Datei gefunden.');return;}
+    // Abschlusskonten einlesen und gegenkontenListe ggf. erweitern
+    const neueGegenkontoMap={};
+    abschlussZeilen.forEach(zeile=>{
+      const f=zeile.split(sep).map(stripQuotes);
+      if(f.length<2)return;
+      const konto=f[0],gegenkonto=f[1];
+      if(!konto||!gegenkonto)return;
+      neueGegenkontoMap[konto]=gegenkonto;
+      if(!gegenkontenListe.includes(gegenkonto)) gegenkontenListe.push(gegenkonto);
+    });
+    verbergeAlert();
+    buchungen=neu.map((b,i)=>({id:i+1,nr:'B-'+String(i+1).padStart(3,'0'),soll:b.soll,haben:b.haben,betrag:b.betrag}));
+    nextId=buchungen.length+1;kontenOrder=[];gegenkontoMap=neueGegenkontoMap;
+    tabelleAktualisieren();vorschlagNr();
+    const badge=document.getElementById('tkonto-badge');badge.textContent='0';badge.classList.remove('visible');
+    document.getElementById('abschluss-badge').textContent='0';document.getElementById('abschluss-badge').classList.remove('visible');
+    document.getElementById('tkonto-meta').style.display='none';
+    document.getElementById('tkonto-hint').style.display='none';
+    document.getElementById('tkonto-container').innerHTML=`<div class="empty-state"><div class="ico">&#9878;</div><p>Buchungen geladen – bitte auf <strong>&#9654; BUCHEN</strong> klicken.</p></div>`;
+    document.getElementById('ab-container').innerHTML=`<div class="empty-state"><div class="ico">&#9654;</div><p>Buchungen geladen – bitte auf <strong>&#9654; BUCHEN</strong> klicken.</p></div>`;
+    const abschlussAnzahl=Object.keys(neueGegenkontoMap).length;
+    const abschlussInfo=abschlussAnzahl>0?` + ${abschlussAnzahl} Abschlusskonto-Zuweisung(en)`:'';
+    zeigeExportErfolg(`${neu.length} Buchung(en)${abschlussInfo} aus "${file.name}" geladen`);
+    zeigeEinstellungenNachfrage();
+  };
+  reader.onerror=()=>zeigeAlert('Fehler beim Lesen der Datei.');
+  reader.readAsText(file,'UTF-8');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ABSCHLUSSKONTEN VERWALTEN
+══════════════════════════════════════════════════════════════════════════ */
+function renderAbschlusskontenListe() {
+  const container = document.getElementById('abschlusskonten-liste');
+  if (!container) return;
+  if (gegenkontenListe.length === 0) {
+    container.innerHTML = '<span style="font-size:12px;color:#aaa;">Keine Abschlusskonten definiert.</span>';
+    return;
+  }
+  container.innerHTML = gegenkontenListe.map((k, i) => `
+    <span class="ab-konto-tag">
+      ${esc(k)}
+      <button class="tag-del" onclick="abschlusskontoEntfernen(${i})" title="Entfernen">&#10005;</button>
+    </span>`).join('');
+}
+
+function abschlusskontoHinzufuegen() {
+  const inp = document.getElementById('inp-neues-abschlusskonto');
+  const val = inp.value.trim();
+  if (!val) return;
+  if (gegenkontenListe.includes(val)) { inp.value = ''; return; }
+  gegenkontenListe.push(val);
+  inp.value = '';
+  renderAbschlusskontenListe();
+}
+
+function abschlusskontoEntfernen(idx) {
+  gegenkontenListe.splice(idx, 1);
+  renderAbschlusskontenListe();
+}
+
+function abschlusskontenZuruecksetzen() {
+  gegenkontenListe = ['Bilanz', 'GuV', 'Notes', 'Sonstiges'];
+  renderAbschlusskontenListe();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EINSTELLUNGEN EXPORT / IMPORT (JSON)
+══════════════════════════════════════════════════════════════════════════ */
+function einstellungenExportieren() {
+  const settings = {
+    version: 1,
+    layout: { tkontenProZeile },
+    abschlusskonten: gegenkontenListe,
+    farben
+  };
+  const json = JSON.stringify(settings, null, 2);
+  const now = new Date();
+  const d = [now.getDate(), now.getMonth()+1, now.getFullYear()].map(n => String(n).padStart(2,'0')).join('-');
+  const filename = `TKonto_Einstellungen_${d}.json`;
+  const a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => a.remove(), 200);
+  zeigeExportErfolg(filename);
+}
+
+function einstellungenImportieren(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  event.target.value = '';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const settings = JSON.parse(e.target.result);
+      if (!settings.version) throw new Error('Ungültiges Format');
+
+      if (settings.layout && typeof settings.layout.tkontenProZeile === 'number') {
+        tkontenProZeile = settings.layout.tkontenProZeile;
+        const inp = document.getElementById('inp-tkonten-pro-zeile');
+        if (inp) inp.value = tkontenProZeile;
+      }
+      if (Array.isArray(settings.abschlusskonten) && settings.abschlusskonten.length > 0) {
+        gegenkontenListe = settings.abschlusskonten;
+        renderAbschlusskontenListe();
+      }
+      if (settings.farben && typeof settings.farben === 'object') {
+        farben = { ...FARB_DEFAULTS, ...settings.farben };
+        ladeColorInputs();
+        farbeAufDOM();
+        renderPreview();
+      }
+      if (kontenOrder.length > 0) renderTkontenGrid();
+      zeigeExportErfolg(`Einstellungen aus "${file.name}" geladen`);
+    } catch(err) {
+      alert('Fehler beim Importieren: ' + err.message);
+    }
+  };
+  reader.onerror = () => alert('Fehler beim Lesen der Datei.');
+  reader.readAsText(file, 'UTF-8');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EINSTELLUNGEN-NACHFRAGE NACH CSV-IMPORT
+══════════════════════════════════════════════════════════════════════════ */
+function zeigeEinstellungenNachfrage() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <h3>&#9881; Einstellungen laden?</h3>
+      <p>Die Buchungsdaten wurden erfolgreich geladen.<br>
+         Möchten Sie zusätzlich eine Einstellungsdatei&nbsp;(.json) laden?</p>
+      <div class="modal-btns">
+        <button class="btn-csv" id="modal-nein">Nein, danke</button>
+        <button class="btn-buchen" id="modal-ja" style="font-size:13px;padding:8px 20px;">
+          &#8657; Ja, Einstellungen laden
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.getElementById('modal-nein').addEventListener('click', close);
+  document.getElementById('modal-ja').addEventListener('click', () => {
+    close();
+    document.getElementById('settings-import-input').click();
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   INITIALISIERUNG
+══════════════════════════════════════════════════════════════════════════ */
+tabelleAktualisieren();
+vorschlagNr();
+ladeColorInputs();
+renderPreview();
+renderAbschlusskontenListe();
+</script>
+
+<script>
+(function () {
+  var THEME_KEY = "supervised-info.theme";
+  var PALETTE_KEY = "supervised-info.palette";
+  var html = document.documentElement;
+  var themeBtn = document.getElementById("themeBtn");
+  var paletteBtn = document.getElementById("paletteBtn");
+  var meta = document.querySelector('meta[name="theme-color"]');
+  function chromeColor(t, p) {
+    var dark = t === "dark";
+    var vintage = p !== "navy";
+    if (vintage) return dark ? "#14110e" : "#f3eee4";
+    return dark ? "#060c1a" : "#f0f4ff";
+  }
+  function currentTheme() {
+    var t = html.getAttribute("data-theme");
+    if (t === "dark" || t === "light") return t;
+    try {
+      t = localStorage.getItem(THEME_KEY);
+      if (t === "dark" || t === "light") return t;
+    } catch (e) {}
+    return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  }
+  function currentPalette() {
+    var p = html.getAttribute("data-palette");
+    if (p === "vintage" || p === "navy") return p;
+    try {
+      p = localStorage.getItem(PALETTE_KEY);
+      if (p === "vintage" || p === "navy") return p;
+    } catch (e) {}
+    return "vintage";
+  }
+  function writeShared(t, p) {
+    try {
+      localStorage.setItem(THEME_KEY, t);
+      localStorage.setItem(PALETTE_KEY, p);
+    } catch (e) {}
+  }
+  function applyTheme(t) {
+    html.setAttribute("data-theme", t);
+    if (themeBtn) {
+      themeBtn.textContent = t === "dark" ? "Hell" : "Dunkel";
+      themeBtn.setAttribute("aria-pressed", t === "dark" ? "true" : "false");
+    }
+    if (meta) meta.setAttribute("content", chromeColor(t, currentPalette()));
+    writeShared(t, currentPalette());
+  }
+  function applyPalette(p) {
+    html.setAttribute("data-palette", p);
+    if (paletteBtn) {
+      paletteBtn.textContent = p === "vintage" ? "Blau" : "Creme";
+      paletteBtn.setAttribute("aria-pressed", p === "vintage" ? "true" : "false");
+    }
+    if (meta) meta.setAttribute("content", chromeColor(currentTheme(), p));
+    writeShared(currentTheme(), p);
+  }
+  applyTheme(currentTheme());
+  applyPalette(currentPalette());
+  if (themeBtn) themeBtn.addEventListener("click", function () {
+    applyTheme(currentTheme() === "dark" ? "light" : "dark");
+  });
+  if (paletteBtn) paletteBtn.addEventListener("click", function () {
+    applyPalette(currentPalette() === "vintage" ? "navy" : "vintage");
+  });
+})();
+</script>
+</body>
+</html>
