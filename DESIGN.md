@@ -50,7 +50,9 @@ Ordnernamen ohne Umlaute. Jede Seite heißt `index.html`. CSS und JS inline, au�
 │   ├── icon-192.png
 │   ├── icon-512.png
 │   └── apple-touch-icon.png
-└── todo/
+├── todo/
+│   └── index.html
+└── braindump/
     └── index.html
 ```
 
@@ -81,12 +83,13 @@ Aktueller Katalog:
 - Tools 01: `elektroautos/` Elektroautos, im Vergleich
 - Tools 02: `einkauf/` Einkaufsliste
 - Tools 03: `todo/` To-Do Liste
+- Tools 04: `braindump/` BrainDump
 
 ### Unterseite, Kicker
 
 Oben links: `supervised-info · NN`. Der Text `supervised-info` verlinkt nach `../`. **NN** ist die Katalognummer **dieses Tabs**, nicht eine globale Zählung über Tabs hinweg.
 
-Beispiele: Relativitätstheorie = Recherche 01; Elektroautos = Tools 01; Einkaufsliste = Tools 02; To-Do Liste = Tools 03.
+Beispiele: Relativitätstheorie = Recherche 01; Elektroautos = Tools 01; Einkaufsliste = Tools 02; To-Do Liste = Tools 03; BrainDump = Tools 04.
 
 ---
 
@@ -267,6 +270,28 @@ html[data-palette="navy"][data-theme="dark"] {
 
 Keine weiteren Paletten.
 
+
+---
+
+## 6b. Favicon (TS-Kachel)
+
+Gleiches SVG überall (abgerundet `rx=6`, weißer Text „TS“). Nur die Kachelfarbe unterscheidet Hub und Unterseiten:
+
+- **Hub** `index.html`: grün `#004225`
+- **Jede Unterseite**: navy `#0d1f6e`
+
+Hub (kanonisch):
+
+```html
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23004225'/><text x='16' y='23' font-family='Arial,sans-serif' font-size='15' font-weight='400' fill='white' text-anchor='middle'>TS</text></svg>">
+```
+
+Unterseite (kanonisch):
+
+```html
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230d1f6e'/><text x='16' y='23' font-family='Arial,sans-serif' font-size='15' font-weight='400' fill='white' text-anchor='middle'>TS</text></svg>">
+```
+
 ---
 
 ## 7. Seitengerüst
@@ -282,7 +307,8 @@ Jede Seite (Hub und Unterseiten) folgt demselben Kopf. Skip-Link zuerst, dann Wr
 <title>…</title>
 <meta name="description" content="…">
 <meta name="theme-color" content="#f3eee4">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect fill=%22%231c1814%22 width=%2232%22 height=%2232%22/%3E%3Cpath fill=%22none%22 stroke=%22%23e8d9c0%22 stroke-width=%221.4%22 d=%22M16 4 L28 28 H4 Z%22/%3E%3C/svg%3E">
+<!-- Favicon: siehe Abschnitt „Favicon (TS-Kachel)“ — Hub grün, Unterseiten navy -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230d1f6e'/><text x='16' y='23' font-family='Arial,sans-serif' font-size='15' font-weight='400' fill='white' text-anchor='middle'>TS</text></svg>">
 <style>
   /* Token aus Abschnitt 6, plus Seiten-CSS über var(--…) */
   :focus-visible { outline: 2px solid var(--oxide); outline-offset: 2px; }
@@ -341,17 +367,23 @@ Nur diese Seite ist eine PWA: `manifest.webmanifest`, `sw.js`, Icons. Eigener Sp
 
 Bei jedem Deploy den Cache-Namen in `sw.js` hochzählen (`einkauf-offline-v4`, dann `v5`, …), sonst bleiben alte Assets im Cache. Strategie: network-first, Cache als Fallback. `start_url` und `scope` relativ (`./`). Tools-Karte 02, CTA Öffnen.
 
+
+### Canvas-Tool (`braindump/`)
+
+Eine Datei: `index.html`. Vollflächige Canvas mit Knoten, Kanten, Import/Export. Site-Mast mit Palette/Theme; App-Daten unter `mindmapper_state_v1` (und verwandten BrainDump-Schlüsseln). Tools-Karte 04, CTA Öffnen.
+
 ---
 
 ## 9. Neue Seite anlegen
 
 1. Im Repo-Root einen Ordner ohne Umlaute, darin `index.html`.
 2. Token, FOUC-Skript, Skip-Link, Mast, Palette- und Theme-Button, `chromeColor` plus `writeShared` (beide Schlüssel) übernehmen.
-3. CSS/JS inline, außer große Daten. Nur relative Pfade. `lang="de"`. Tipziele um 44px, `focus-visible`, `prefers-reduced-motion`.
-4. PWA-Dateien nur, wenn die Seite offline stehen muss.
-5. Eine Karte in die richtige `ol.cat` auf dem Hub: nächste Nummer **in diesem Tab**, Titel, ein Satz, Lesen oder Öffnen.
-6. Kicker der Unterseite: `supervised-info · NN` mit `../`, NN = diese Tab-Nummer.
-7. Push auf `main`. GitHub Pages liefert den Branch aus.
+3. Favicon: Unterseite mit **navy** TS-Kachel `#0d1f6e` (siehe Abschnitt 6b). Hub behält grün `#004225`.
+4. CSS/JS inline, außer große Daten. Nur relative Pfade. `lang="de"`. Tipziele um 44px, `focus-visible`, `prefers-reduced-motion`.
+5. PWA-Dateien nur, wenn die Seite offline stehen muss.
+6. Eine Karte in die richtige `ol.cat` auf dem Hub: nächste Nummer **in diesem Tab**, Titel, ein Satz, Lesen oder Öffnen.
+7. Kicker der Unterseite: `supervised-info · NN` mit `../`, NN = diese Tab-Nummer.
+8. Push auf `main`. GitHub Pages liefert den Branch aus.
 
 ### Nicht tun
 
