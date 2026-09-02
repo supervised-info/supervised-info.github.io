@@ -11,7 +11,7 @@ Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Sta
 PWA (einzige im Repo):
 
 - `einkauf/index.html` (eine HTML-Datei, CSS+JS inline)
-- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v17`
+- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v18`
 - `einkauf/manifest.webmanifest`
 - Icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`
 
@@ -19,7 +19,7 @@ PWA (einzige im Repo):
 
 SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie network-first, Cache-Fallback; navigate fällt auf `./` bzw. `index.html`. Install `skipWaiting`, activate löscht fremde Caches, `clients.claim`. Seite: `navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })` + `reg.update()`; bei `controllerchange` einmal `location.reload()`.
 
-**Bei jedem Deploy Cache-Namen hochzählen** (`v17` → `v18` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
+**Bei jedem Deploy Cache-Namen hochzählen** (`v18` → `v19` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
 
 ## Chrome
 
@@ -57,9 +57,11 @@ Kein Darstellung-Block (Hell/Dunkel/System/Creme/Blau). Theme bleibt am Mast.
 
 ### Burger-Menü
 
-Deutsche Labels, Reihenfolge: Liste in Zwischenablage; Daten importieren (`.md/.txt`); Liste als Datei exportieren; Liste teilen (`navigator.share`, Button hidden wenn fehlend); nach Bring exportieren; nach Erinnerungen exportieren; Backup teilen/speichern/laden; **Liste speichern**; gespeicherte Listen (Namen zum Auffüllen, oder disabled „Keine gespeicherten Listen“); Erledigte löschen; Einstellungen.
+Deutsche Labels, Reihenfolge: Liste in Zwischenablage; Daten importieren (`.md/.txt`); Liste als Datei exportieren; Liste teilen (`navigator.share`, Button hidden wenn fehlend); nach Bring exportieren; nach Erinnerungen exportieren; Backup teilen/speichern/laden; **Einkaufsliste speichern** (`#btn-save-list`); gespeicherte Listen (Namen zum Auffüllen, oder disabled „Keine gespeicherten Listen“); Erledigte löschen; Einstellungen.
 
-**Liste speichern:** `prompt` nach Namen (max 60). Snapshot der **aktuellen** Artikel als `{name,dept}` **ohne** `done` (erledigte gehören in den Snapshot, damit Apply sie wieder öffnet). Leere Liste: nicht speichern, Status „Die Liste ist leer.“ Leerer Name: „Bitte einen Namen eingeben.“ Doppelte Listennamen sind erlaubt. IDs `l` + time36 + random.
+Gespeicherte Listen im Burger sind **eingerückt** unter „Einkaufsliste speichern“ (Klasse `saved-list-item`, `margin-left` ~1.35rem / schmalere Breite), also Kinder, nicht volle Chips wie Backup laden / Einkaufsliste speichern / Erledigte löschen. Leerzustand „Keine gespeicherten Listen“ bleibt disabled und gleich eingerückt. Einstellungen-Sheet `#saved-list-edit` ohne diese Einrückung.
+
+**Einkaufsliste speichern:** `prompt` mit Titel „Einkaufsliste speichern“, dann Namen (max 60). Snapshot der **aktuellen** Artikel als `{name,dept}` **ohne** `done` (erledigte gehören in den Snapshot, damit Apply sie wieder öffnet). Leere Liste: nicht speichern, Status „Die Liste ist leer.“ Leerer Name: „Bitte einen Namen eingeben.“ Doppelte Listennamen sind erlaubt. IDs `l` + time36 + random.
 
 **Apply füllt:** wie Stamm/`applyStaple` — fehlende anlegen, erledigte mit gleichem `mappingKey` wieder öffnen, schon offene zählen. Die Einkaufsliste wird **nicht** ersetzt.
 
@@ -189,7 +191,7 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-02/03): `savedLists` füllen st
 
 ## Akzeptanzkriterien
 
-- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v17).
+- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v18).
 - [ ] Add rät Abteilung; Checkbox; Pointer-Drag **abteilungsübergreifend** (Zeile oder `h2`); Mapping wie Dept-Select; Geh-Modus persistiert.
 - [ ] Stamm `{name,dept}[]`; `sanitizeStaples` akzeptiert alte Strings; Settings anlegen/Dept/Reorder/löschen; Menü Gesamtliste + Chips (`tapStaple`).
 - [ ] Gespeicherte Listen: speichern mit Namen; Apply füllt; leere Liste nicht speichern; Duplikat-Namen erlaubt; Löschen in Einstellungen; Persistenz `einkauf_v1` + Backup `savedLists`; alte Backups `[]`.

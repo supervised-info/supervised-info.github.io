@@ -308,6 +308,15 @@ h1 {
   width: calc(100% - 0.85rem);
   margin-left: 0.85rem;
 }
+#saved-lists-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+#actions-menu .saved-list-item {
+  width: calc(100% - 1.35rem);
+  margin-left: 1.35rem;
+}
 .chipbtn, .iconbtn {
   border: 1px solid var(--rule);
   background: var(--paper-2);
@@ -864,7 +873,7 @@ body.walk .chk input {
           <button type="button" class="chipbtn" id="btn-backup-save" role="menuitem">Backup speichern</button>
           <button type="button" class="chipbtn" id="btn-backup-load" role="menuitem">Backup laden</button>
           <input id="backup-file" class="sr-only" type="file" accept=".json,application/json">
-          <button type="button" class="chipbtn" id="btn-save-list" role="menuitem">Liste speichern</button>
+          <button type="button" class="chipbtn" id="btn-save-list" role="menuitem">Einkaufsliste speichern</button>
           <div id="saved-lists-actions"></div>
           <button type="button" class="chipbtn danger" id="btn-clear" role="menuitem">Erledigte löschen</button>
           <button type="button" class="chipbtn" id="btn-layout" role="menuitem" aria-controls="sheet" aria-expanded="false">Einstellungen</button>
@@ -3241,7 +3250,7 @@ body.walk .chk input {
     if (!state.savedLists.length) {
       var empty = document.createElement("button");
       empty.type = "button";
-      empty.className = "chipbtn";
+      empty.className = "chipbtn saved-list-item";
       empty.setAttribute("role", "menuitem");
       empty.disabled = true;
       empty.textContent = "Keine gespeicherten Listen";
@@ -3251,7 +3260,7 @@ body.walk .chk input {
     state.savedLists.forEach(function (list) {
       var b = document.createElement("button");
       b.type = "button";
-      b.className = "chipbtn";
+      b.className = "chipbtn saved-list-item";
       b.setAttribute("role", "menuitem");
       b.textContent = list.name;
       b.addEventListener("click", function () { applySavedList(list); });
@@ -3299,7 +3308,7 @@ body.walk .chk input {
       setStatus("Die Liste ist leer.");
       return;
     }
-    var name = window.prompt("Liste speichern\nDie aktuellen Artikel werden unter diesem Namen gespeichert.", "");
+    var name = window.prompt("Einkaufsliste speichern\nDie aktuellen Artikel werden unter diesem Namen gespeichert.", "");
     if (name === null) return;
     saveCurrentList(name);
   }
