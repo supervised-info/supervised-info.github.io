@@ -1,17 +1,17 @@
 # Regenerationsspec: `einkauf/index.html`
 
-Stand der Live-PWA: **2026-09-02**. Nur diese Spec anfassen; HTML/CSS/JS/`sw.js` nicht ändern.
+Stand der Live-PWA: **2026-09-02/03**. Diese Spec beschreibt die Seite so, dass sie daraus neu erzeugt werden kann.
 
 ## Zweck
 
-Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Stamm-Artikel als `{name,dept}`, mehrere Laden-Layouts, abteilungsübergreifendes Drag, Offline-PWA. Tools-Karte 02.
+Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Stamm-Artikel als `{name,dept}`, benannte gespeicherte Listen (`savedLists`), mehrere Laden-Layouts, abteilungsübergreifendes Drag, Offline-PWA. Tools-Karte 02.
 
 ## Datei-Ort, Abhängigkeiten
 
 PWA (einzige im Repo):
 
 - `einkauf/index.html` (eine HTML-Datei, CSS+JS inline)
-- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v16`
+- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v17`
 - `einkauf/manifest.webmanifest`
 - Icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`
 
@@ -19,11 +19,11 @@ PWA (einzige im Repo):
 
 SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie network-first, Cache-Fallback; navigate fällt auf `./` bzw. `index.html`. Install `skipWaiting`, activate löscht fremde Caches, `clients.claim`. Seite: `navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })` + `reg.update()`; bei `controllerchange` einmal `location.reload()`.
 
-**Bei jedem Deploy Cache-Namen hochzählen** (`v16` → `v17` …), sonst bleiben alte Assets.
+**Bei jedem Deploy Cache-Namen hochzählen** (`v17` → `v18` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
 
 ## Chrome
 
-- Shared Keys + FOUC (`supervised-info.theme` / `supervised-info.palette`). Palette `#paletteBtn` (Label Creme↔Blau); Theme-Button **ID `theme-btn`** (JS akzeptiert auch `themeBtn`; Label Hell↔Dunkel).
+- Shared Keys + FOUC (`supervised-info.theme` / `supervised-info.palette`). Palette `#paletteBtn` (Label Creme↔Blau); Theme-Button **ID `theme-btn`** (JS akzeptiert auch `themeBtn`; Label Hell↔Dunkel). Theme und Palette sitzen am **Site-Mast**, nicht im Einstellungen-Sheet (kein Block Darstellung / Hell / Dunkel / System dort).
 - Favicon navy `#0d1f6e`.
 - Skip: `href="#add"` Text „Zur Eingabe“.
 - Kicker: `supervised-info · 02` → `../`.
@@ -39,14 +39,17 @@ SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie net
 - Toolbar: `#store` Select „Laden“, `#count` live („N offen, M erledigt“), `#btn-walk` Geh-Modus, Stamm-Menü, Burger `#btn-more`.
 - `#status` role=status; `#list` Abteilungen.
 
-### Einstellungen-Sheet
+### Einstellungen-Sheet — Reihenfolge
 
-- Aktueller Laden `#sheet-store`.
-- `#layout-list` sortierbare Abteilungen (Grip nur **innerhalb** der Layout-Liste; plus Nach oben / Nach unten / Entfernen); Hinweis: Vor dem Einkauf immer vorn, Nach dem Einkauf immer hinten, Sonstiges direkt davor.
-- Unused-Chips Abteilungen hinzufügen; „Layout zurücksetzen“ (nur builtin).
-- Laden anlegen (`#new-store-name` max 60, Enter); „Übernimmt das aktuelle Layout.“; Laden löschen (nicht builtin).
-- Läden speichern/laden JSON (`kind: "einkauf-laeden"`).
-- Stamm-Artikel `#staple-list`: anlegen (`#new-staple` max 60, Enter), Abteilung editieren (Select → `staples[i].dept` + `mappings[mappingKey(name)]`), Reihenfolge (Nach oben / Nach unten), löschen.
+Kein Darstellung-Block (Hell/Dunkel/System/Creme/Blau). Theme bleibt am Mast.
+
+1. **Aktueller Laden** `#store-list`: Liste aller Läden, Tippen setzt `currentStoreId` (Häkchen am aktuellen). Eigene Läden (`!builtin`) haben pro Zeile **Löschen** (Bestätigung „Laden „X“ wirklich löschen?“). Builtin-Seeds sind unlöschbar. Fallback nach Löschen des aktuellen Ladens: `edeka`, sonst erster Rest.
+2. **Neuer Laden**: `#new-store-name` max 60, Enter oder „Anlegen“. Hinweis: „Übernimmt das Layout des ausgewählten Ladens.“ `builtin: false`, wird sofort aktuell.
+3. **Alle Läden** (nur HTML): JSON speichern/laden `kind: "einkauf-laeden"`.
+4. **Ladenweg** `#layout-heading` Text `Ladenweg · {Name}`: `#layout-list` sortierbare Abteilungen (Grip nur **innerhalb** der Layout-Liste; plus Nach oben / Nach unten / Entfernen). Hinweis: Vor dem Einkauf immer vorn, Nach dem Einkauf immer hinten, **Sonstiges folgt der Position im Ladenweg**. Unused-Chips „Abteilung hinzufügen“; „Layout zurücksetzen“ (nur builtin, Seed-Layout).
+5. **Stamm-Artikel** `#staple-list`: anlegen (`#new-staple` max 60, Enter), Abteilung editieren (Select → `staples[i].dept` + `mappings[mappingKey(name)]`), Reihenfolge (Nach oben / Nach unten), löschen.
+6. **Gespeicherte Listen** `#saved-list-edit`: Tippen auf den Namen **füllt** die aktuelle Liste auf (nicht ersetzen). Pro Zeile **Löschen** (Bestätigung „Gespeicherte Liste „X“ wirklich löschen?“). Leer: „Noch keine gespeicherten Listen.“ Hinweis: Anlass-Listen wie Grillen oder Drogerie.
+7. **Wörterbuch**: nur lesen, lokal aus `DICT_SRC` (kein Netz). `<details>` „Wörter anzeigen“, Suche `#dict-query` „Wort suchen“. Gruppen nach deutschen Abteilungs-Titeln (`DEPTS`), Wörter je Gruppe alphabetisch `localeCompare` de, Duplikate und Leereinträge weg. Footer: „Zuordnung beim Tippen läuft nur lokal. Sonderregeln (TK, Eistee, Schorle, Chips, Eis) stehen nicht in dieser Liste.“
 
 ### Stamm-Menü
 
@@ -54,13 +57,30 @@ SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie net
 
 ### Burger-Menü
 
-Deutsche Labels, Reihenfolge: Liste in Zwischenablage; Daten importieren (`.md/.txt`); Liste als Datei exportieren; Liste teilen (`navigator.share`, Button hidden wenn fehlend); nach Bring exportieren; nach Erinnerungen exportieren; Backup teilen/speichern/laden; Erledigte löschen; Einstellungen.
+Deutsche Labels, Reihenfolge: Liste in Zwischenablage; Daten importieren (`.md/.txt`); Liste als Datei exportieren; Liste teilen (`navigator.share`, Button hidden wenn fehlend); nach Bring exportieren; nach Erinnerungen exportieren; Backup teilen/speichern/laden; **Liste speichern**; gespeicherte Listen (Namen zum Auffüllen, oder disabled „Keine gespeicherten Listen“); Erledigte löschen; Einstellungen.
+
+**Liste speichern:** `prompt` nach Namen (max 60). Snapshot der **aktuellen** Artikel als `{name,dept}` **ohne** `done` (erledigte gehören in den Snapshot, damit Apply sie wieder öffnet). Leere Liste: nicht speichern, Status „Die Liste ist leer.“ Leerer Name: „Bitte einen Namen eingeben.“ Doppelte Listennamen sind erlaubt. IDs `l` + time36 + random.
+
+**Apply füllt:** wie Stamm/`applyStaple` — fehlende anlegen, erledigte mit gleichem `mappingKey` wieder öffnen, schon offene zählen. Die Einkaufsliste wird **nicht** ersetzt.
 
 ## Abteilungen `DEPTS`
 
 `vor` Vor dem Einkauf; `obst` Obst & Gemüse; `brot` Brot & Backwaren; `bedienung` Fleisch, Wurst, Käse; `kuehlung` Kühlregal; `tiefkuehl` Tiefkühl; `trocken` Trockenwaren; `suess` Süßwaren & Snacks; `getraenke` Getränke; `drogerie` Drogerie & Haushalt; `sonstiges` Sonstiges; `nach` Nach dem Einkauf.
 
-Gruppen-Reihenfolge: `vor` zuerst, dann Layout ohne vor/nach/sonstiges, dann übrige Depts mit Items, dann `sonstiges`, dann `nach`. Leere Depts nicht rendern.
+### Gruppenreihenfolge (`groupItems` / `walkLayout`)
+
+**Sonstiges bleibt, wo der Laden es im Layout platziert hat.** Nicht `sonstiges` aus dem Layout ziehen und vor `nach` kleben.
+
+Walk über das sanitisierte Layout:
+
+1. `vor` zuerst (auch wenn das gespeicherte Layout `vor` nicht enthält).
+2. alle übrigen Layout-IDs in Layout-Reihenfolge, **außer** `vor`/`nach` — `sonstiges` genau dort, wo der Store es hat.
+3. Extra-Abteilungen mit Artikeln, die **nicht** im Layout stehen: Extra-Gänge **nach dem letzten Layout-Gang vor `nach`** (Reihenfolge: `Object.keys(DEPTS)`). `item.dept` **nicht** nach `sonstiges` umschreiben.
+4. `nach` zuletzt.
+
+Unbekannte `item.dept`-IDs nur zur Anzeige nach `sonstiges` auflösen (`DEPTS[id] ? id : "sonstiges"`). Leere Depts nicht rendern.
+
+Beispiel: Markt A `[vor, sonstiges, obst, nach]` zeigt Sonstiges vor Obst. Markt B `[vor, obst, sonstiges, nach]` zeigt Obst vor Sonstiges. dm-Seed: Drogerie … Sonstiges vor Nach; Süßwaren auf der dm-Liste bleiben eigener Extra-Gang hinter dem letzten Layout-Gang vor `nach`, nicht in Sonstiges.
 
 ## Seed-Läden `SEEDS` (builtin, immer mergen)
 
@@ -89,6 +109,8 @@ Geh-Modus: `body.walk` — Button-Label „Bearbeiten“, `aria-pressed` true; k
 
 **Stamm:** `staples` ist **`{ name, dept }[]`**, kein `string[]`. `sanitizeStaples` akzeptiert alte String-Backups und neue Objekte (Name trimmen, Duplikate via `mappingKey`, ungültiges `dept` → `guessDept`). Menü: Gesamtliste + Chips; Settings: anlegen / Dept / Reorder / löschen.
 
+**Gespeicherte Listen:** `savedLists` ist **`{ id, name, items: [{name,dept}] }[]`**. Snapshot ohne `done`. `sanitizeSavedLists`: fehlendes Feld / keine Liste → `[]`; leere Namen und Listen ohne Items verwerfen; doppelte IDs neu vergeben; Item-Duplikate **innerhalb** einer Liste erlaubt (anders als Stamm). Apply = `applyStaple` je Eintrag.
+
 ## localStorage `einkauf_v1`
 
 ```
@@ -100,11 +122,12 @@ Geh-Modus: `body.walk` — Button-Label „Bearbeiten“, `aria-pressed` true; k
   stores: [{ id, name, layout[], builtin }],
   layoutTrip: 1,
   walkMode,
-  staples: [{ name, dept }]
+  staples: [{ name, dept }],
+  savedLists: [{ id, name, items: [{ name, dept }] }]
 }
 ```
 
-Save schreibt **kein** `palette` ins einkauf_v1-Objekt (nur theme + Rest). Palette nur Shared Key.
+Save schreibt **kein** `palette` ins einkauf_v1-Objekt (nur theme + Rest). Palette nur Shared Key. Alte Speicherstände ohne `savedLists`: `[]`.
 
 ## Export / Import Formate
 
@@ -117,7 +140,7 @@ Save schreibt **kein** `palette` ins einkauf_v1-Objekt (nur theme + Rest). Palet
 
 **Erinnerungen:** offene Namen, Zeilen `\r\n`; Clipboard + Hinweis „In Erinnerungen einfügen, dann in mehrere aufteilen.“
 
-**Läden JSON** `kind: "einkauf-laeden"`, `v: 1`, currentStoreId, stores, mappings. Datei `einkauf-laeden.json`. Import Confirm ersetzen/dazunehmen; Seeds mergen. Nur HTML.
+**Läden JSON** `kind: "einkauf-laeden"`, `v: 1`, currentStoreId, stores, mappings. Datei `einkauf-laeden.json`. Import Confirm ersetzen/dazunehmen; Seeds mergen. Nur HTML. Enthält **kein** `savedLists`.
 
 **Backup JSON** — gleiche Form wie die native iOS-App:
 
@@ -131,11 +154,12 @@ Save schreibt **kein** `palette` ins einkauf_v1-Objekt (nur theme + Rest). Palet
   items: [{ id, name, dept, done, added, ord }],
   walkMode,
   layoutTrip: 1,
-  staples: [{ name, dept }]
+  staples: [{ name, dept }],
+  savedLists: [{ id, name, items: [{ name, dept }] }]
 }
 ```
 
-Share oder Download `einkauf-backup.json`. Import Confirm ersetzt Liste und Läden.
+Share oder Download `einkauf-backup.json`. Import Confirm ersetzt Liste und Läden. Alte Backups ohne `savedLists`: leeres Array. Stamm und eingebaute Läden bleiben unangetastet (Seeds mergen).
 
 Escape schließt Menüs/Sheet. Enter in neuen Laden/Stamm legt an.
 
@@ -146,9 +170,11 @@ https://github.com/supervised-info/einkauf-watch — iPhone + Apple Watch. Brüc
 Dieses Delta **bleibt bewusst** und darf von Regeneratoren **nicht geschlossen** werden:
 
 - **Nur HTML / in dieser Spec behalten:** Markdown kopieren / Datei exportieren / teilen; Import `.md`/`.txt`; **nach Bring exportieren**; **nach Erinnerungen exportieren**; extra Läden-JSON `kind: "einkauf-laeden"`.
-- **Nur native / nicht ins HTML:** Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
+- **Nur native / nicht ins HTML:** Watch; **PDF Liste teilen**; Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
 - Watch ist nur Geh-Modus (Checkbox + Name). Ladenwahl nur auf dem iPhone.
 - Bring bleibt im HTML-Menü (dokumentieren), die Richtung ist Watch-im-Laden, nicht Bring.
+
+Gemeinsame Slice (HTML und Native, Stand 2026-09-02/03): `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC`.
 
 ## CSS
 
@@ -163,10 +189,13 @@ Dieses Delta **bleibt bewusst** und darf von Regeneratoren **nicht geschlossen**
 
 ## Akzeptanzkriterien
 
-- [ ] Offline nach erstem Besuch (SW v-Bump).
+- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v17).
 - [ ] Add rät Abteilung; Checkbox; Pointer-Drag **abteilungsübergreifend** (Zeile oder `h2`); Mapping wie Dept-Select; Geh-Modus persistiert.
 - [ ] Stamm `{name,dept}[]`; `sanitizeStaples` akzeptiert alte Strings; Settings anlegen/Dept/Reorder/löschen; Menü Gesamtliste + Chips (`tapStaple`).
-- [ ] MD/Backup/Läden roundtrip; Backup-Shape wie native App; Bring-Link oder Fallback-Kopie.
-- [ ] Palette/Theme site-weit; Theme-Button-ID `theme-btn`; Palette nicht in `einkauf_v1`.
+- [ ] Gespeicherte Listen: speichern mit Namen; Apply füllt; leere Liste nicht speichern; Duplikat-Namen erlaubt; Löschen in Einstellungen; Persistenz `einkauf_v1` + Backup `savedLists`; alte Backups `[]`.
+- [ ] Sonstiges-Position folgt dem Laden-Layout; Extra-Gänge bleiben Extra-Gänge; `item.dept` nicht nach sonstiges umbuchen.
+- [ ] Einstellungen-Reihenfolge wie oben; Wörterbuch lokal aus `DICT_SRC`, gruppiert nach DEPT-Titeln, sortiert de.
+- [ ] MD/Backup/Läden roundtrip; Backup-Shape wie native App inkl. `savedLists`; Bring-Link oder Fallback-Kopie.
+- [ ] Palette/Theme site-weit am Mast; Theme-Button-ID `theme-btn`; Palette nicht in `einkauf_v1`; kein Darstellung-Block im Sheet.
 - [ ] Kicker 02, navy Favicon, Skip zur Eingabe.
-- [ ] Native-Delta bleibt (kein System-Theme in der Toolbar, keine HTML-Features in der Watch-App schließen).
+- [ ] Native-Delta bleibt (kein Watch, kein PDF-Teilen, kein System-Theme in der Toolbar, kein Live-Sync — nur Backup-Datei).
