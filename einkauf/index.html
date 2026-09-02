@@ -331,6 +331,10 @@ h1 {
   color: var(--oxide);
   border-color: color-mix(in srgb, var(--oxide) 45%, var(--rule));
 }
+.chipbtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 .status {
   min-height: 1.35em;
   margin: 0.55rem 0 0;
@@ -546,11 +550,6 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   padding: 0.9rem 1rem 1.6rem;
   flex: 1;
 }
-.sheet-store {
-  margin: 0 0 0.85rem;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
 .layout-list {
   list-style: none;
   margin: 0 0 1rem;
@@ -565,6 +564,37 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   border-bottom: 1px solid var(--rule);
   position: relative;
 }
+.layout-row.store-pick,
+.layout-row.saved-edit {
+  grid-template-columns: 1fr auto;
+}
+.store-pick-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0.2rem 0;
+  border-radius: 0;
+}
+.store-pick-btn[aria-pressed="true"] {
+  color: var(--oxide);
+}
+.saved-apply {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0.2rem 0;
+  border-radius: 0;
+}
 .layout-row .grip { width: 36px; height: 40px; }
 .layout-name { font-size: 0.95rem; }
 .layout-btns { display: flex; flex-wrap: wrap; gap: 0.25rem; }
@@ -578,6 +608,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
 }
 .layout-btns button:hover { border-color: var(--oxide); color: var(--oxide); }
 .layout-btns button:disabled { opacity: 0.4; cursor: not-allowed; }
+.layout-btns button.danger { color: var(--oxide); }
 .sheet-label {
   font-size: 0.72rem;
   letter-spacing: 0.12em;
@@ -609,7 +640,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   gap: 0.4rem;
   align-items: stretch;
 }
-#new-store-name, #new-staple {
+#new-store-name, #new-staple, #dict-query {
   flex: 1;
   min-width: 0;
   min-height: 44px;
@@ -617,6 +648,51 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   background: var(--paper-2);
   border-radius: 999px;
   padding: 0.3rem 0.8rem;
+}
+#dict-query { width: 100%; margin: 0.35rem 0 0.6rem; }
+.dict-wrap {
+  margin: 0.35rem 0 0.4rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.85rem;
+  padding: 0.15rem 0.75rem 0.55rem;
+  background: var(--paper-2);
+}
+.dict-wrap summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  list-style: none;
+}
+.dict-wrap summary::-webkit-details-marker { display: none; }
+.dict-wrap summary::before {
+  content: "▸";
+  display: inline-block;
+  width: 1.1em;
+  color: var(--muted);
+}
+.dict-wrap[open] summary::before { content: "▾"; }
+.dict-group { margin: 0.65rem 0 0.2rem; }
+.dict-group h3 {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.3rem;
+  font-weight: 650;
+}
+.dict-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: 1rem;
+}
+.dict-group li {
+  font-size: 0.86rem;
+  padding: 0.12rem 0;
+  break-inside: avoid;
 }
 .layout-row.staple-edit {
   grid-template-columns: 1fr minmax(7rem, auto) auto;
@@ -658,6 +734,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     grid-column: 1 / -1;
     max-width: none;
   }
+  .dict-group ul { columns: 1; }
 }
 body.walk .grip,
 body.walk .dept-sel,
@@ -696,29 +773,31 @@ body.walk .chk input {
     <button type="button" class="iconbtn" id="sheet-close" aria-label="Schließen">Schließen</button>
   </div>
   <div class="sheet-body">
-    <p class="sheet-store" id="sheet-store"></p>
-    <ol class="layout-list" id="layout-list"></ol>
-    <p class="hint">Vor dem Einkauf steht in der Liste immer vorn, Nach dem Einkauf immer hinten. Sonstiges direkt davor.</p>
-    <p class="sheet-label">Abteilung hinzufügen</p>
-    <div class="chips" id="unused-depts"></div>
-    <div class="sheet-actions">
-      <button type="button" class="chipbtn" id="btn-reset">Layout zurücksetzen</button>
-    </div>
-    <p class="sheet-label">Laden anlegen</p>
+    <p class="sheet-label">Aktueller Laden</p>
+    <ul class="layout-list" id="store-list"></ul>
+
+    <p class="sheet-label">Neuer Laden</p>
     <div class="new-store">
       <input id="new-store-name" type="text" placeholder="Name des Ladens" maxlength="60" autocomplete="off">
       <button type="button" class="chipbtn primary" id="btn-new-store">Anlegen</button>
     </div>
-    <p class="hint">Übernimmt das aktuelle Layout.</p>
-    <div class="sheet-actions">
-      <button type="button" class="chipbtn danger" id="btn-delete-store">Laden löschen</button>
-    </div>
+    <p class="hint">Übernimmt das Layout des ausgewählten Ladens.</p>
     <p class="sheet-label">Alle Läden</p>
     <div class="sheet-actions">
       <button type="button" class="chipbtn" id="btn-save-stores">Läden speichern</button>
       <button type="button" class="chipbtn" id="btn-load-stores">Läden laden</button>
       <input id="stores-file" class="sr-only" type="file" accept=".json,application/json">
     </div>
+
+    <p class="sheet-label" id="layout-heading">Ladenweg</p>
+    <ol class="layout-list" id="layout-list"></ol>
+    <p class="hint">Vor dem Einkauf steht in der Liste immer vorn, Nach dem Einkauf immer hinten. Sonstiges folgt der Position im Ladenweg.</p>
+    <p class="sheet-label">Abteilung hinzufügen</p>
+    <div class="chips" id="unused-depts"></div>
+    <div class="sheet-actions">
+      <button type="button" class="chipbtn" id="btn-reset">Layout zurücksetzen</button>
+    </div>
+
     <p class="sheet-label">Stamm-Artikel</p>
     <p class="hint">Im Stamm-Menü auf die Einkaufsliste setzen. Hier anlegen und entfernen.</p>
     <ul class="layout-list" id="staple-list"></ul>
@@ -726,6 +805,19 @@ body.walk .chk input {
       <input id="new-staple" type="text" placeholder="z. B. Milch" maxlength="60" autocomplete="off">
       <button type="button" class="chipbtn primary" id="btn-add-staple">Anlegen</button>
     </div>
+
+    <p class="sheet-label">Gespeicherte Listen</p>
+    <p class="hint">Anlass-Listen wie Grillen oder Drogerie. Tippen füllt die aktuelle Liste auf, ohne sie zu ersetzen.</p>
+    <ul class="layout-list" id="saved-list-edit"></ul>
+
+    <p class="sheet-label">Wörterbuch</p>
+    <details class="dict-wrap" id="dict-wrap">
+      <summary>Wörter anzeigen</summary>
+      <label class="sr-only" for="dict-query">Wort suchen</label>
+      <input id="dict-query" type="search" placeholder="Wort suchen" autocomplete="off">
+      <div id="dict-browse"></div>
+      <p class="hint">Zuordnung beim Tippen läuft nur lokal. Sonderregeln (TK, Eistee, Schorle, Chips, Eis) stehen nicht in dieser Liste.</p>
+    </details>
   </div>
 </aside>
 <div class="wrap">
@@ -772,6 +864,8 @@ body.walk .chk input {
           <button type="button" class="chipbtn" id="btn-backup-save" role="menuitem">Backup speichern</button>
           <button type="button" class="chipbtn" id="btn-backup-load" role="menuitem">Backup laden</button>
           <input id="backup-file" class="sr-only" type="file" accept=".json,application/json">
+          <button type="button" class="chipbtn" id="btn-save-list" role="menuitem">Liste speichern</button>
+          <div id="saved-lists-actions"></div>
           <button type="button" class="chipbtn danger" id="btn-clear" role="menuitem">Erledigte löschen</button>
           <button type="button" class="chipbtn" id="btn-layout" role="menuitem" aria-controls="sheet" aria-expanded="false">Einstellungen</button>
         </div>
@@ -868,13 +962,13 @@ body.walk .chk input {
     scrim: document.getElementById("scrim"),
     sheet: document.getElementById("sheet"),
     sheetClose: document.getElementById("sheet-close"),
-    sheetStore: document.getElementById("sheet-store"),
+    storeList: document.getElementById("store-list"),
+    layoutHeading: document.getElementById("layout-heading"),
     layoutList: document.getElementById("layout-list"),
     unused: document.getElementById("unused-depts"),
     resetBtn: document.getElementById("btn-reset"),
     newName: document.getElementById("new-store-name"),
     newStoreBtn: document.getElementById("btn-new-store"),
-    deleteBtn: document.getElementById("btn-delete-store"),
     saveStoresBtn: document.getElementById("btn-save-stores"),
     loadStoresBtn: document.getElementById("btn-load-stores"),
     storesFile: document.getElementById("stores-file"),
@@ -884,6 +978,12 @@ body.walk .chk input {
     stapleList: document.getElementById("staple-list"),
     newStaple: document.getElementById("new-staple"),
     addStapleBtn: document.getElementById("btn-add-staple"),
+    saveListBtn: document.getElementById("btn-save-list"),
+    savedListsActions: document.getElementById("saved-lists-actions"),
+    savedListEdit: document.getElementById("saved-list-edit"),
+    dictWrap: document.getElementById("dict-wrap"),
+    dictQuery: document.getElementById("dict-query"),
+    dictBrowse: document.getElementById("dict-browse"),
     themeMeta: document.querySelector('meta[name="theme-color"]')
   };
 
@@ -903,6 +1003,7 @@ body.walk .chk input {
   renderCount();
   renderList();
   renderStaples();
+  renderSavedListsMenu();
 
   els.addForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -911,10 +1012,7 @@ body.walk .chk input {
     els.add.focus();
   });
   els.store.addEventListener("change", function () {
-    state.currentStoreId = els.store.value;
-    scheduleSave();
-    renderList();
-    if (sheetOpen) renderSheet();
+    selectStore(els.store.value);
   });
   els.themeBtn.addEventListener("click", function () {
     state.theme = state.theme === "dark" ? "light" : "dark";
@@ -1003,7 +1101,17 @@ body.walk .chk input {
       addStaple();
     }
   });
-  els.deleteBtn.addEventListener("click", deleteStore);
+  els.saveListBtn.addEventListener("click", beginSaveList);
+  if (els.dictQuery) {
+    els.dictQuery.addEventListener("input", function () {
+      renderDictBrowse();
+    });
+  }
+  if (els.dictWrap) {
+    els.dictWrap.addEventListener("toggle", function () {
+      if (els.dictWrap.open) renderDictBrowse();
+    });
+  }
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     if (menuOpen) {
@@ -1184,7 +1292,8 @@ body.walk .chk input {
       stores: seedStores(),
       layoutTrip: 1,
       walkMode: false,
-      staples: []
+      staples: [],
+      savedLists: []
     };
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
@@ -1237,7 +1346,8 @@ body.walk .chk input {
         stores: stores,
         layoutTrip: 1,
         walkMode: d.walkMode === true,
-        staples: sanitizeStaples(d.staples)
+        staples: sanitizeStaples(d.staples),
+        savedLists: sanitizeSavedLists(d.savedLists)
       };
     } catch (e) {
       return fallback;
@@ -1260,7 +1370,8 @@ body.walk .chk input {
         stores: state.stores,
         layoutTrip: 1,
         walkMode: !!state.walkMode,
-        staples: state.staples
+        staples: state.staples,
+        savedLists: state.savedLists
       }));
     } catch (e) {}
   }
@@ -1333,16 +1444,29 @@ body.walk .chk input {
     return found || state.stores[0];
   }
 
+  function walkLayout(layout) {
+    var sanitized = sanitizeLayout(layout);
+    var walk = [];
+    var seen = {};
+    function add(id) {
+      if (!DEPTS[id] || seen[id]) return;
+      seen[id] = true;
+      walk.push(id);
+    }
+    add("vor");
+    sanitized.forEach(function (id) {
+      if (id === "vor" || id === "nach") return;
+      add(id);
+    });
+    add("nach");
+    return walk;
+  }
+
   function groupItems() {
     var store = currentStore();
-    var layout = store.layout.slice();
-    function pullId(id) {
-      var i = layout.indexOf(id);
-      if (i !== -1) layout.splice(i, 1);
-    }
-    pullId("vor");
-    pullId("nach");
-    pullId("sonstiges");
+    var layout = walkLayout(store.layout);
+    var inLayout = {};
+    layout.forEach(function (id) { inLayout[id] = true; });
     var byDept = {};
     state.items.forEach(function (it) {
       var d = DEPTS[it.dept] ? it.dept : "sonstiges";
@@ -1361,13 +1485,13 @@ body.walk .chk input {
         used[d] = true;
       }
     }
-    pushDept("vor");
-    layout.forEach(pushDept);
-    Object.keys(DEPTS).forEach(function (d) {
-      if (d === "vor" || d === "nach" || d === "sonstiges") return;
+    layout.forEach(function (d) {
+      if (d === "nach") return;
       pushDept(d);
     });
-    pushDept("sonstiges");
+    Object.keys(DEPTS).forEach(function (d) {
+      if (!inLayout[d]) pushDept(d);
+    });
     pushDept("nach");
     return groups;
   }
@@ -2253,6 +2377,62 @@ body.walk .chk input {
     return out;
   }
 
+  function sanitizeSavedListItems(raw) {
+    var out = [];
+    if (!Array.isArray(raw)) return out;
+    raw.forEach(function (entry) {
+      var name;
+      var dept = "";
+      if (typeof entry === "string") {
+        name = entry;
+      } else if (entry && typeof entry === "object") {
+        name = entry.name;
+        dept = entry.dept;
+      } else {
+        return;
+      }
+      if (typeof name !== "string") return;
+      name = name.replace(/\s+/g, " ").trim();
+      if (!name) return;
+      if (!DEPTS[dept]) dept = guessDept(name);
+      out.push({ name: name, dept: dept });
+    });
+    return out;
+  }
+
+  function sanitizeSavedLists(raw) {
+    var seenIds = {};
+    var out = [];
+    if (!Array.isArray(raw)) return out;
+    raw.forEach(function (list) {
+      if (!list || typeof list !== "object") return;
+      var name = String(list.name || "").replace(/\s+/g, " ").trim();
+      if (name.length > 60) name = name.slice(0, 60);
+      if (!name) return;
+      var items = sanitizeSavedListItems(list.items);
+      if (!items.length) return;
+      var id = list.id ? String(list.id).trim() : "";
+      if (!id || seenIds[id]) id = uid("l");
+      seenIds[id] = true;
+      out.push({ id: id, name: name, items: items });
+    });
+    return out;
+  }
+
+  function snapshotItems(items) {
+    var out = [];
+    (items || []).forEach(function (it) {
+      if (!it || typeof it.name !== "string") return;
+      var name = it.name.replace(/\s+/g, " ").trim();
+      if (!name) return;
+      out.push({
+        name: name,
+        dept: DEPTS[it.dept] ? it.dept : "sonstiges"
+      });
+    });
+    return out;
+  }
+
   function sanitizeStoresList(rawStores) {
     var stores = Array.isArray(rawStores) ? rawStores : [];
     stores = stores.map(function (s) {
@@ -2368,7 +2548,8 @@ body.walk .chk input {
       }),
       walkMode: !!state.walkMode,
       layoutTrip: 1,
-      staples: sanitizeStaples(state.staples)
+      staples: sanitizeStaples(state.staples),
+      savedLists: sanitizeSavedLists(state.savedLists)
     };
   }
 
@@ -2425,12 +2606,14 @@ body.walk .chk input {
     if (typeof data.walkMode === "boolean") state.walkMode = data.walkMode;
     state.layoutTrip = 1;
     if (Array.isArray(data.staples)) state.staples = sanitizeStaples(data.staples);
+    state.savedLists = sanitizeSavedLists(data.savedLists);
     scheduleSave();
     renderStoreSelect();
     renderList();
     renderCount();
     renderStaples();
     applyWalkMode();
+    renderSavedListsMenu();
     if (sheetOpen) renderSheet();
     setStatus("Backup geladen.");
   }
@@ -2579,7 +2762,8 @@ body.walk .chk input {
 
   function renderSheet() {
     var store = currentStore();
-    els.sheetStore.textContent = store.name;
+    if (els.layoutHeading) els.layoutHeading.textContent = "Ladenweg · " + store.name;
+    renderStoreList();
     els.layoutList.textContent = "";
     store.layout.forEach(function (id, idx) {
       var li = document.createElement("li");
@@ -2649,8 +2833,61 @@ body.walk .chk input {
     }
 
     els.resetBtn.hidden = !store.builtin;
-    els.deleteBtn.hidden = !!store.builtin;
     renderStapleList();
+    renderSavedListEdit();
+    if (els.dictWrap && els.dictWrap.open) renderDictBrowse();
+  }
+
+  function selectStore(id) {
+    var has = state.stores.some(function (s) { return s.id === id; });
+    if (!has || state.currentStoreId === id) {
+      if (has && els.store) els.store.value = id;
+      return;
+    }
+    state.currentStoreId = id;
+    scheduleSave();
+    renderStoreSelect();
+    renderList();
+    if (sheetOpen) renderSheet();
+  }
+
+  function renderStoreList() {
+    if (!els.storeList) return;
+    els.storeList.textContent = "";
+    var currentId = currentStore().id;
+    state.stores.forEach(function (s) {
+      var li = document.createElement("li");
+      li.className = "layout-row store-pick";
+      var pick = document.createElement("button");
+      pick.type = "button";
+      pick.className = "store-pick-btn";
+      pick.setAttribute("aria-pressed", s.id === currentId ? "true" : "false");
+      var nm = document.createElement("span");
+      nm.textContent = s.name;
+      pick.appendChild(nm);
+      if (s.id === currentId) {
+        var mark = document.createElement("span");
+        mark.setAttribute("aria-hidden", "true");
+        mark.textContent = "✓";
+        pick.appendChild(mark);
+        pick.setAttribute("aria-current", "true");
+      }
+      pick.addEventListener("click", function () { selectStore(s.id); });
+      li.appendChild(pick);
+      if (!s.builtin) {
+        var del = document.createElement("button");
+        del.type = "button";
+        del.textContent = "Löschen";
+        del.className = "danger";
+        del.setAttribute("aria-label", "Laden " + s.name + " löschen");
+        del.addEventListener("click", function () { deleteStore(s.id); });
+        var btns = document.createElement("div");
+        btns.className = "layout-btns";
+        btns.appendChild(del);
+        li.appendChild(btns);
+      }
+      els.storeList.appendChild(li);
+    });
   }
 
   function moveDept(idx, dir) {
@@ -2912,18 +3149,218 @@ body.walk .chk input {
     setStatus("Laden angelegt.");
   }
 
-  function deleteStore() {
-    var store = currentStore();
-    if (store.builtin) return;
+  function deleteStore(id) {
+    var store = null;
+    state.stores.forEach(function (s) {
+      if (s.id === id) store = s;
+    });
+    if (!store || store.builtin) return;
     if (!window.confirm("Laden „" + store.name + "“ wirklich löschen?")) return;
     state.stores = state.stores.filter(function (s) { return s.id !== store.id; });
     if (!state.stores.length) state.stores = seedStores();
-    state.currentStoreId = state.stores[0].id;
+    var stillHas = state.stores.some(function (s) { return s.id === state.currentStoreId; });
+    if (!stillHas) {
+      var edeka = null;
+      state.stores.forEach(function (s) { if (s.id === "edeka") edeka = s; });
+      state.currentStoreId = edeka ? edeka.id : state.stores[0].id;
+    }
     scheduleSave();
     renderStoreSelect();
     renderList();
     renderSheet();
     setStatus("Laden gelöscht.");
+  }
+
+  function foldDe(s) {
+    return String(s).toLocaleLowerCase("de").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function dictGroups(query) {
+    var needle = foldDe(String(query || "").trim());
+    var remaining = {};
+    Object.keys(DICT_SRC).forEach(function (k) { remaining[k] = DICT_SRC[k]; });
+    var result = [];
+    function append(deptId) {
+      if (!Object.prototype.hasOwnProperty.call(remaining, deptId)) return;
+      var csv = remaining[deptId];
+      delete remaining[deptId];
+      var seen = {};
+      var words = [];
+      String(csv).split(",").forEach(function (raw) {
+        var word = raw.trim();
+        if (!word) return;
+        var key = word.toLocaleLowerCase("de");
+        if (seen[key]) return;
+        seen[key] = true;
+        words.push(word);
+      });
+      if (needle) {
+        words = words.filter(function (w) { return foldDe(w).indexOf(needle) !== -1; });
+      }
+      words.sort(function (a, b) { return a.localeCompare(b, "de"); });
+      if (!words.length) return;
+      result.push({ dept: deptId, title: DEPTS[deptId] || deptId, words: words });
+    }
+    Object.keys(DEPTS).forEach(append);
+    Object.keys(remaining).sort().forEach(append);
+    return result;
+  }
+
+  function renderDictBrowse() {
+    if (!els.dictBrowse) return;
+    els.dictBrowse.textContent = "";
+    var query = els.dictQuery ? els.dictQuery.value : "";
+    var groups = dictGroups(query);
+    if (!groups.length) {
+      var empty = document.createElement("p");
+      empty.className = "hint";
+      empty.textContent = "Keine Treffer.";
+      els.dictBrowse.appendChild(empty);
+      return;
+    }
+    groups.forEach(function (g) {
+      var wrap = document.createElement("div");
+      wrap.className = "dict-group";
+      var h = document.createElement("h3");
+      h.textContent = g.title;
+      var ul = document.createElement("ul");
+      g.words.forEach(function (word) {
+        var li = document.createElement("li");
+        li.textContent = word;
+        ul.appendChild(li);
+      });
+      wrap.appendChild(h);
+      wrap.appendChild(ul);
+      els.dictBrowse.appendChild(wrap);
+    });
+  }
+
+  function renderSavedListsMenu() {
+    if (!els.savedListsActions) return;
+    els.savedListsActions.textContent = "";
+    if (!state.savedLists.length) {
+      var empty = document.createElement("button");
+      empty.type = "button";
+      empty.className = "chipbtn";
+      empty.setAttribute("role", "menuitem");
+      empty.disabled = true;
+      empty.textContent = "Keine gespeicherten Listen";
+      els.savedListsActions.appendChild(empty);
+      return;
+    }
+    state.savedLists.forEach(function (list) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chipbtn";
+      b.setAttribute("role", "menuitem");
+      b.textContent = list.name;
+      b.addEventListener("click", function () { applySavedList(list); });
+      els.savedListsActions.appendChild(b);
+    });
+  }
+
+  function renderSavedListEdit() {
+    if (!els.savedListEdit) return;
+    els.savedListEdit.textContent = "";
+    if (!state.savedLists.length) {
+      var p = document.createElement("li");
+      p.className = "hint";
+      p.style.listStyle = "none";
+      p.textContent = "Noch keine gespeicherten Listen.";
+      els.savedListEdit.appendChild(p);
+      return;
+    }
+    state.savedLists.forEach(function (list) {
+      var li = document.createElement("li");
+      li.className = "layout-row saved-edit";
+      var apply = document.createElement("button");
+      apply.type = "button";
+      apply.className = "saved-apply";
+      apply.textContent = list.name;
+      apply.addEventListener("click", function () { applySavedList(list); });
+      var btns = document.createElement("div");
+      btns.className = "layout-btns";
+      var del = document.createElement("button");
+      del.type = "button";
+      del.textContent = "Löschen";
+      del.className = "danger";
+      del.setAttribute("aria-label", "Gespeicherte Liste " + list.name + " löschen");
+      del.addEventListener("click", function () { removeSavedList(list.id); });
+      btns.appendChild(del);
+      li.appendChild(apply);
+      li.appendChild(btns);
+      els.savedListEdit.appendChild(li);
+    });
+  }
+
+  function beginSaveList() {
+    var snap = snapshotItems(state.items);
+    if (!snap.length) {
+      setStatus("Die Liste ist leer.");
+      return;
+    }
+    var name = window.prompt("Liste speichern\nDie aktuellen Artikel werden unter diesem Namen gespeichert.", "");
+    if (name === null) return;
+    saveCurrentList(name);
+  }
+
+  function saveCurrentList(rawName) {
+    var name = String(rawName || "").replace(/\s+/g, " ").trim();
+    if (name.length > 60) name = name.slice(0, 60);
+    if (!name) {
+      setStatus("Bitte einen Namen eingeben.");
+      return;
+    }
+    var snap = snapshotItems(state.items);
+    if (!snap.length) {
+      setStatus("Die Liste ist leer.");
+      return;
+    }
+    state.savedLists.push({
+      id: uid("l"),
+      name: name,
+      items: snap
+    });
+    scheduleSave();
+    renderSavedListsMenu();
+    if (sheetOpen) renderSheet();
+    setStatus("Liste gespeichert.");
+  }
+
+  function applySavedList(list) {
+    if (!list || !Array.isArray(list.items) || !list.items.length) {
+      setStatus("Liste ist leer.");
+      return;
+    }
+    var added = 0;
+    var reopened = 0;
+    var already = 0;
+    list.items.forEach(function (staple) {
+      var r = applyStaple(staple);
+      added += r.added;
+      reopened += r.reopened;
+      already += r.already;
+    });
+    if (added || reopened) {
+      scheduleSave();
+      renderList();
+      renderCount();
+    }
+    setStatus(stapleSummary(added, reopened, already) || "schon auf der Liste.");
+  }
+
+  function removeSavedList(id) {
+    var list = null;
+    state.savedLists.forEach(function (l) {
+      if (l.id === id) list = l;
+    });
+    if (!list) return;
+    if (!window.confirm("Gespeicherte Liste „" + list.name + "“ wirklich löschen?")) return;
+    state.savedLists = state.savedLists.filter(function (l) { return l.id !== id; });
+    scheduleSave();
+    renderSavedListsMenu();
+    if (sheetOpen) renderSheet();
+    setStatus("Liste gelöscht.");
   }
 
   if ("serviceWorker" in navigator) {
