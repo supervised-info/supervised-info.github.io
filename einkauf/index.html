@@ -768,6 +768,23 @@ body.walk .chk input {
   border-color: var(--oxide);
   color: var(--oxide);
 }
+#btn-hide-done {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+#btn-hide-done svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+#btn-hide-done[aria-pressed="true"] {
+  border-color: var(--oxide);
+  color: var(--oxide);
+}
 </style>
 <script>
 (function(){try{var t=localStorage.getItem("supervised-info.theme");var p=localStorage.getItem("supervised-info.palette");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);if(p==="vintage"||p==="navy")document.documentElement.setAttribute("data-palette",p);}catch(e){}})();
@@ -850,6 +867,7 @@ body.walk .chk input {
     </label>
     <div class="toolbar-end">
       <p class="count" id="count" aria-live="polite"></p>
+      <button type="button" class="iconbtn" id="btn-hide-done" aria-pressed="false" aria-label="Erledigte ausblenden" title="Erledigte ausblenden"></button>
       <button type="button" class="iconbtn" id="btn-walk" aria-pressed="false">Geh-Modus</button>
       <div class="more" id="staple-more">
         <button type="button" class="iconbtn" id="btn-staple-menu" aria-haspopup="true" aria-expanded="false" aria-controls="staple-menu">Stamm</button>
@@ -967,6 +985,7 @@ body.walk .chk input {
     backupLoadBtn: document.getElementById("btn-backup-load"),
     backupFile: document.getElementById("backup-file"),
     walkBtn: document.getElementById("btn-walk"),
+    hideDoneBtn: document.getElementById("btn-hide-done"),
     clearBtn: document.getElementById("btn-clear"),
     scrim: document.getElementById("scrim"),
     sheet: document.getElementById("sheet"),
@@ -1007,6 +1026,7 @@ body.walk .chk input {
   applyTheme();
   applyPalette();
   applyWalkMode();
+  applyHideDone();
   if (!navigator.share) els.shareBtn.hidden = true;
   renderStoreSelect();
   renderCount();
@@ -1071,6 +1091,12 @@ body.walk .chk input {
   els.walkBtn.addEventListener("click", function () {
     state.walkMode = !state.walkMode;
     applyWalkMode();
+    scheduleSave();
+    renderList();
+  });
+  if (els.hideDoneBtn) els.hideDoneBtn.addEventListener("click", function () {
+    state.hideDone = !state.hideDone;
+    applyHideDone();
     scheduleSave();
     renderList();
   });
@@ -1176,6 +1202,9 @@ body.walk .chk input {
     var search = stripQty(folded) || folded.trim();
     if (!search) return "sonstiges";
 
+    var mk = mappingKey(name);
+    if (state && state.mappings && state.mappings[mk] && DEPTS[state.mappings[mk]]) return state.mappings[mk];
+
     if (
       search.indexOf("tiefkuhl") !== -1 ||
       /(^|[\s-])tk([\s-]|$)/.test(folded) ||
@@ -1207,8 +1236,6 @@ body.walk .chk input {
       }
     }
     if (best) return best;
-    var mk = mappingKey(name);
-    if (state && state.mappings && state.mappings[mk] && DEPTS[state.mappings[mk]]) return state.mappings[mk];
     return "sonstiges";
   }
 
@@ -1301,6 +1328,7 @@ body.walk .chk input {
       stores: seedStores(),
       layoutTrip: 1,
       walkMode: false,
+      hideDone: false,
       staples: [],
       savedLists: []
     };
@@ -1355,6 +1383,7 @@ body.walk .chk input {
         stores: stores,
         layoutTrip: 1,
         walkMode: d.walkMode === true,
+        hideDone: d.hideDone === true,
         staples: sanitizeStaples(d.staples),
         savedLists: sanitizeSavedLists(d.savedLists)
       };
@@ -1379,6 +1408,7 @@ body.walk .chk input {
         stores: state.stores,
         layoutTrip: 1,
         walkMode: !!state.walkMode,
+        hideDone: !!state.hideDone,
         staples: state.staples,
         savedLists: state.savedLists
       }));
@@ -1442,6 +1472,18 @@ body.walk .chk input {
       els.walkBtn.textContent = state.walkMode ? "Bearbeiten" : "Geh-Modus";
       els.walkBtn.setAttribute("aria-pressed", state.walkMode ? "true" : "false");
     }
+  }
+
+  function applyHideDone() {
+    var on = !!state.hideDone;
+    if (!els.hideDoneBtn) return;
+    els.hideDoneBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    var label = on ? "Erledigte einblenden" : "Erledigte ausblenden";
+    els.hideDoneBtn.setAttribute("aria-label", label);
+    els.hideDoneBtn.title = label;
+    els.hideDoneBtn.innerHTML = on
+      ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 10.6a3 3 0 004.2 4.2"/><path d="M6.7 6.7C4.4 8.3 2.2 12 2.2 12S6 18.5 12 18.5c1.5 0 2.9-.3 4.1-.9"/><path d="M9.5 5.4A10 10 0 0112 5.5c6 0 9.8 6.5 9.8 6.5a17 17 0 01-3.5 4.4"/></svg>'
+      : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.2 12S6 5.5 12 5.5 21.8 12 21.8 12 18 18.5 12 18.5 2.2 12 2.2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>';
   }
 
   function currentStore() {
@@ -1614,7 +1656,14 @@ body.walk .chk input {
       return;
     }
     var groups = groupItems();
+    var any = false;
     groups.forEach(function (g) {
+      var items = g.items;
+      if (state.hideDone) {
+        items = items.filter(function (it) { return !it.done; });
+      }
+      if (!items.length) return;
+      any = true;
       var sec = document.createElement("section");
       sec.className = "dept";
       sec.setAttribute("data-dept", g.id);
@@ -1623,12 +1672,18 @@ body.walk .chk input {
       sec.appendChild(h);
       var ul = document.createElement("ul");
       ul.className = "items";
-      g.items.forEach(function (it) {
+      items.forEach(function (it) {
         ul.appendChild(renderRow(it));
       });
       sec.appendChild(ul);
       els.list.appendChild(sec);
     });
+    if (!any) {
+      var hidden = document.createElement("p");
+      hidden.className = "empty";
+      hidden.textContent = "Erledigte ausgeblendet.";
+      els.list.appendChild(hidden);
+    }
   }
 
   function renderRow(it) {
