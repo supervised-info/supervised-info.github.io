@@ -1474,18 +1474,16 @@ body.walk .chk input {
     }
   }
 
-  var EYE_OPEN = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.2 12S6 5.5 12 5.5 21.8 12 21.8 12 18 18.5 12 18.5 2.2 12 2.2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>';
-  var EYE_SLASH = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 10.6a3 3 0 004.2 4.2"/><path d="M6.7 6.7C4.4 8.3 2.2 12 2.2 12S6 18.5 12 18.5c1.5 0 2.9-.3 4.1-.9"/><path d="M9.5 5.4A10 10 0 0112 5.5c6 0 9.8 6.5 9.8 6.5a17 17 0 01-3.5 4.4"/></svg>';
-
   function applyHideDone() {
     var on = !!state.hideDone;
-    if (els.hideDoneBtn) {
-      els.hideDoneBtn.setAttribute("aria-pressed", on ? "true" : "false");
-      var label = on ? "Erledigte einblenden" : "Erledigte ausblenden";
-      els.hideDoneBtn.setAttribute("aria-label", label);
-      els.hideDoneBtn.title = label;
-      els.hideDoneBtn.innerHTML = on ? EYE_SLASH : EYE_OPEN;
-    }
+    if (!els.hideDoneBtn) return;
+    els.hideDoneBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    var label = on ? "Erledigte einblenden" : "Erledigte ausblenden";
+    els.hideDoneBtn.setAttribute("aria-label", label);
+    els.hideDoneBtn.title = label;
+    els.hideDoneBtn.innerHTML = on
+      ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 10.6a3 3 0 004.2 4.2"/><path d="M6.7 6.7C4.4 8.3 2.2 12 2.2 12S6 18.5 12 18.5c1.5 0 2.9-.3 4.1-.9"/><path d="M9.5 5.4A10 10 0 0112 5.5c6 0 9.8 6.5 9.8 6.5a17 17 0 01-3.5 4.4"/></svg>'
+      : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.2 12S6 5.5 12 5.5 21.8 12 21.8 12 18 18.5 12 18.5 2.2 12 2.2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>';
   }
 
   function currentStore() {
