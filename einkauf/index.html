@@ -649,7 +649,7 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   gap: 0.4rem;
   align-items: stretch;
 }
-#new-store-name, #new-staple, #dict-query {
+#new-store-name, #new-staple, #dict-query, #new-mapping {
   flex: 1;
   min-width: 0;
   min-height: 44px;
@@ -659,6 +659,25 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   padding: 0.3rem 0.8rem;
 }
 #dict-query { width: 100%; margin: 0.35rem 0 0.6rem; }
+.dict-subhead {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0.2rem 0 0.3rem;
+  font-weight: 650;
+}
+.mapping-add {
+  flex-wrap: wrap;
+  margin: 0 0 0.85rem;
+}
+.mapping-add .dept-sel {
+  min-height: 44px;
+  min-width: 8rem;
+  max-width: none;
+  flex: 0 1 11rem;
+}
+#new-mapping { flex: 1 1 8rem; }
 .dict-wrap {
   margin: 0.35rem 0 0.4rem;
   border: 1px solid var(--rule);
@@ -703,10 +722,12 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   padding: 0.12rem 0;
   break-inside: avoid;
 }
-.layout-row.staple-edit {
+.layout-row.staple-edit,
+.layout-row.mapping-edit {
   grid-template-columns: 1fr minmax(7rem, auto) auto;
 }
-.layout-row.staple-edit .dept-sel {
+.layout-row.staple-edit .dept-sel,
+.layout-row.mapping-edit .dept-sel {
   min-width: 7rem;
 }
 .sheet-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
@@ -736,10 +757,12 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
     margin: 0 0 0.4rem;
   }
   .del { grid-column: 4; grid-row: 1 / 3; }
-  .layout-row.staple-edit {
+  .layout-row.staple-edit,
+  .layout-row.mapping-edit {
     grid-template-columns: minmax(0, 1fr) auto;
   }
-  .layout-row.staple-edit .dept-sel {
+  .layout-row.staple-edit .dept-sel,
+  .layout-row.mapping-edit .dept-sel {
     grid-column: 1 / -1;
     max-width: none;
   }
@@ -837,13 +860,20 @@ body.walk .chk input {
     <ul class="layout-list" id="saved-list-edit"></ul>
 
     <p class="sheet-label">Wörterbuch</p>
+    <label class="sr-only" for="dict-query">Wort suchen</label>
+    <input id="dict-query" type="search" placeholder="Wort suchen" autocomplete="off">
+    <p class="dict-subhead">Meine Zuordnungen</p>
+    <ul class="layout-list" id="mapping-list"></ul>
+    <div class="new-store mapping-add">
+      <input id="new-mapping" type="text" placeholder="Name" maxlength="60" autocomplete="off">
+      <select id="new-mapping-dept" class="dept-sel" aria-label="Abteilung für neue Zuordnung"></select>
+      <button type="button" class="chipbtn primary" id="btn-add-mapping">Anlegen</button>
+    </div>
     <details class="dict-wrap" id="dict-wrap">
       <summary>Wörter anzeigen</summary>
-      <label class="sr-only" for="dict-query">Wort suchen</label>
-      <input id="dict-query" type="search" placeholder="Wort suchen" autocomplete="off">
       <div id="dict-browse"></div>
-      <p class="hint">Zuordnung beim Tippen läuft nur lokal. Sonderregeln (TK, Eistee, Schorle, Chips, Eis) stehen nicht in dieser Liste.</p>
     </details>
+    <p class="hint">Die feste Liste bleibt unverändert. Eigene Zuordnungen liegen im Backup unter mappings und gewinnen beim Tippen. Sonderregeln (TK, Eistee, Schorle, Chips, Eis) stehen nicht in dieser Liste.</p>
   </div>
 </aside>
 <div class="wrap">
@@ -1012,6 +1042,10 @@ body.walk .chk input {
     dictWrap: document.getElementById("dict-wrap"),
     dictQuery: document.getElementById("dict-query"),
     dictBrowse: document.getElementById("dict-browse"),
+    mappingList: document.getElementById("mapping-list"),
+    newMapping: document.getElementById("new-mapping"),
+    newMappingDept: document.getElementById("new-mapping-dept"),
+    addMappingBtn: document.getElementById("btn-add-mapping"),
     themeMeta: document.querySelector('meta[name="theme-color"]')
   };
 
@@ -1137,9 +1171,20 @@ body.walk .chk input {
     }
   });
   els.saveListBtn.addEventListener("click", beginSaveList);
+  if (els.newMappingDept) fillDeptSelect(els.newMappingDept, "sonstiges");
+  if (els.addMappingBtn) els.addMappingBtn.addEventListener("click", addMapping);
+  if (els.newMapping) {
+    els.newMapping.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addMapping();
+      }
+    });
+  }
   if (els.dictQuery) {
     els.dictQuery.addEventListener("input", function () {
-      renderDictBrowse();
+      renderMappingList();
+      if (els.dictWrap && els.dictWrap.open) renderDictBrowse();
     });
   }
   if (els.dictWrap) {
@@ -2899,6 +2944,7 @@ body.walk .chk input {
     els.resetBtn.hidden = !store.builtin;
     renderStapleList();
     renderSavedListEdit();
+    renderMappingList();
     if (els.dictWrap && els.dictWrap.open) renderDictBrowse();
   }
 
@@ -3122,6 +3168,7 @@ body.walk .chk input {
         state.mappings[mappingKey(staple.name)] = dept;
         scheduleSave();
         renderStaples();
+        if (sheetOpen) renderMappingList();
       });
       var btns = document.createElement("div");
       btns.className = "layout-btns";
@@ -3233,6 +3280,116 @@ body.walk .chk input {
     renderList();
     renderSheet();
     setStatus("Laden gelöscht.");
+  }
+
+  function fillDeptSelect(sel, selectedId) {
+    if (!sel) return;
+    sel.textContent = "";
+    Object.keys(DEPTS).forEach(function (d) {
+      var opt = document.createElement("option");
+      opt.value = d;
+      opt.textContent = DEPTS[d];
+      if (d === selectedId) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function mappingKeys(query) {
+    var needle = foldDe(String(query || "").trim());
+    var keys = Object.keys(state.mappings).filter(function (k) {
+      return k && DEPTS[state.mappings[k]];
+    });
+    keys.sort(function (a, b) { return a.localeCompare(b, "de"); });
+    if (needle) {
+      keys = keys.filter(function (k) { return foldDe(k).indexOf(needle) !== -1; });
+    }
+    return keys;
+  }
+
+  function renderMappingList() {
+    if (!els.mappingList) return;
+    els.mappingList.textContent = "";
+    var allKeys = Object.keys(state.mappings).filter(function (k) {
+      return k && DEPTS[state.mappings[k]];
+    });
+    var query = els.dictQuery ? els.dictQuery.value : "";
+    var keys = mappingKeys(query);
+    if (!allKeys.length) {
+      var empty = document.createElement("li");
+      empty.className = "hint";
+      empty.style.listStyle = "none";
+      empty.textContent = "Noch keine — Abteilung in der Liste ändern, dann erscheint der Name hier.";
+      els.mappingList.appendChild(empty);
+      return;
+    }
+    if (!keys.length) {
+      var none = document.createElement("li");
+      none.className = "hint";
+      none.style.listStyle = "none";
+      none.textContent = "Keine Treffer.";
+      els.mappingList.appendChild(none);
+      return;
+    }
+    keys.forEach(function (key) {
+      var dept = state.mappings[key];
+      var li = document.createElement("li");
+      li.className = "layout-row mapping-edit";
+      var nm = document.createElement("span");
+      nm.className = "layout-name";
+      nm.textContent = key;
+      var sel = document.createElement("select");
+      sel.className = "dept-sel";
+      sel.setAttribute("aria-label", "Abteilung für " + key);
+      fillDeptSelect(sel, dept);
+      sel.addEventListener("change", function () {
+        var next = sel.value;
+        if (!DEPTS[next]) return;
+        state.mappings[key] = next;
+        scheduleSave();
+      });
+      var btns = document.createElement("div");
+      btns.className = "layout-btns";
+      var rm = document.createElement("button");
+      rm.type = "button";
+      rm.textContent = "Löschen";
+      rm.className = "danger";
+      rm.setAttribute("aria-label", "Zuordnung " + key + " löschen");
+      rm.addEventListener("click", function () { removeMapping(key); });
+      btns.appendChild(rm);
+      li.appendChild(nm);
+      li.appendChild(sel);
+      li.appendChild(btns);
+      els.mappingList.appendChild(li);
+    });
+  }
+
+  function removeMapping(key) {
+    delete state.mappings[key];
+    scheduleSave();
+    renderMappingList();
+  }
+
+  function addMapping() {
+    if (!els.newMapping) return;
+    var name = String(els.newMapping.value || "").replace(/\s+/g, " ").trim();
+    if (!name) {
+      setStatus("Bitte einen Namen eingeben.");
+      els.newMapping.focus();
+      return;
+    }
+    var key = mappingKey(name);
+    if (!key) {
+      setStatus("Bitte einen Namen eingeben.");
+      els.newMapping.focus();
+      return;
+    }
+    var dept = els.newMappingDept ? els.newMappingDept.value : "sonstiges";
+    if (!DEPTS[dept]) dept = "sonstiges";
+    state.mappings[key] = dept;
+    els.newMapping.value = "";
+    scheduleSave();
+    renderMappingList();
+    setStatus("Zuordnung gespeichert.");
   }
 
   function foldDe(s) {

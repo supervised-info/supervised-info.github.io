@@ -1,5 +1,5 @@
 /* Einkaufsliste: network-first, cache fallback for offline store use. */
-var CACHE = "einkauf-offline-v20";
+var CACHE = "einkauf-offline-v21";
 var PRECACHE = ["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png"];
 
 self.addEventListener("install", function (e) {
