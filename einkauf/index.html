@@ -1176,6 +1176,9 @@ body.walk .chk input {
     var search = stripQty(folded) || folded.trim();
     if (!search) return "sonstiges";
 
+    var mk = mappingKey(name);
+    if (state && state.mappings && state.mappings[mk] && DEPTS[state.mappings[mk]]) return state.mappings[mk];
+
     if (
       search.indexOf("tiefkuhl") !== -1 ||
       /(^|[\s-])tk([\s-]|$)/.test(folded) ||
@@ -1207,8 +1210,6 @@ body.walk .chk input {
       }
     }
     if (best) return best;
-    var mk = mappingKey(name);
-    if (state && state.mappings && state.mappings[mk] && DEPTS[state.mappings[mk]]) return state.mappings[mk];
     return "sonstiges";
   }
 

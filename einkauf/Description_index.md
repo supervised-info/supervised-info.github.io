@@ -1,6 +1,6 @@
 # Regenerationsspec: `einkauf/index.html`
 
-Stand der Live-PWA: **2026-09-02/03**. Diese Spec beschreibt die Seite so, dass sie daraus neu erzeugt werden kann.
+Stand der Live-PWA: **2026-09-03**. Diese Spec beschreibt die Seite so, dass sie daraus neu erzeugt werden kann.
 
 ## Zweck
 
@@ -11,7 +11,7 @@ Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Sta
 PWA (einzige im Repo):
 
 - `einkauf/index.html` (eine HTML-Datei, CSS+JS inline)
-- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v18`
+- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v19`
 - `einkauf/manifest.webmanifest`
 - Icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`
 
@@ -19,7 +19,7 @@ PWA (einzige im Repo):
 
 SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie network-first, Cache-Fallback; navigate fällt auf `./` bzw. `index.html`. Install `skipWaiting`, activate löscht fremde Caches, `clients.claim`. Seite: `navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })` + `reg.update()`; bei `controllerchange` einmal `location.reload()`.
 
-**Bei jedem Deploy Cache-Namen hochzählen** (`v18` → `v19` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
+**Bei jedem Deploy Cache-Namen hochzählen** (`v19` → `v20` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
 
 ## Chrome
 
@@ -101,7 +101,7 @@ Default `currentStoreId`: `edeka`. Builtin-Seeds fehlen nie (merge). Layout-Migr
 { id, name, dept, done:boolean, added:number, ord:number }
 ```
 
-`id` = `i` + time36 + random. `guessDept(name)` Keyword-Wörterbuch `DICT_SRC` + Sonderregeln (TK, Eistee, Schorle, Chips, Eis). `mappings[mappingKey(name)]` überschreibt Abteilung (Select **und** Cross-Dept-Drop schreiben denselben Key). Sort in Dept: `ord`, dann `added`, dann `localeCompare` de.
+`id` = `i` + time36 + random. `guessDept(name)` in dieser Reihenfolge (wie Native): **zuerst** `mappings[mappingKey(name)]`, falls bekannte `DEPTS`-ID; dann Sonderregeln (TK, Eistee, Schorle, Chips, Eis); dann längstes Keyword aus `DICT_SRC`; sonst `sonstiges`. Select **und** Cross-Dept-Drop schreiben denselben Mapping-Key — Nutzerkorrekturen gewinnen vor Wörterbuch und Sonderregeln. Sort in Dept: `ord`, dann `added`, dann `localeCompare` de.
 
 UI je Item: Checkbox, Name (Klick rename; Enter speichern, Escape abbrechen), Dept-Select, Drag-Handle, Löschen `×`. Empty: „Noch nichts auf der Liste.“
 
@@ -172,11 +172,11 @@ https://github.com/supervised-info/einkauf-watch — iPhone + Apple Watch. Brüc
 Dieses Delta **bleibt bewusst** und darf von Regeneratoren **nicht geschlossen** werden:
 
 - **Nur HTML / in dieser Spec behalten:** Markdown kopieren / Datei exportieren / teilen; Import `.md`/`.txt`; **nach Bring exportieren**; **nach Erinnerungen exportieren**; extra Läden-JSON `kind: "einkauf-laeden"`.
-- **Nur native / nicht ins HTML:** Watch; **PDF Liste teilen**; Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
+- **Nur native / nicht ins HTML:** Watch; **Erledigte auf der Watch ausblenden** (hide-done); **PDF Liste teilen**; Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
 - Watch ist nur Geh-Modus (Checkbox + Name). Ladenwahl nur auf dem iPhone.
 - Bring bleibt im HTML-Menü (dokumentieren), die Richtung ist Watch-im-Laden, nicht Bring.
 
-Gemeinsame Slice (HTML und Native, Stand 2026-09-02/03): `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC`.
+Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC`; `guessDept` zuerst Mapping, dann Sonderregeln, dann längstes Keyword.
 
 ## CSS
 
@@ -191,8 +191,8 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-02/03): `savedLists` füllen st
 
 ## Akzeptanzkriterien
 
-- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v18).
-- [ ] Add rät Abteilung; Checkbox; Pointer-Drag **abteilungsübergreifend** (Zeile oder `h2`); Mapping wie Dept-Select; Geh-Modus persistiert.
+- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v19).
+- [ ] Add rät Abteilung (`mappings` vor Sonderregeln vor Keyword); Checkbox; Pointer-Drag **abteilungsübergreifend** (Zeile oder `h2`); Mapping wie Dept-Select; Geh-Modus persistiert.
 - [ ] Stamm `{name,dept}[]`; `sanitizeStaples` akzeptiert alte Strings; Settings anlegen/Dept/Reorder/löschen; Menü Gesamtliste + Chips (`tapStaple`).
 - [ ] Gespeicherte Listen: speichern mit Namen; Apply füllt; leere Liste nicht speichern; Duplikat-Namen erlaubt; Löschen in Einstellungen; Persistenz `einkauf_v1` + Backup `savedLists`; alte Backups `[]`.
 - [ ] Sonstiges-Position folgt dem Laden-Layout; Extra-Gänge bleiben Extra-Gänge; `item.dept` nicht nach sonstiges umbuchen.
@@ -200,4 +200,4 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-02/03): `savedLists` füllen st
 - [ ] MD/Backup/Läden roundtrip; Backup-Shape wie native App inkl. `savedLists`; Bring-Link oder Fallback-Kopie.
 - [ ] Palette/Theme site-weit am Mast; Theme-Button-ID `theme-btn`; Palette nicht in `einkauf_v1`; kein Darstellung-Block im Sheet.
 - [ ] Kicker 02, navy Favicon, Skip zur Eingabe.
-- [ ] Native-Delta bleibt (kein Watch, kein PDF-Teilen, kein System-Theme in der Toolbar, kein Live-Sync — nur Backup-Datei).
+- [ ] Native-Delta bleibt (kein Watch, kein hide-done, kein PDF-Teilen, kein System-Theme in der Toolbar, kein Live-Sync — nur Backup-Datei).
