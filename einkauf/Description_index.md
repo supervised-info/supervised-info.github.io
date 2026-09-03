@@ -11,7 +11,7 @@ Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Sta
 PWA (einzige im Repo):
 
 - `einkauf/index.html` (eine HTML-Datei, CSS+JS inline)
-- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v20`
+- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v21`
 - `einkauf/manifest.webmanifest`
 - Icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`
 
@@ -19,7 +19,7 @@ PWA (einzige im Repo):
 
 SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie network-first, Cache-Fallback; navigate fällt auf `./` bzw. `index.html`. Install `skipWaiting`, activate löscht fremde Caches, `clients.claim`. Seite: `navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })` + `reg.update()`; bei `controllerchange` einmal `location.reload()`.
 
-**Bei jedem Deploy Cache-Namen hochzählen** (`v20` → `v21` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
+**Bei jedem Deploy Cache-Namen hochzählen** (`v21` → `v22` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
 
 ## Chrome
 
@@ -49,7 +49,7 @@ Kein Darstellung-Block (Hell/Dunkel/System/Creme/Blau). Theme bleibt am Mast.
 4. **Ladenweg** `#layout-heading` Text `Ladenweg · {Name}`: `#layout-list` sortierbare Abteilungen (Grip nur **innerhalb** der Layout-Liste; plus Nach oben / Nach unten / Entfernen). Hinweis: Vor dem Einkauf immer vorn, Nach dem Einkauf immer hinten, **Sonstiges folgt der Position im Ladenweg**. Unused-Chips „Abteilung hinzufügen“; „Layout zurücksetzen“ (nur builtin, Seed-Layout).
 5. **Stamm-Artikel** `#staple-list`: anlegen (`#new-staple` max 60, Enter), Abteilung editieren (Select → `staples[i].dept` + `mappings[mappingKey(name)]`), Reihenfolge (Nach oben / Nach unten), löschen.
 6. **Gespeicherte Listen** `#saved-list-edit`: Tippen auf den Namen **füllt** die aktuelle Liste auf (nicht ersetzen). Pro Zeile **Löschen** (Bestätigung „Gespeicherte Liste „X“ wirklich löschen?“). Leer: „Noch keine gespeicherten Listen.“ Hinweis: Anlass-Listen wie Grillen oder Drogerie.
-7. **Wörterbuch**: nur lesen, lokal aus `DICT_SRC` (kein Netz). `<details>` „Wörter anzeigen“, Suche `#dict-query` „Wort suchen“. Gruppen nach deutschen Abteilungs-Titeln (`DEPTS`), Wörter je Gruppe alphabetisch `localeCompare` de, Duplikate und Leereinträge weg. Footer: „Zuordnung beim Tippen läuft nur lokal. Sonderregeln (TK, Eistee, Schorle, Chips, Eis) stehen nicht in dieser Liste.“
+7. **Wörterbuch**: Suche `#dict-query` „Wort suchen“ (über der Liste, nicht nur im `<details>`). **Meine Zuordnungen** darüber, editierbar aus `state.mappings` (kein neues Backup-Feld): je Key Text + Dept-`<select>` (`DEPTS`) + Löschen. Select schreibt `state.mappings[key]` und speichert; Löschen entfernt den Key. Leer: „Noch keine — Abteilung in der Liste ändern, dann erscheint der Name hier.“ Optional Zeile Name + Dept + Anlegen (Key via `mappingKey`). Darunter `<details>` „Wörter anzeigen“: feste Wörter aus `DICT_SRC` nur lesen, lokal (kein Netz). Gruppen nach deutschen Abteilungs-Titeln (`DEPTS`), Wörter je Gruppe alphabetisch `localeCompare` de, Duplikate und Leereinträge weg. `#dict-query` filtert Zuordnungen **und** die feste Liste. Footer: „Die feste Liste bleibt unverändert. Eigene Zuordnungen liegen im Backup unter mappings und gewinnen beim Tippen. Sonderregeln (TK, Eistee, Schorle, Chips, Eis) stehen nicht in dieser Liste.“
 
 ### Stamm-Menü
 
@@ -179,7 +179,7 @@ Dieses Delta **bleibt bewusst** und darf von Regeneratoren **nicht geschlossen**
 - Watch ist nur Geh-Modus (Checkbox + Name). Ladenwahl nur auf dem iPhone. Watch-Auge und iPhone-Auge sind **jeweils geräte-lokal** (`einkauf.watch.hideCompleted` / `einkauf.iphone.hideCompleted`); HTML-Auge ist `einkauf_v1.hideDone`. Keines der Flags liegt im Backup.
 - Bring bleibt im HTML-Menü (dokumentieren), die Richtung ist Watch-im-Laden, nicht Bring.
 
-Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC`; `guessDept` zuerst Mapping, dann Sonderregeln, dann längstes Keyword; Auge blendet Erledigte aus (Flag geräte-lokal, nicht im Backup). HTML filtert Geh-Modus **und** Bearbeiten; iPhone-Bearbeiten bleibt ungefiltert.
+Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC` plus **Meine Zuordnungen** aus dem bestehenden `mappings`-Objekt (`einkauf_v1` / Backup, kein neues Feld); `guessDept` zuerst Mapping, dann Sonderregeln, dann längstes Keyword; Auge blendet Erledigte aus (Flag geräte-lokal, nicht im Backup). HTML filtert Geh-Modus **und** Bearbeiten; iPhone-Bearbeiten bleibt ungefiltert. Native-Wörterbuch-UI für Zuordnungen liegt in einem Sibling-PR, nicht in diesem HTML-PR.
 
 ## CSS
 
@@ -194,13 +194,13 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt
 
 ## Akzeptanzkriterien
 
-- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v20).
+- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v21).
 - [ ] Add rät Abteilung (`mappings` vor Sonderregeln vor Keyword); Checkbox; Pointer-Drag **abteilungsübergreifend** (Zeile oder `h2`); Mapping wie Dept-Select; Geh-Modus persistiert.
 - [ ] Auge `#btn-hide-done` blendet `done` aus (nicht löschen) in Geh-Modus und Bearbeiten; leere Depts weg; alles erledigt → „Erledigte ausgeblendet.“; `hideDone` nur `einkauf_v1`, nicht Backup; Zähler bleibt voll.
 - [ ] Stamm `{name,dept}[]`; `sanitizeStaples` akzeptiert alte Strings; Settings anlegen/Dept/Reorder/löschen; Menü Gesamtliste + Chips (`tapStaple`).
 - [ ] Gespeicherte Listen: speichern mit Namen; Apply füllt; leere Liste nicht speichern; Duplikat-Namen erlaubt; Löschen in Einstellungen; Persistenz `einkauf_v1` + Backup `savedLists`; alte Backups `[]`.
 - [ ] Sonstiges-Position folgt dem Laden-Layout; Extra-Gänge bleiben Extra-Gänge; `item.dept` nicht nach sonstiges umbuchen.
-- [ ] Einstellungen-Reihenfolge wie oben; Wörterbuch lokal aus `DICT_SRC`, gruppiert nach DEPT-Titeln, sortiert de.
+- [ ] Einstellungen-Reihenfolge wie oben; Wörterbuch: Meine Zuordnungen aus `state.mappings` (Select/Löschen/optional Anlegen); feste `DICT_SRC`-Liste nur lesen, gruppiert nach DEPT-Titeln, sortiert de; `#dict-query` filtert beides; Backup unverändert `mappings`.
 - [ ] MD/Backup/Läden roundtrip; Backup-Shape wie native App inkl. `savedLists`; Bring-Link oder Fallback-Kopie.
 - [ ] Palette/Theme site-weit am Mast; Theme-Button-ID `theme-btn`; Palette nicht in `einkauf_v1`; kein Darstellung-Block im Sheet.
 - [ ] Kicker 02, navy Favicon, Skip zur Eingabe.
