@@ -11,7 +11,7 @@ Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Sta
 PWA (einzige im Repo):
 
 - `einkauf/index.html` (eine HTML-Datei, CSS+JS inline)
-- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v19`
+- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v20`
 - `einkauf/manifest.webmanifest`
 - Icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`
 
@@ -19,7 +19,7 @@ PWA (einzige im Repo):
 
 SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie network-first, Cache-Fallback; navigate fällt auf `./` bzw. `index.html`. Install `skipWaiting`, activate löscht fremde Caches, `clients.claim`. Seite: `navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })` + `reg.update()`; bei `controllerchange` einmal `location.reload()`.
 
-**Bei jedem Deploy Cache-Namen hochzählen** (`v19` → `v20` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
+**Bei jedem Deploy Cache-Namen hochzählen** (`v20` → `v21` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
 
 ## Chrome
 
@@ -36,7 +36,7 @@ SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie net
 - Sheet `#sheet` Dialog „Einstellungen“ + Scrim (vor Wrap im DOM).
 - Wrap: Mast, `h1` Einkaufsliste, `.lede` „im Ladenweg“.
 - Form `#add-form`: `#add` Placeholder „Milch, Äpfel, Klopapier…“, Submit `+`.
-- Toolbar: `#store` Select „Laden“, `#count` live („N offen, M erledigt“), `#btn-walk` Geh-Modus, Stamm-Menü, Burger `#btn-more`.
+- Toolbar: `#store` Select „Laden“, `#count` live („N offen, M erledigt“), `#btn-hide-done` Auge, `#btn-walk` Geh-Modus, Stamm-Menü, Burger `#btn-more`.
 - `#status` role=status; `#list` Abteilungen.
 
 ### Einstellungen-Sheet — Reihenfolge
@@ -109,6 +109,8 @@ UI je Item: Checkbox, Name (Klick rename; Enter speichern, Escape abbrechen), De
 
 Geh-Modus: `body.walk` — Button-Label „Bearbeiten“, `aria-pressed` true; kein Grip/Select/Delete, Name nicht editierbar (CSS + Render). Persistiert.
 
+**Erledigte ausblenden (`#btn-hide-done`):** neben Geh-Modus. SVG Auge (`eye`) wenn erledigte sichtbar, durchgestrichenes Auge (`eye.slash`) wenn ausgeblendet. `aria-label` / `title`: „Erledigte ausblenden“ / „Erledigte einblenden“, `aria-pressed` true wenn versteckt. Tippen setzt `hideDone` und filtert **beide** Listen-Render (Geh-Modus und Bearbeiten): `done`-Artikel bleiben in `items` und im Backup, verschwinden nur aus der Anzeige. Leere Abteilungs-Header rendern nicht. Liste mit Artikeln, aber keiner sichtbar: `.empty` „Erledigte ausgeblendet.“ (Toggle bleibt). Leere Liste ohne Artikel bleibt „Noch nichts auf der Liste.“ Zähler `#count` weiter volle Offen/Erledigt-Zahlen. Flag nur in `einkauf_v1.hideDone`, **nicht** in `einkauf-backup` (sonst kämpft iPhone-Backup gegen Android).
+
 **Stamm:** `staples` ist **`{ name, dept }[]`**, kein `string[]`. `sanitizeStaples` akzeptiert alte String-Backups und neue Objekte (Name trimmen, Duplikate via `mappingKey`, ungültiges `dept` → `guessDept`). Menü: Gesamtliste + Chips; Settings: anlegen / Dept / Reorder / löschen.
 
 **Gespeicherte Listen:** `savedLists` ist **`{ id, name, items: [{name,dept}] }[]`**. Snapshot ohne `done`. `sanitizeSavedLists`: fehlendes Feld / keine Liste → `[]`; leere Namen und Listen ohne Items verwerfen; doppelte IDs neu vergeben; Item-Duplikate **innerhalb** einer Liste erlaubt (anders als Stamm). Apply = `applyStaple` je Eintrag.
@@ -124,12 +126,13 @@ Geh-Modus: `body.walk` — Button-Label „Bearbeiten“, `aria-pressed` true; k
   stores: [{ id, name, layout[], builtin }],
   layoutTrip: 1,
   walkMode,
+  hideDone,              // nur einkauf_v1, nicht Backup
   staples: [{ name, dept }],
   savedLists: [{ id, name, items: [{ name, dept }] }]
 }
 ```
 
-Save schreibt **kein** `palette` ins einkauf_v1-Objekt (nur theme + Rest). Palette nur Shared Key. Alte Speicherstände ohne `savedLists`: `[]`.
+Save schreibt **kein** `palette` ins einkauf_v1-Objekt (nur theme + Rest). Palette nur Shared Key. Alte Speicherstände ohne `savedLists`: `[]`. Alte Stände ohne `hideDone`: `false`.
 
 ## Export / Import Formate
 
@@ -161,7 +164,7 @@ Save schreibt **kein** `palette` ins einkauf_v1-Objekt (nur theme + Rest). Palet
 }
 ```
 
-Share oder Download `einkauf-backup.json`. Import Confirm ersetzt Liste und Läden. Alte Backups ohne `savedLists`: leeres Array. Stamm und eingebaute Läden bleiben unangetastet (Seeds mergen).
+Share oder Download `einkauf-backup.json`. Import Confirm ersetzt Liste und Läden. Alte Backups ohne `savedLists`: leeres Array. Stamm und eingebaute Läden bleiben unangetastet (Seeds mergen). **`hideDone` gehört nicht ins Backup** — Export lässt es weg, Import ändert das lokale Flag nicht.
 
 Escape schließt Menüs/Sheet. Enter in neuen Laden/Stamm legt an.
 
@@ -172,11 +175,11 @@ https://github.com/supervised-info/einkauf-watch — iPhone + Apple Watch. Brüc
 Dieses Delta **bleibt bewusst** und darf von Regeneratoren **nicht geschlossen** werden:
 
 - **Nur HTML / in dieser Spec behalten:** Markdown kopieren / Datei exportieren / teilen; Import `.md`/`.txt`; **nach Bring exportieren**; **nach Erinnerungen exportieren**; extra Läden-JSON `kind: "einkauf-laeden"`.
-- **Nur native / nicht ins HTML:** Watch; **Erledigte auf der Watch ausblenden** (hide-done); **PDF Liste teilen**; Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
-- Watch ist nur Geh-Modus (Checkbox + Name). Ladenwahl nur auf dem iPhone.
+- **Nur native / nicht ins HTML:** Watch; **PDF Liste teilen**; Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
+- Watch ist nur Geh-Modus (Checkbox + Name). Ladenwahl nur auf dem iPhone. Watch-Auge und iPhone-Auge sind **jeweils geräte-lokal** (`einkauf.watch.hideCompleted` / `einkauf.iphone.hideCompleted`); HTML-Auge ist `einkauf_v1.hideDone`. Keines der Flags liegt im Backup.
 - Bring bleibt im HTML-Menü (dokumentieren), die Richtung ist Watch-im-Laden, nicht Bring.
 
-Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC`; `guessDept` zuerst Mapping, dann Sonderregeln, dann längstes Keyword.
+Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC`; `guessDept` zuerst Mapping, dann Sonderregeln, dann längstes Keyword; Auge blendet Erledigte aus (Flag geräte-lokal, nicht im Backup). HTML filtert Geh-Modus **und** Bearbeiten; iPhone-Bearbeiten bleibt ungefiltert.
 
 ## CSS
 
@@ -191,8 +194,9 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt
 
 ## Akzeptanzkriterien
 
-- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v19).
+- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v20).
 - [ ] Add rät Abteilung (`mappings` vor Sonderregeln vor Keyword); Checkbox; Pointer-Drag **abteilungsübergreifend** (Zeile oder `h2`); Mapping wie Dept-Select; Geh-Modus persistiert.
+- [ ] Auge `#btn-hide-done` blendet `done` aus (nicht löschen) in Geh-Modus und Bearbeiten; leere Depts weg; alles erledigt → „Erledigte ausgeblendet.“; `hideDone` nur `einkauf_v1`, nicht Backup; Zähler bleibt voll.
 - [ ] Stamm `{name,dept}[]`; `sanitizeStaples` akzeptiert alte Strings; Settings anlegen/Dept/Reorder/löschen; Menü Gesamtliste + Chips (`tapStaple`).
 - [ ] Gespeicherte Listen: speichern mit Namen; Apply füllt; leere Liste nicht speichern; Duplikat-Namen erlaubt; Löschen in Einstellungen; Persistenz `einkauf_v1` + Backup `savedLists`; alte Backups `[]`.
 - [ ] Sonstiges-Position folgt dem Laden-Layout; Extra-Gänge bleiben Extra-Gänge; `item.dept` nicht nach sonstiges umbuchen.
@@ -200,4 +204,4 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt
 - [ ] MD/Backup/Läden roundtrip; Backup-Shape wie native App inkl. `savedLists`; Bring-Link oder Fallback-Kopie.
 - [ ] Palette/Theme site-weit am Mast; Theme-Button-ID `theme-btn`; Palette nicht in `einkauf_v1`; kein Darstellung-Block im Sheet.
 - [ ] Kicker 02, navy Favicon, Skip zur Eingabe.
-- [ ] Native-Delta bleibt (kein Watch, kein hide-done, kein PDF-Teilen, kein System-Theme in der Toolbar, kein Live-Sync — nur Backup-Datei).
+- [ ] Native-Delta bleibt (kein Watch, kein PDF-Teilen, kein System-Theme in der Toolbar, kein Live-Sync — nur Backup-Datei).
