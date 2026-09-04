@@ -170,19 +170,21 @@ Escape schließt Menüs/Sheet. Enter in neuen Laden/Stamm legt an.
 
 ## Native Begleit-App (nur dokumentieren, nicht nachbauen)
 
-https://github.com/supervised-info/einkauf-watch — iPhone + Apple Watch. Brücke ist **nur** die Backup-JSON-Datei (kein Live-localStorage-Sync, die App scrapt die PWA nicht).
+Stand 2026-09-04. https://github.com/supervised-info/einkauf-watch — iPhone + Apple Watch. Die App hat zwei Reiter **Einkauf | To-Do**. Daten, Persistenz und Backups sind **strikt getrennt**: Einkauf bleibt `kind: "einkauf-backup"` / `einkauf-local.json`; To-Do ist `format: "todo-v3-json"` / `todo-local.json`. Kein gemeinsames Store, kein Live-localStorage-Sync, die App scrapt die PWA nicht. HTML-To-Do bleibt die eigenständige PWA `todo/` (Keys `todo-v3*`).
 
 Dieses Delta **bleibt bewusst** und darf von Regeneratoren **nicht geschlossen** werden:
 
 - **Nur HTML / in dieser Spec behalten:** Markdown kopieren / Datei exportieren / teilen; Import `.md`/`.txt`; **nach Bring exportieren**; **nach Erinnerungen exportieren**; extra Läden-JSON `kind: "einkauf-laeden"`.
-- **Nur native / nicht ins HTML:** Watch; **Siri / App Intents** (kein In-App-Mikro, kein `Speech.framework`); Watch-Complication; iPhone-Homescreen-Widget; **PDF Liste teilen**; Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
-- Watch ist nur Geh-Modus (Checkbox + Name). Ladenwahl nur auf dem iPhone. Watch-Auge und iPhone-Auge sind **jeweils geräte-lokal** (`einkauf.watch.hideCompleted` / `einkauf.iphone.hideCompleted`); HTML-Auge ist `einkauf_v1.hideDone`. Keines der Flags liegt im Backup.
-- **Sprache (native only, nicht implementieren):** Kein Watch-In-App-Mikrofon, kein Diktat-Panel, kein `Speech.framework`. Siri-Utterance: App-Name + **besorgen** (z. B. „Hey Siri, Einkauf besorgen“); Siri fragt danach **„o“**; die Antwort wird in mehrere Artikel gesplittet (Komma, Semikolon, Zeile, ` und `, ` sowie `). iPhone-Intent persistiert direkt. Watch-Intent schreibt keine volle Liste — App-Group-Pending-Queue (`group.net.tschelle.einkauf`), die Watch-App drain't beim Aktivwerden. Native `makeID` als `Int64` (watchOS `arm64_32`); HTML bleibt bei String-IDs `i`+time36+random.
-- **Complication vs. App-Titel:** Complication zeigt nur die offene Anzahl, bei 0 das Wort **erledigt** (nicht `oo/xx/yy`). Watch-Titel, iPhone-Widget, PDF-Meta und HTML-`#count` bleiben `oo/xx/yy`.
-- **Liste teilen (PDF):** folgt dem iPhone-Auge (`einkauf.iphone.hideCompleted`) — ausgeblendet nur offene Zeilen, gleiche Abteilungsreihenfolge. Nicht ins HTML.
+- **Nur native / nicht ins HTML:** Tab **Einkauf | To-Do**; Watch; **Siri / App Intents** (kein In-App-Mikro, kein `Speech.framework`); Watch-Complication (Einkauf + To-Do); iPhone-Homescreen-Widget (nur Einkauf); **PDF Liste teilen** (beide Tabs); Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
+- Watch-Einkauf ist nur Geh-Modus (Checkbox + Name). Ladenwahl nur auf dem iPhone. Watch-Auge und iPhone-Auge sind **jeweils geräte-lokal** (`einkauf.watch.hideCompleted` / `einkauf.iphone.hideCompleted`); HTML-Auge ist `einkauf_v1.hideDone`. Keines der Flags liegt im Backup.
+- **To-Do (nativer zweiter Tab, nicht nachbauen):** Bridge `todo-v3-json` (Roundtrip mit der HTML-PWA `todo/`). Overflow **Liste teilen** als PDF. Watch nur Geh-Modus + Complication Label **To Do** (Leerzeichen; offene Anzahl, bei 0 **erledigt**). Siri **Todo** (ein Token, nicht „To Do“) — siehe Sprache. Wieder öffnen, Sort und Suche nur auf dem iPhone; Watch bleibt Geh-Modus. Native **Phase 8** (MD/CSV) fehlt — HTML-To-Do behält MD/CSV.
+- **Sprache (native only, nicht implementieren):** Kein Watch-In-App-Mikrofon, kein Diktat-Panel, kein `Speech.framework`. **Einkauf** unverändert: App-Name + **besorgen** (z. B. „Hey Siri, Einkauf besorgen“); Siri fragt danach **„o“**; Split Komma / Semikolon / Zeile / ` und ` / ` sowie `. **To-Do:** ein Token **Todo** (z. B. „Hey Siri, Einkauf Todo“); iPhone fragt **„o“**; Watch ohne `requestValueDialog` (generische Freitext-Nachfrage). iPhone-Intent persistiert direkt. Watch-Intent schreibt keine volle Liste — App-Group-Pending-Queue (`group.net.tschelle.einkauf`; Einkauf `einkauf.siriPendingAdds`, To-Do `todo.siriPendingAdds`), die Watch-App drain't beim Aktivwerden. Native `makeID` als `Int64` (watchOS `arm64_32`); HTML bleibt bei String-IDs `i`+time36+random.
+- **Swipe-Löschen (beide Tabs, native only):** nur im **Bearbeiten**-Modus. Geh-Modus / To-Do-Listen-Modus: kein Swipe-Delete (`.deleteDisabled`, kein `.onDelete`). HTML behält den sichtbaren `×`-Knopf in der Artikelzeile.
+- **Complication vs. App-Titel:** Einkauf-Complication zeigt nur die offene Anzahl, bei 0 das Wort **erledigt** (nicht `oo/xx/yy`). To-Do-Complication dasselbe Muster, Label **To Do**. Watch-Titel, iPhone-Widget, PDF-Meta und HTML-`#count` bleiben `oo/xx/yy`.
+- **Liste teilen (PDF):** Einkauf folgt dem iPhone-Auge (`einkauf.iphone.hideCompleted`) — ausgeblendet nur offene Zeilen, gleiche Abteilungsreihenfolge. To-Do-PDF folgt `todo.iphone.showCompleted`. Nicht ins HTML.
 - Bring bleibt im HTML-Menü (dokumentieren), die Richtung ist Watch-im-Laden, nicht Bring.
 
-Gemeinsame Slice (HTML und Native, Stand 2026-09-04): Zähler `oo/xx/yy` (offen/erledigt/gesamt, leer `0/0/0`); `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC` plus **Meine Zuordnungen** aus dem bestehenden `mappings`-Objekt (`einkauf_v1` / Backup, kein neues Feld); `guessDept` zuerst Mapping, dann Sonderregeln, dann längstes Keyword; Auge blendet Erledigte aus (Flag geräte-lokal, nicht im Backup). HTML filtert Geh-Modus **und** Bearbeiten; iPhone-Bearbeiten bleibt ungefiltert.
+Gemeinsame Slice (HTML und Native, Stand 2026-09-04): Zähler `oo/xx/yy` (offen/erledigt/gesamt, leer `0/0/0`); `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC` plus **Meine Zuordnungen** aus dem bestehenden `mappings`-Objekt (`einkauf_v1` / Backup, kein neues Feld); `guessDept` zuerst Mapping, dann Sonderregeln, dann längstes Keyword; Auge blendet Erledigte aus (Flag geräte-lokal, nicht im Backup). HTML filtert Geh-Modus **und** Bearbeiten; iPhone-Bearbeiten bleibt ungefiltert. To-Do-Brücke `todo-v3-json` teilt das Task-Shape mit der HTML-PWA `todo/` — nicht mit `einkauf-backup`.
 
 ## CSS
 
@@ -193,7 +195,7 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-04): Zähler `oo/xx/yy` (offen/
 - SW-Cache-Namen nur nach oben bumping, nie stillschweigend gleich lassen nach HTML-Änderung.
 - Builtin-Laden-IDs und DEPT-IDs.
 - Storage-Key `einkauf_v1` (kein Theme-Key-Reuse für die Liste).
-- Bewusstes Delta zur nativen App (siehe oben) nicht angleichen — kein Siri, kein Watch-Mikro/`Speech.framework`, kein PDF, keine Complication im HTML.
+- Bewusstes Delta zur nativen App (siehe oben) nicht angleichen — kein Siri, kein Watch-Mikro/`Speech.framework`, kein PDF, keine Complication, kein To-Do-Tab im HTML.
 
 ## Akzeptanzkriterien
 
@@ -208,4 +210,4 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-04): Zähler `oo/xx/yy` (offen/
 - [ ] MD/Backup/Läden roundtrip; Backup-Shape wie native App inkl. `savedLists`; Bring-Link oder Fallback-Kopie.
 - [ ] Palette/Theme site-weit am Mast; Theme-Button-ID `theme-btn`; Palette nicht in `einkauf_v1`; kein Darstellung-Block im Sheet.
 - [ ] Kicker 02, navy Favicon, Skip zur Eingabe.
-- [ ] Native-Delta bleibt (kein Watch, kein Siri/`Speech.framework`, kein PDF-Teilen, keine Complication, kein System-Theme in der Toolbar, kein Live-Sync — nur Backup-Datei).
+- [ ] Native-Delta bleibt (kein Watch, kein Siri/`Speech.framework`, kein To-Do-Tab, kein PDF-Teilen, keine Complication, kein System-Theme in der Toolbar, kein Live-Sync — nur Backup-Datei; HTML-To-Do bleibt `todo/`).

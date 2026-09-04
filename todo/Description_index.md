@@ -1,5 +1,7 @@
 # Regenerationsspec: `todo/index.html`
 
+Stand der Live-PWA: **2026-09-04**. Diese Spec beschreibt die Seite so, dass sie daraus neu erzeugt werden kann.
+
 ## Zweck
 
 To-Do-Liste mit Person, Priorität (A–Z + 1–9), Enddatum, Wiedereröffnen mit UID-Kette, lokale Persistenz, Import/Export JSON/MD/CSV. Tools-Karte 03. Eine Datei.
@@ -107,13 +109,28 @@ Import wenn Liste nicht leer → Modal Anhängen/Ersetzen. Sonst direkt. Toast b
 - Enter in `#inp-task` und Edit-Text: speichern/add
 - Escape: Suche zu; Modal-Overlay-Klick schließt Import
 
+## Native Begleit-App (nur dokumentieren, nicht nachbauen)
+
+Stand 2026-09-04. Die native To-Do-UI lebt **nicht** als eigene App, sondern als zweiter Reiter **To-Do** in der Einkaufs-App ([einkauf-watch](https://github.com/supervised-info/einkauf-watch)). Die HTML-PWA hier bleibt eigenständig (`todo-v3*`, Tools-Karte 03). Kein Live-localStorage-Sync, kein gemeinsames Store mit Einkauf (`einkauf-backup` / `einkauf-local.json` bleiben fremd).
+
+Brücke ist **nur** das Backup `format: "todo-v3-json"` (Roundtrip HTML ↔ Native: `{ format, exportedAt, nextUid, tasks[] }`). Native liest Array oder Objekt wie diese Spec.
+
+Dieses Delta **bleibt bewusst**:
+
+- **Nur HTML / in dieser Spec behalten:** MD- und CSV-Export/Import; Site-Mast Theme/Palette; eigenständige PWA ohne Tab-Einbettung.
+- **Nur native / nicht ins HTML:** Tab-Integration in der Einkaufs-App; Watch Geh-Modus; Siri **Todo** (ein Token, nicht „To Do“; iPhone-Nachfrage **„o“**, Watch Freitext-Diktat ohne `requestValueDialog`); Watch-Complication Label **To Do**; PDF **Liste teilen**. Native **Phase 8** (MD/CSV) ist nicht gelandet — HTML behält MD/CSV, Native nicht.
+
+Wieder öffnen, Sort und Suche existieren nativ nur auf dem iPhone. Watch bleibt Geh-Modus.
+
 ## Nicht ändern
 
 - Keys `todo-v3*`, format-String `todo-v3-json`, changedBy `TS/NA`.
 - Kicker 03.
+- Bewusstes Delta zur nativen Begleit-App (Watch, Siri, Complication, Tab in Einkauf) nicht ins HTML ziehen. Native Phase-8-Lücke (kein MD/CSV) nicht schließen, indem HTML MD/CSV verliert.
 
 ## Akzeptanzkriterien
 
 - [ ] CRUD + UID + Reopen-Kette roundtrip JSON/MD/CSV.
 - [ ] Abgeschlossen-Toggle persistiert; Sort Person/Prio.
 - [ ] Shared Theme/Palette; Skip; navy Favicon; FOUC.
+- [ ] Native-Delta bleibt (HTML bleibt eigenständige PWA mit `todo-v3*` + MD/CSV; kein Watch, kein Siri, keine Complication, keine Tab-Einbettung in Einkauf).
