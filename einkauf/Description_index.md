@@ -175,11 +175,14 @@ https://github.com/supervised-info/einkauf-watch — iPhone + Apple Watch. Brüc
 Dieses Delta **bleibt bewusst** und darf von Regeneratoren **nicht geschlossen** werden:
 
 - **Nur HTML / in dieser Spec behalten:** Markdown kopieren / Datei exportieren / teilen; Import `.md`/`.txt`; **nach Bring exportieren**; **nach Erinnerungen exportieren**; extra Läden-JSON `kind: "einkauf-laeden"`.
-- **Nur native / nicht ins HTML:** Watch; **PDF Liste teilen**; Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
+- **Nur native / nicht ins HTML:** Watch; **Siri / App Intents** (kein In-App-Mikro, kein `Speech.framework`); Watch-Complication; iPhone-Homescreen-Widget; **PDF Liste teilen**; Erscheinungsbild **System** (folgt iPhone-Appearance) plus Hell/Dunkel und Creme/Blau **nur in den Einstellungen**, nicht in der engen Toolbar. HTML behält die Site-Mast-Buttons Theme + Palette (`theme-btn`, `#paletteBtn`) und die Shared Keys `supervised-info.theme` / `supervised-info.palette`.
 - Watch ist nur Geh-Modus (Checkbox + Name). Ladenwahl nur auf dem iPhone. Watch-Auge und iPhone-Auge sind **jeweils geräte-lokal** (`einkauf.watch.hideCompleted` / `einkauf.iphone.hideCompleted`); HTML-Auge ist `einkauf_v1.hideDone`. Keines der Flags liegt im Backup.
+- **Sprache (native only, nicht implementieren):** Kein Watch-In-App-Mikrofon, kein Diktat-Panel, kein `Speech.framework`. Siri-Utterance: App-Name + **besorgen** (z. B. „Hey Siri, Einkauf besorgen“); Siri fragt danach **„o“**; die Antwort wird in mehrere Artikel gesplittet (Komma, Semikolon, Zeile, ` und `, ` sowie `). iPhone-Intent persistiert direkt. Watch-Intent schreibt keine volle Liste — App-Group-Pending-Queue (`group.net.tschelle.einkauf`), die Watch-App drain't beim Aktivwerden. Native `makeID` als `Int64` (watchOS `arm64_32`); HTML bleibt bei String-IDs `i`+time36+random.
+- **Complication vs. App-Titel:** Complication zeigt nur die offene Anzahl, bei 0 das Wort **erledigt** (nicht `oo/xx/yy`). Watch-Titel, iPhone-Widget, PDF-Meta und HTML-`#count` bleiben `oo/xx/yy`.
+- **Liste teilen (PDF):** folgt dem iPhone-Auge (`einkauf.iphone.hideCompleted`) — ausgeblendet nur offene Zeilen, gleiche Abteilungsreihenfolge. Nicht ins HTML.
 - Bring bleibt im HTML-Menü (dokumentieren), die Richtung ist Watch-im-Laden, nicht Bring.
 
-Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC` plus **Meine Zuordnungen** aus dem bestehenden `mappings`-Objekt (`einkauf_v1` / Backup, kein neues Feld); `guessDept` zuerst Mapping, dann Sonderregeln, dann längstes Keyword; Auge blendet Erledigte aus (Flag geräte-lokal, nicht im Backup). HTML filtert Geh-Modus **und** Bearbeiten; iPhone-Bearbeiten bleibt ungefiltert. Native-Wörterbuch-UI für Zuordnungen liegt in einem Sibling-PR, nicht in diesem HTML-PR.
+Gemeinsame Slice (HTML und Native, Stand 2026-09-04): Zähler `oo/xx/yy` (offen/erledigt/gesamt, leer `0/0/0`); `savedLists` füllen statt ersetzen; Sonstiges-Slot im Ladenweg; Einstellungen-Reihenfolge Aktueller Laden → Neuer Laden → Ladenweg → Stamm → Gespeicherte Listen → Wörterbuch; Wörterbuch aus dem lokalen Keyword-`DICT_SRC` plus **Meine Zuordnungen** aus dem bestehenden `mappings`-Objekt (`einkauf_v1` / Backup, kein neues Feld); `guessDept` zuerst Mapping, dann Sonderregeln, dann längstes Keyword; Auge blendet Erledigte aus (Flag geräte-lokal, nicht im Backup). HTML filtert Geh-Modus **und** Bearbeiten; iPhone-Bearbeiten bleibt ungefiltert.
 
 ## CSS
 
@@ -190,7 +193,7 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt
 - SW-Cache-Namen nur nach oben bumping, nie stillschweigend gleich lassen nach HTML-Änderung.
 - Builtin-Laden-IDs und DEPT-IDs.
 - Storage-Key `einkauf_v1` (kein Theme-Key-Reuse für die Liste).
-- Bewusstes Delta zur nativen App (siehe oben) nicht angleichen.
+- Bewusstes Delta zur nativen App (siehe oben) nicht angleichen — kein Siri, kein Watch-Mikro/`Speech.framework`, kein PDF, keine Complication im HTML.
 
 ## Akzeptanzkriterien
 
@@ -205,4 +208,4 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt
 - [ ] MD/Backup/Läden roundtrip; Backup-Shape wie native App inkl. `savedLists`; Bring-Link oder Fallback-Kopie.
 - [ ] Palette/Theme site-weit am Mast; Theme-Button-ID `theme-btn`; Palette nicht in `einkauf_v1`; kein Darstellung-Block im Sheet.
 - [ ] Kicker 02, navy Favicon, Skip zur Eingabe.
-- [ ] Native-Delta bleibt (kein Watch, kein PDF-Teilen, kein System-Theme in der Toolbar, kein Live-Sync — nur Backup-Datei).
+- [ ] Native-Delta bleibt (kein Watch, kein Siri/`Speech.framework`, kein PDF-Teilen, keine Complication, kein System-Theme in der Toolbar, kein Live-Sync — nur Backup-Datei).
