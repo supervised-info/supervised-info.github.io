@@ -4,7 +4,7 @@ Stand der Live-PWA: **2026-09-04**. Diese Spec beschreibt die Seite so, dass sie
 
 ## Zweck
 
-To-Do-Liste mit Person, Priorität (A–Z + 1–9), Enddatum, Wiedereröffnen mit UID-Kette, lokale Persistenz, Import/Export JSON/MD/CSV. Tools-Karte 03. Eine Datei.
+To-Do-Liste mit Person, Priorität (A–Z + 1–9), Enddatum, Wiedereröffnen mit UID-Kette, **benannte Listen** (Phase 10), lokale Persistenz, Import/Export JSON/MD/CSV. Tools-Karte 03. Eine Datei.
 
 ## Chrome
 
@@ -17,12 +17,15 @@ To-Do-Liste mit Person, Priorität (A–Z + 1–9), Enddatum, Wiedereröffnen mi
 ## Layout
 
 - `.page-head`: h1 „To-Do Liste“, lede „Person, Priorität, Enddatum“, `#filename-display`.
-- Toolbar links: „Neue Liste“ `#btn-new` (soft-red), Label „Importieren“ für hidden `#md-import` accept `.json,.md,.markdown,.csv`.
-- Rechts: Checkbox „Abgeschlossen einblenden“ `#toggle-completed`; JSON / MD / CSV export; Suche-Button (Lupen-SVG).
+- Toolbar links: „Neue Liste“ `#btn-new` (soft-red) — **wischt alle Aufgaben** (Confirm → `tasks=[]`, `nextUid=1`); nicht mit benannten Listen verwechseln. Tooltip „Alle Aufgaben löschen und neu beginnen“. Label „Importieren“ für hidden `#md-import` accept `.json,.md,.markdown,.csv`.
+- **Listenleiste** `.list-bar` unter der Toolbar: Label „Liste“, Select `#sel-list` (**Alle** + benannte Listen), „Neue Liste…“ `#btn-named-list-new` (legt eine benannte Liste an), „Listen…“ `#btn-lists-manage` (Modal: umbenennen / löschen mit Confirm). Optional Zähler `#list-count` `oo/xx/yy` der Sicht nach Listenfilter, dann Abgeschlossen-Toggle (ohne Suche).
+- Rechts in der Toolbar: Checkbox „Abgeschlossen einblenden“ `#toggle-completed`; JSON / MD / CSV export; Suche-Button (Lupen-SVG).
 - Search-Drawer `#inp-filter` Placeholder „Person oder Text …“.
-- Add-Form: Person, Prio A (Optionen A–Z plus „– Prio“), Prio B 1–9 plus „–“, date, „Neue Aufgabe …“, „Hinzufügen“. Enter im Aufgabenfeld = add.
-- `#task-list` Tabellen/Karten: offene Aufgaben gruppiert, abgeschlossene Sektion einklappbar.
+- Add-Form: Person, Prio A (Optionen A–Z plus „– Prio“), Prio B 1–9 plus „–“, date, „Neue Aufgabe …“, „Hinzufügen“. Enter im Aufgabenfeld = add. Neue Aufgaben bekommen `listId` der **aktuellen** Liste; bei **Alle** bleibt `listId` leer.
+- `#task-list` Tabellen/Karten: offene Aufgaben gruppiert, abgeschlossene Sektion einklappbar. Sichtbare Aufgaben = zuerst Listenfilter, dann Abgeschlossen-Toggle, dann Suche, dann Sort/Personen-Gruppierung. Zähler (Abgeschlossen-Sektion, `#list-count`) beziehen sich auf die gefilterte Sicht.
+- Inline-Edit: Person, Prio, Text, Datum, **Listen-Zuordnung** (`#ef-list` / `.ef-list`, Option „Keine Liste“).
 - Import-Modal: Abbrechen / Anhängen / Ersetzen.
+- Listen-Modal `#lists-modal`: Abbrechen über Overlay/Escape/„Fertig“; Löschen bestätigt, leert `listId` der betroffenen Aufgaben, löscht die Aufgaben nicht.
 - Toast `#toast` ~2,6 s.
 
 ## Task-Shape (Speicher + JSON)
@@ -42,43 +45,49 @@ Runtime hat zusätzlich `id` (Number, Date.now()+random) als DOM-Key, nicht im J
   reopenedFromUid, reopenedToUid: number | "",
   reopenedAt: "YYYY-MM-DD" | "",
   createdAt, updatedAt: ISO-Timestamp,
-  changedBy: string   // UI setzt "TS/NA"
+  changedBy: string,   // UI setzt "TS/NA"
+  listId?: string      // fehlt / null / leer = keiner Liste zugeordnet, sichtbar unter Alle
 }
 ```
 
-`normalizeTasks`: fehlende UIDs aus `nextUid`; `nextUid = max+1`.
+`normalizeTasks`: fehlende UIDs aus `nextUid`; `nextUid = max+1`. `listId` nur behalten, wenn die ID in `lists` vorkommt, sonst leeren.
+
+Benannte Listen: `{ id: string, name: string }`. Stabile String-IDs (UUID). Leerer Name wird verworfen; fehlende ID wird erzeugt; doppelte IDs: erste gewinnt.
 
 ## localStorage
 
 | Key | Wert |
 |---|---|
-| `todo-v3` | JSON-Array tasks |
+| `todo-v3` | JSON-Array tasks (inkl. `listId`, wenn gesetzt) |
 | `todo-v3-file` | letzter Import-Dateiname |
 | `todo-v3-show-completed` | `'true'`/`'false'` |
 | `todo-v3-completed-expanded` | `'true'`/`'false'` (Default expanded = nicht `'false'`) |
 | `todo-v3-next-uid` | String Zahl |
 | `todo-v3-collapsed-chains` | JSON Array von Chain-Keys |
+| `todo-v3-lists` | JSON-Array `{id,name}` (fehlend → `[]`) |
+| `todo-v3-current-list-id` | aktuelle Listen-ID; leerer String = **Alle** |
 
-Kein eigenes Theme-Key-Paar.
+Kein eigenes Theme-Key-Paar. Bestehende `todo-v3*`-Keys nicht umbenennen.
 
 ## Verhalten
 
 - Sort-Header: person (Default asc), prioA, text, dueDate, completed, completedDate. Prio-Compare: `prioA + (prioB||'9')`, fehlendes prioA sortiert ans Ende (`￿`).
 - Overdue: dueDate < heute und nicht `9999*`.
 - Checkbox toggle setzt/löscht `completedDate` = heute ISO.
-- Bearbeiten Inline; Speichern setzt `updatedAt`, `changedBy` TS/NA. Enter im Text speichert.
+- Bearbeiten Inline; Speichern setzt `updatedAt`, `changedBy` TS/NA. Enter im Text speichert. Listen-Zuordnung änderbar.
 - Löschen; Bulk complete/delete wenn Mehrfachauswahl (`selectedIds`).
-- **Wieder öffnen**: Confirm; Original bleibt completed, bekommt `reopenedToUid`; Kopie offen mit neuem uid, `reopenedFromUid`. Highlight ~2,6 s, scrollIntoView.
+- **Wieder öffnen**: Confirm; Original bleibt completed, bekommt `reopenedToUid`; Kopie offen mit neuem uid, `reopenedFromUid`, gleichem `listId`. Highlight ~2,6 s, scrollIntoView.
 - Reopen-Ketten UI: einklappbar, State in `todo-v3-collapsed-chains`.
-- Neue Liste: Confirm, tasks=[], nextUid=1, filename leer.
+- **Neue Liste** (`#btn-new`): Confirm, tasks=[], nextUid=1, filename leer. **Wischt Aufgaben**, nicht die benannten Listen. Benannte Liste anlegen: **Neue Liste…** in der Listenleiste.
+- Benannte Listen: anlegen (wechselt auf die neue Liste), umbenennen, löschen mit Confirm. Löschen leert `listId` der zugehörigen Aufgaben (`updatedAt`/`changedBy` TS/NA) — Aufgaben bleiben und sind unter **Alle** sichtbar.
 - Suche: filtert Person oder Text; Escape schließt Drawer; Blur ohne Text schließt.
 - Prio-CSS: A–D `p-high`, E–J `p-mid`, sonst `p-low`, leer `p-none`.
 
 ## Export-Formate
 
-**JSON** Datei `todo-liste.json`, `format: 'todo-v3-json'`, `exportedAt` ISO, `nextUid`, `tasks[]` ohne runtime `id`. Import: Array oder `{tasks, nextUid}`.
+**JSON** Datei `todo-liste.json`, `format: 'todo-v3-json'` (kein Format-Bump), `exportedAt` ISO, `nextUid`, `lists` (optional, fehlt → `[]`), `tasks[]` ohne runtime `id`, optionales `listId`. Import: nacktes Array **oder** `{tasks, nextUid, lists?}`. Alte Dateien ohne `lists`/`listId` bleiben gültig. Anhängen merget `lists` per `id` (lokaler Name gewinnt). Ersetzen übernimmt die importierten Listen.
 
-**MD** `todo-liste.md`:
+**MD** `todo-liste.md` — **volle Liste**, unabhängig von Auge und Listenfilter:
 
 ```
 # To-Do Liste
@@ -87,7 +96,7 @@ Exportiert am: {de-DE locale}
 ## {Person oder (Keine Person)}
 
 - [ ] [A1] Text (YYYY-MM-DD)
-  <!-- #uid | TS/NA | erstellt DD.MM.YYYY HH:MM | geändert … | von #x am DD.MM.YYYY | → #y am … -->
+  <!-- #uid | TS/NA | erstellt DD.MM.YYYY HH:MM | geändert … | von #x am DD.MM.YYYY | → #y am … | Liste {name} | list:{id} -->
 
 ---
 
@@ -98,39 +107,43 @@ Exportiert am: {de-DE locale}
   <!-- … -->
 ```
 
-Import versteht neues HTML-Comment-Meta und alt `<!-- todo: uid=N reopenedFrom=… -->`. Checkbox-Regex: `- [x] [A1]? text (due)? {done}?`
+Listen-Meta ist optional: `Liste {name}` und/oder `list:{id}` im HTML-Comment. Ohne Listeninfo importieren wie bisher. Alt `<!-- todo: uid=N listId=… listName=… -->` ebenfalls. Checkbox-Regex: `- [x] [A1]? text (due)? {done}?`
 
-**CSV** BOM + Semikolon, quoted. Header: Person, Prio A, Prio B, Aufgabe, Enddatum, Abgeschlossen am, UID, Reopened From/To UID, Reopened At, Erstellt am, Geändert am, Geändert von. Open first, then row `## Abgeschlossen`, then done. Datetimes UTC `DD.MM.YYYY HH:MM`. Import: `;` vs `,`; completed wenn completedDate ISO-Datum; createdAt/updatedAt ISO oder de-DE parse.
+**CSV** BOM + Semikolon, quoted. Header: Person, Prio A, Prio B, Aufgabe, Enddatum, Abgeschlossen am, UID, Reopened From/To UID, Reopened At, Erstellt am, Geändert am, Geändert von. Wenn Listen vorhanden (oder irgendeine Aufgabe `listId` hat): zusätzliche Spalten **Liste** und **List-ID**. Import ohne diese Spalten bleibt gültig. Open first, then row `## Abgeschlossen`, then done. Datetimes UTC `DD.MM.YYYY HH:MM`. Import: `;` vs `,`; completed wenn completedDate ISO-Datum; createdAt/updatedAt ISO oder de-DE parse. Header-Lookup für Liste/List-ID (auch `ListId` / `listId`).
 
-Import wenn Liste nicht leer → Modal Anhängen/Ersetzen. Sonst direkt. Toast bei Erfolg/Fehler.
+Import wenn Liste nicht leer → Modal Anhängen/Ersetzen. Sonst direkt. Toast bei Erfolg/Fehler. MD/CSV dump die **volle** Aufgabenmenge, nicht den Listenfilter.
 
 ## Shortcuts
 
 - Enter in `#inp-task` und Edit-Text: speichern/add
-- Escape: Suche zu; Modal-Overlay-Klick schließt Import
+- Escape: Suche zu; Modal-Overlay-Klick schließt Import; Listen-Modal zu
 
 ## Native Begleit-App (nur dokumentieren, nicht nachbauen)
 
-Stand 2026-09-04. Die native To-Do-UI lebt **nicht** als eigene App, sondern als zweiter Reiter **To-Do** in der Einkaufs-App ([einkauf-watch](https://github.com/supervised-info/einkauf-watch)). Die HTML-PWA hier bleibt eigenständig (`todo-v3*`, Tools-Karte 03). Kein Live-localStorage-Sync, kein gemeinsames Store mit Einkauf (`einkauf-backup` / `einkauf-local.json` bleiben fremd).
+Stand 2026-09-04. Die native To-Do-UI lebt **nicht** als eigene App, sondern als zweiter Reiter **To-Do** in der Einkaufs-App ([einkauf-watch](https://github.com/supervised-info/einkauf-watch), **Build 55**). Die HTML-PWA hier bleibt eigenständig (`todo-v3*`, Tools-Karte 03). Kein Live-localStorage-Sync, kein gemeinsames Store mit Einkauf (`einkauf-backup` / `einkauf-local.json` bleiben fremd).
 
-Brücke ist **nur** das Backup `format: "todo-v3-json"` (Roundtrip HTML ↔ Native: `{ format, exportedAt, nextUid, tasks[] }`). Native liest Array oder Objekt wie diese Spec.
+Brücke ist das Backup `format: "todo-v3-json"` (Roundtrip HTML ↔ Native: `{ format, exportedAt, nextUid, lists?, tasks[] }` mit optionalem `listId`). Native liest Array oder Objekt wie diese Spec. Phase 10 (benannte Listen) ist **nativ und HTML** geliefert — gleiches JSON-Schema, kein Format-Bump.
 
 Dieses Delta **bleibt bewusst**:
 
-- **Nur HTML / in dieser Spec behalten:** MD- und CSV-Export/Import; Site-Mast Theme/Palette; eigenständige PWA ohne Tab-Einbettung.
-- **Nur native / nicht ins HTML:** Tab-Integration in der Einkaufs-App; Watch Geh-Modus; Siri **Todo** (ein Token, nicht „To Do“; iPhone-Nachfrage **„o“**, Watch Freitext-Diktat ohne `requestValueDialog`); Watch-Complication Label **To Do**; PDF **Liste teilen**. Native **Phase 8** (MD/CSV) ist nicht gelandet — HTML behält MD/CSV, Native nicht.
+- **Nur HTML / in dieser Spec behalten:** Site-Mast Theme/Palette; eigenständige PWA ohne Tab-Einbettung. MD- und CSV-Export/Import bleiben in der HTML-PWA (Native hat MD/CSV seit Phase 8 / Build 53 ebenfalls; HTML verliert sie nicht).
+- **Nur native / nicht ins HTML:** Tab-Integration in der Einkaufs-App; Watch Geh-Modus; Siri **Todo** (ein Token, nicht „To Do“; iPhone-Nachfrage **„o“**, Watch Freitext-Diktat ohne `requestValueDialog`); Watch-Complication Label **To Do**; PDF **Liste teilen**. Native folgt mit PDF/Siri/Watch der aktuellen Liste — das bleibt native-only.
 
-Wieder öffnen, Sort und Suche existieren nativ nur auf dem iPhone. Watch bleibt Geh-Modus.
+Wieder öffnen, Sort, Suche und benannte Listen existieren nativ auf dem iPhone. Watch bleibt Geh-Modus (folgt der gesyncten aktuellen Liste, ohne Listen-Verwaltung).
 
 ## Nicht ändern
 
-- Keys `todo-v3*`, format-String `todo-v3-json`, changedBy `TS/NA`.
+- Keys `todo-v3*` (neue Keys nur additiv: `todo-v3-lists`, `todo-v3-current-list-id`), format-String `todo-v3-json`, changedBy `TS/NA`.
 - Kicker 03.
-- Bewusstes Delta zur nativen Begleit-App (Watch, Siri, Complication, Tab in Einkauf) nicht ins HTML ziehen. Native Phase-8-Lücke (kein MD/CSV) nicht schließen, indem HTML MD/CSV verliert.
+- `#btn-new` „Neue Liste“ bleibt der Aufgaben-Wipe, nicht das Anlegen benannter Listen.
+- Bewusstes Delta zur nativen Begleit-App (Watch, Siri, Complication, PDF, Tab in Einkauf) nicht ins HTML ziehen. HTML behält MD/CSV.
 
 ## Akzeptanzkriterien
 
 - [ ] CRUD + UID + Reopen-Kette roundtrip JSON/MD/CSV.
-- [ ] Abgeschlossen-Toggle persistiert; Sort Person/Prio.
-- [ ] Shared Theme/Palette; Skip; navy Favicon; FOUC.
-- [ ] Native-Delta bleibt (HTML bleibt eigenständige PWA mit `todo-v3*` + MD/CSV; kein Watch, kein Siri, keine Complication, keine Tab-Einbettung in Einkauf).
+- [ ] Benannte Listen: Alle / Filter / anlegen / umbenennen / löschen (Confirm; Aufgaben bleiben); neue Aufgaben erben die aktuelle Liste; Inline-Edit ändert `listId`.
+- [ ] Alte JSON/MD/CSV ohne `lists`/`listId` importieren; neue Exporte roundtrippen Listen mit Native-Schema (`todo-v3-json`, optionales `lists`/`listId`).
+- [ ] Anhängen merget Listen per id (lokaler Name gewinnt).
+- [ ] Abgeschlossen-Toggle persistiert; Sort Person/Prio; Filter-Reihenfolge Liste → Abgeschlossen → Suche → Sort.
+- [ ] Shared Theme/Palette; Skip; navy Favicon; FOUC; Creme/Blau ungebrochen.
+- [ ] Native-Delta bleibt (HTML bleibt eigenständige PWA mit `todo-v3*` + MD/CSV; kein Watch, kein Siri, keine Complication, kein PDF, keine Tab-Einbettung in Einkauf).

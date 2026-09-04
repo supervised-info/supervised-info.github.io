@@ -604,6 +604,7 @@ button { cursor: pointer; }
   z-index: 1000;
 }
 .modal-overlay.hidden { display: none; }
+.hidden { display: none; }
 .modal-box {
   background: var(--paper-2);
   border: 1px solid var(--rule);
@@ -633,6 +634,65 @@ button { cursor: pointer; }
   justify-content: flex-end;
   flex-wrap: wrap;
 }
+
+.list-bar {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.65rem 1.25rem;
+  border-bottom: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--paper-2) 40%, transparent);
+}
+.list-bar-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+#sel-list {
+  border: 1.5px solid var(--rule);
+  border-radius: 999px;
+  padding: 0.46rem 0.82rem;
+  background: var(--paper);
+  color: var(--ink);
+  min-width: 11rem;
+  font-size: 0.82rem;
+  outline: none;
+}
+#sel-list:focus { border-color: var(--oxide); }
+.list-count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-left: 0.15rem;
+}
+.manage-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+.manage-list li {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.manage-list .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.manage-empty {
+  font-size: 0.87rem;
+  color: var(--muted);
+  margin: 0 0 1rem;
+}
+.ef-list { min-width: 140px; }
+
+@media (max-width: 860px) {
+  .list-bar { padding: 0.65rem 1rem; }
+}
 </style>
 <script>
 (function(){try{var t=localStorage.getItem("supervised-info.theme");var p=localStorage.getItem("supervised-info.palette");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);if(p==="vintage"||p==="navy")document.documentElement.setAttribute("data-palette",p);}catch(e){}})();
@@ -658,7 +718,7 @@ button { cursor: pointer; }
   <div class="container">
     <div class="toolbar">
       <div class="toolbar-left">
-        <button id="btn-new" class="btn btn-soft-red" type="button">Neue Liste</button>
+        <button id="btn-new" class="btn btn-soft-red" type="button" title="Alle Aufgaben löschen und neu beginnen">Neue Liste</button>
         <label class="btn btn-secondary" for="md-import">Importieren</label>
         <input type="file" id="md-import" accept=".json,.md,.markdown,.csv" style="display:none">
       </div>
@@ -672,6 +732,16 @@ button { cursor: pointer; }
         <button id="btn-export-csv" class="btn btn-secondary" type="button" title="Tabellenformat für Menschen und Excel">CSV exportieren</button>
         <button id="btn-search" class="btn btn-secondary btn-search" type="button" title="Suchen" style="padding:.46rem .6rem"></button>
       </div>
+    </div>
+
+    <div class="list-bar" id="list-bar">
+      <label class="list-bar-label" for="sel-list">Liste</label>
+      <select id="sel-list" title="Aktuelle Liste" aria-label="Aktuelle Liste">
+        <option value="">Alle</option>
+      </select>
+      <button id="btn-named-list-new" class="btn btn-secondary" type="button">Neue Liste…</button>
+      <button id="btn-lists-manage" class="btn btn-secondary" type="button">Listen…</button>
+      <span class="list-count" id="list-count" title="offen / erledigt / gesamt"></span>
     </div>
 
     <div class="search-drawer" id="search-drawer">
@@ -707,6 +777,19 @@ button { cursor: pointer; }
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="lists-modal">
+  <div class="modal-box">
+    <h3>Listen</h3>
+    <p>Umbenennen oder löschen. Beim Löschen bleiben die Aufgaben erhalten (ohne Listen-Zuordnung).</p>
+    <ul class="manage-list" id="manage-list"></ul>
+    <p class="manage-empty hidden" id="manage-empty">Noch keine Listen.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="lists-modal-new" type="button">Neue Liste…</button>
+      <button class="btn btn-primary" id="lists-modal-close" type="button">Fertig</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -725,6 +808,8 @@ let collapsedChains  = JSON.parse(localStorage.getItem('todo-v3-collapsed-chains
 let filterText       = '';
 let searchOpen       = false;
 let selectedIds      = new Set();
+let lists            = loadStoredLists();
+let currentListId    = localStorage.getItem('todo-v3-current-list-id') || '';
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const ICON_SEARCH = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
@@ -748,6 +833,13 @@ const inpFilter       = document.getElementById('inp-filter');
 const searchDrawer    = document.getElementById('search-drawer');
 const btnSearch       = document.getElementById('btn-search');
 const importModal     = document.getElementById('import-modal');
+const selList         = document.getElementById('sel-list');
+const btnNamedListNew = document.getElementById('btn-named-list-new');
+const btnListsManage  = document.getElementById('btn-lists-manage');
+const listCount       = document.getElementById('list-count');
+const listsModal      = document.getElementById('lists-modal');
+const manageListEl    = document.getElementById('manage-list');
+const manageEmpty     = document.getElementById('manage-empty');
 
 // ── Populate selects ───────────────────────────────────────────────────────
 for (let i = 0; i < 26; i++) {
@@ -771,8 +863,8 @@ function prioCmp(a, b) {
   return pa.localeCompare(pb);
 }
 
-function getSorted() {
-  return [...tasks].sort((a, b) => {
+function getSorted(source = getListTasks()) {
+  return [...source].sort((a, b) => {
     let cmp = 0;
     switch (sortCol) {
       case 'person':
@@ -881,13 +973,101 @@ function parseDMYDate(s) {
   return `${m[3]}-${m[2]}-${m[1]}`;
 }
 
-function normalizeTasks(list) {
+function loadStoredLists() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('todo-v3-lists') || '[]');
+    return Array.isArray(raw) ? raw : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizedListId(raw) {
+  const s = String(raw ?? '').trim();
+  return s || '';
+}
+
+function newListId() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+}
+
+function normalizeLists(arr) {
+  const used = new Set();
+  const result = [];
+  for (const item of arr || []) {
+    let id = String(item?.id ?? '').trim();
+    const name = String(item?.name ?? '').trim();
+    if (!name) continue;
+    if (!id) id = newListId();
+    if (used.has(id)) continue;
+    used.add(id);
+    result.push({ id, name });
+  }
+  return result;
+}
+
+function mergeLists(local, incoming) {
+  const byId = new Map();
+  const order = [];
+  for (const list of [...normalizeLists(local), ...normalizeLists(incoming)]) {
+    if (!byId.has(list.id)) {
+      order.push(list.id);
+      byId.set(list.id, list);
+    }
+  }
+  return order.map(id => byId.get(id));
+}
+
+function persistLists() {
+  localStorage.setItem('todo-v3-lists', JSON.stringify(lists));
+}
+
+function persistCurrentList() {
+  localStorage.setItem('todo-v3-current-list-id', currentListId || '');
+}
+
+function listName(id) {
+  const lid = normalizedListId(id);
+  return lists.find(l => l.id === lid)?.name || '';
+}
+
+function matchesCurrentList(t) {
+  const id = normalizedListId(currentListId);
+  if (!id) return true;
+  return normalizedListId(t.listId) === id;
+}
+
+function getListTasks() {
+  return tasks.filter(matchesCurrentList);
+}
+
+function rememberImportedList(importedLists, id, name) {
+  const lid = normalizedListId(id);
+  if (!lid) return;
+  if (importedLists.some(l => l.id === lid)) return;
+  const trimmed = String(name || '').trim();
+  importedLists.push({ id: lid, name: trimmed || lid });
+}
+
+function assignListByName(importedLists, listName) {
+  const name = String(listName || '').trim();
+  if (!name) return '';
+  const existing = importedLists.find(l => l.name === name);
+  if (existing) return existing.id;
+  const id = newListId();
+  importedLists.push({ id, name });
+  return id;
+}
+
+function normalizeTasks(list, listCatalog = lists) {
   const isIso   = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
   const toIsoTs = v => {
     if (/^\d{4}-\d{2}-\d{2}T/.test(v || '')) return v;
     if (/^\d{4}-\d{2}-\d{2}$/.test(v || '')) return v + 'T00:00:00.000Z';
     return '';
   };
+  const validListIds = new Set(normalizeLists(listCatalog).map(l => l.id));
   const used = new Set();
   let maxUid = 0;
   for (const t of list) {
@@ -905,6 +1085,9 @@ function normalizeTasks(list) {
     t.createdAt = toIsoTs(t.createdAt);
     t.updatedAt = toIsoTs(t.updatedAt);
     t.changedBy = typeof t.changedBy === 'string' ? t.changedBy : '';
+    const lid = normalizedListId(t.listId);
+    if (lid && validListIds.has(lid)) t.listId = lid;
+    else delete t.listId;
   }
   nextUid = Math.max(nextUid, maxUid + 1);
   for (const t of list) {
@@ -981,46 +1164,66 @@ function bulkDelete() {
 // ── Import-Modal ───────────────────────────────────────────────────────────
 let _pendingImport = null;
 
-function showImportModal(imported, filename) {
-  _pendingImport = { imported, filename };
+function showImportModal(payload, filename) {
+  _pendingImport = { payload, filename };
   document.getElementById('import-modal-text').textContent =
-    `Aktuelle Liste (${tasks.length} Aufgabe${tasks.length !== 1 ? 'n' : ''}) und ${imported.length} importierte Aufgaben – ersetzen oder anhängen?`;
+    `Aktuelle Liste (${tasks.length} Aufgabe${tasks.length !== 1 ? 'n' : ''}) und ${payload.tasks.length} importierte Aufgaben – ersetzen oder anhängen?`;
   importModal.classList.remove('hidden');
 }
 
 function closeImportModal() { importModal.classList.add('hidden'); _pendingImport = null; }
 
+function applyCurrentListAfterImport() {
+  if (currentListId && !lists.some(l => l.id === currentListId)) currentListId = '';
+  persistCurrentList();
+}
+
 function doImportReplace() {
-  const { imported, filename } = _pendingImport;
-  tasks = imported; importedFilename = filename; editId = null;
+  const { payload, filename } = _pendingImport;
+  lists = normalizeLists(payload.lists || []);
+  tasks = payload.tasks;
+  importedFilename = filename; editId = null;
+  applyCurrentListAfterImport();
   closeImportModal();
-  save(`${imported.length} Aufgaben importiert (ersetzt)`);
+  save(`${payload.tasks.length} Aufgaben importiert (ersetzt)`);
 }
 
 function doImportAppend() {
-  const { imported, filename } = _pendingImport;
-  normalizeTasks(imported);
-  tasks.push(...imported);
-  normalizeTasks(tasks);
+  const { payload, filename } = _pendingImport;
+  lists = mergeLists(lists, payload.lists || []);
+  normalizeTasks(payload.tasks, lists);
+  tasks.push(...payload.tasks);
+  normalizeTasks(tasks, lists);
   importedFilename = filename; editId = null;
+  applyCurrentListAfterImport();
   closeImportModal();
-  save(`${imported.length} Aufgaben angehängt`);
+  save(`${payload.tasks.length} Aufgaben angehängt`);
 }
 
 // ── Render ─────────────────────────────────────────────────────────────────
 function render() {
   filenameDisplay.textContent = importedFilename;
   toggleCompleted.checked = showCompleted;
+  renderListSelect();
 
   // Suchbutton-Zustand aktualisieren
   btnSearch.innerHTML = ICON_SEARCH;
   btnSearch.classList.toggle('active', filterText.length > 0);
 
-  const allOpen = getSorted().filter(t => !t.completed);
-  const allDone = getSorted().filter(t =>  t.completed);
+  const listTasks = getListTasks();
+  const openInList = listTasks.filter(t => !t.completed);
+  const doneInList = listTasks.filter(t =>  t.completed);
+  const countOpen = showCompleted ? openInList.length : openInList.length;
+  const countDone = showCompleted ? doneInList.length : 0;
+  const countTotal = showCompleted ? listTasks.length : openInList.length;
+  listCount.textContent = listTasks.length || currentListId
+    ? `${countOpen}/${countDone}/${countTotal}`
+    : '';
+
+  const allOpen = getSorted(listTasks).filter(t => !t.completed);
+  const allDone = getSorted(listTasks).filter(t =>  t.completed);
   const open = filterText ? allOpen.filter(matchesFilter) : allOpen;
   const done = filterText ? allDone.filter(matchesFilter) : allDone;
-
 
   // Clean up selectedIds that no longer exist or are now completed
   selectedIds = new Set([...selectedIds].filter(id => allOpen.some(t => t.id === id)));
@@ -1032,8 +1235,13 @@ function render() {
     return;
   }
 
+  if (!listTasks.length) {
+    taskList.innerHTML = `<div class="empty-msg">Keine Aufgaben in dieser Liste.</div>`;
+    return;
+  }
+
   if (open.length) {
-    taskList.appendChild(buildTableHeader());
+    taskList.appendChild(buildTableHeader(false, open.map(t => t.id)));
 
     // Bulk-Bar
     if (selectedIds.size > 0) {
@@ -1051,7 +1259,7 @@ function render() {
       taskList.appendChild(editId === t.id ? buildEditForm(t) : buildTaskRow(t));
     }
   } else {
-    taskList.innerHTML = `<div class="empty-msg">Keine offenen Aufgaben vorhanden.<br>Abgeschlossene Aufgaben kannst du oben einblenden.</div>`;
+    taskList.innerHTML = `<div class="empty-msg">${filterText ? 'Keine Treffer.' : 'Keine offenen Aufgaben vorhanden.<br>Abgeschlossene Aufgaben kannst du oben einblenden.'}</div>`;
   }
 
   if (showCompleted) {
@@ -1059,7 +1267,97 @@ function render() {
   }
 }
 
-function buildTableHeader(showCompletedDate = false) {
+function renderListSelect() {
+  const current = normalizedListId(currentListId);
+  const valid = lists.some(l => l.id === current);
+  if (current && !valid) currentListId = '';
+  const value = currentListId || '';
+  selList.innerHTML = `<option value="">Alle</option>` + lists.map(l =>
+    `<option value="${esc(l.id)}"${l.id === value ? ' selected' : ''}>${esc(l.name)}</option>`
+  ).join('');
+  selList.value = value;
+}
+
+function openListsModal() {
+  renderManageLists();
+  listsModal.classList.remove('hidden');
+}
+
+function closeListsModal() {
+  listsModal.classList.add('hidden');
+}
+
+function renderManageLists() {
+  manageListEl.innerHTML = '';
+  const empty = !lists.length;
+  manageEmpty.classList.toggle('hidden', !empty);
+  for (const list of lists) {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="name">${esc(list.name)}</span>
+      <button class="btn btn-row" type="button">Umbenennen</button>
+      <button class="btn btn-row-del" type="button">Löschen</button>`;
+    li.querySelector('.btn-row').onclick = () => renameNamedList(list.id);
+    li.querySelector('.btn-row-del').onclick = () => deleteNamedList(list.id);
+    manageListEl.appendChild(li);
+  }
+}
+
+function promptListName(title, initial = '') {
+  const name = prompt(title, initial);
+  if (name == null) return null;
+  return name.trim();
+}
+
+function createNamedList() {
+  const name = promptListName('Name der neuen Liste');
+  if (name == null) return;
+  if (!name) {
+    toast('Bitte einen Namen eingeben.');
+    return;
+  }
+  const id = newListId();
+  lists.push({ id, name });
+  currentListId = id;
+  persistCurrentList();
+  save(`Liste „${name}“ angelegt`);
+  renderManageLists();
+}
+
+function renameNamedList(id) {
+  const list = lists.find(l => l.id === id);
+  if (!list) return;
+  const name = promptListName('Liste umbenennen', list.name);
+  if (name == null) return;
+  if (!name) {
+    toast('Bitte einen Namen eingeben.');
+    return;
+  }
+  if (list.name === name) return;
+  list.name = name;
+  save(`Liste umbenannt`);
+  renderManageLists();
+}
+
+function deleteNamedList(id) {
+  const list = lists.find(l => l.id === id);
+  if (!list) return;
+  if (!confirm(`Liste „${list.name}“ wirklich löschen? Die Aufgaben bleiben erhalten.`)) return;
+  lists = lists.filter(l => l.id !== id);
+  const now = nowIso();
+  for (const t of tasks) {
+    if (normalizedListId(t.listId) === id) {
+      t.listId = '';
+      t.updatedAt = now;
+      t.changedBy = 'TS/NA';
+    }
+  }
+  if (normalizedListId(currentListId) === id) currentListId = '';
+  persistCurrentList();
+  save(`Liste „${list.name}“ gelöscht`);
+  renderManageLists();
+}
+
+function buildTableHeader(showCompletedDate = false, openIds = []) {
   const cols = [
     { key:'person',    label:'Person' },
     { key:'prioA',     label:'Prio' },
@@ -1076,8 +1374,8 @@ function buildTableHeader(showCompletedDate = false) {
   const completedDateArrow = sortCol === 'completedDate' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : '';
   const completedDateHead = `<span class="col-head${sortCol==='completedDate'?' active':''}" data-col="completedDate">Geschlossen${completedDateArrow}</span>`;
 
-  const openIds = getSorted().filter(t => !t.completed).map(t => t.id);
-  const allSelected = openIds.length > 0 && openIds.every(id => selectedIds.has(id));
+  const ids = openIds.length ? openIds : getSorted().filter(t => !t.completed).map(t => t.id);
+  const allSelected = ids.length > 0 && ids.every(id => selectedIds.has(id));
   const selectCell = showCompletedDate
     ? `<span class="select-col"></span>`
     : `<span class="select-col"><input type="checkbox" class="task-cb" id="cb-select-all" title="Alle auswählen" ${allSelected ? 'checked' : ''}></span>`;
@@ -1090,7 +1388,7 @@ function buildTableHeader(showCompletedDate = false) {
   );
   const cbAll = div.querySelector('#cb-select-all');
   if (cbAll) cbAll.onchange = () => {
-    if (cbAll.checked) openIds.forEach(id => selectedIds.add(id));
+    if (cbAll.checked) ids.forEach(id => selectedIds.add(id));
     else selectedIds.clear();
     render();
   };
@@ -1240,6 +1538,9 @@ function buildEditForm(t) {
       const n = String(i + 1);
       return `<option value="${n}"${t.prioB===n?' selected':''}>${n}</option>`;
     })].join('');
+  const listOpts = ['<option value="">Keine Liste</option>',
+    ...lists.map(l => `<option value="${esc(l.id)}"${normalizedListId(t.listId)===l.id?' selected':''}>${esc(l.name)}</option>`)
+  ].join('');
 
   const div = document.createElement('div');
   div.className = 'edit-form';
@@ -1247,6 +1548,7 @@ function buildEditForm(t) {
     <input class="ef-person" type="text" value="${esc(t.person)}" placeholder="Person …">
     <select class="ef-prioA">${aOpts}</select>
     <select class="ef-prioB">${bOpts}</select>
+    <select class="ef-list" title="Liste">${listOpts}</select>
     <input class="ef-text" type="text" value="${esc(t.text)}" placeholder="Aufgabe …">
     <input class="ef-date" type="date" value="${esc(t.dueDate || '')}" title="Enddatum">
     <button class="btn btn-primary">Speichern</button>
@@ -1261,6 +1563,7 @@ function buildEditForm(t) {
       task.prioA   = div.querySelector('.ef-prioA').value;
       task.prioB   = div.querySelector('.ef-prioB').value;
       task.dueDate = div.querySelector('.ef-date').value;
+      task.listId  = normalizedListId(div.querySelector('.ef-list').value);
       task.text    = text;
       task.updatedAt = nowIso();
       task.changedBy = 'TS/NA';
@@ -1276,10 +1579,14 @@ function buildEditForm(t) {
 
 // ── CRUD ───────────────────────────────────────────────────────────────────
 function save(msg) {
-  normalizeTasks(tasks);
+  lists = normalizeLists(lists);
+  if (currentListId && !lists.some(l => l.id === currentListId)) currentListId = '';
+  normalizeTasks(tasks, lists);
   localStorage.setItem('todo-v3', JSON.stringify(tasks));
   localStorage.setItem('todo-v3-file', importedFilename);
   localStorage.setItem('todo-v3-next-uid', String(nextUid));
+  persistLists();
+  persistCurrentList();
   render();
   if (msg) toast(msg);
 }
@@ -1287,6 +1594,7 @@ function save(msg) {
 function addTask() {
   const text = inpTask.value.trim();
   if (!text) { inpTask.focus(); return; }
+  const listId = normalizedListId(currentListId);
   tasks.push({
     id:        Date.now() + Math.random(),
     uid:       takeUid(),
@@ -1298,7 +1606,8 @@ function addTask() {
     person:    inpPerson.value.trim(),
     createdAt: nowIso(),
     updatedAt: nowIso(),
-    changedBy: 'TS/NA'
+    changedBy: 'TS/NA',
+    ...(listId ? { listId } : {})
   });
   inpTask.value = '';
   inpTask.focus();
@@ -1371,6 +1680,7 @@ function clearList() {
 // ── MD Import / Export ─────────────────────────────────────────────────────
 function parseMD(text) {
   const result = [];
+  const importedLists = [];
   let person = '';
   let inDoneSection = false;
   let lastTask = null;
@@ -1386,11 +1696,22 @@ function parseMD(text) {
       if (crM) lastTask.createdAt = parseDMYtoISO(crM[1]);
       const upM = (parts[2] || '').match(/^geändert (.+)$/);
       if (upM) lastTask.updatedAt = parseDMYtoISO(upM[1]);
+      let metaListName = '';
       for (const p of parts.slice(3)) {
         const vonM = p.match(/^von #(\d+) am (.+)$/);
-        if (vonM) { lastTask.reopenedFromUid = Number(vonM[1]); lastTask.reopenedAt = parseDMYDate(vonM[2]); }
+        if (vonM) { lastTask.reopenedFromUid = Number(vonM[1]); lastTask.reopenedAt = parseDMYDate(vonM[2]); continue; }
         const toM = p.match(/^→ #(\d+) am (.+)$/);
-        if (toM)  { lastTask.reopenedToUid  = Number(toM[1]);  lastTask.reopenedAt = parseDMYDate(toM[2]); }
+        if (toM)  { lastTask.reopenedToUid  = Number(toM[1]);  lastTask.reopenedAt = parseDMYDate(toM[2]); continue; }
+        if (p.startsWith('list:')) {
+          lastTask.listId = normalizedListId(p.slice(5));
+          continue;
+        }
+        if (p.startsWith('Liste ')) metaListName = p.slice('Liste '.length).trim();
+      }
+      if (!normalizedListId(lastTask.listId) && metaListName) {
+        lastTask.listId = assignListByName(importedLists, metaListName);
+      } else {
+        rememberImportedList(importedLists, lastTask.listId, metaListName);
       }
       continue;
     }
@@ -1406,6 +1727,8 @@ function parseMD(text) {
       lastTask.createdAt      = /^\d{4}-\d{2}-\d{2}T/.test(obj.createdAt || '') ? obj.createdAt : '';
       lastTask.updatedAt      = /^\d{4}-\d{2}-\d{2}T/.test(obj.updatedAt || '') ? obj.updatedAt : '';
       lastTask.changedBy      = obj.changedBy || '';
+      lastTask.listId         = normalizedListId(obj.listId);
+      rememberImportedList(importedLists, lastTask.listId, obj.listName || '');
       continue;
     }
     // ## level-2 headers → person group or Abgeschlossen marker
@@ -1439,7 +1762,8 @@ function parseMD(text) {
       result.push(lastTask);
     }
   }
-  return normalizeTasks(result);
+  const catalog = normalizeLists(importedLists);
+  return { tasks: normalizeTasks(result, catalog), lists: catalog };
 }
 
 function mdMeta(t) {
@@ -1451,12 +1775,18 @@ function mdMeta(t) {
   ];
   if (t.reopenedFromUid) parts.push(`von #${t.reopenedFromUid} am ${formatDate(t.reopenedAt)}`);
   if (t.reopenedToUid)   parts.push(`→ #${t.reopenedToUid} am ${formatDate(t.reopenedAt)}`);
+  const lid = normalizedListId(t.listId);
+  if (lid) {
+    const name = listName(lid);
+    if (name) parts.push(`Liste ${name}`);
+    parts.push(`list:${lid}`);
+  }
   return `  <!-- ${parts.join(' | ')} -->\n`;
 }
 
 function exportMD() {
   if (!tasks.length) { toast('Keine Aufgaben vorhanden'); return; }
-  normalizeTasks(tasks);
+  normalizeTasks(tasks, lists);
   const ts   = new Date().toLocaleString('de-DE');
   let md     = `# To-Do Liste\nExportiert am: ${ts}\n`;
   const open = tasks.filter(t => !t.completed);
@@ -1511,14 +1841,38 @@ function splitCSVLine(line, sep) {
 
 function parseCSV(text) {
   const result = [];
+  const importedLists = [];
   const lines  = text.split(/\r?\n/).filter(l => l.trim());
-  if (!lines.length) return result;
+  if (!lines.length) return { tasks: result, lists: importedLists };
   const sep = lines[0].includes(';') ? ';' : ',';
+  const headerCols = splitCSVLine(lines[0], sep).map(c => c.trim().replace(/^"|"$/g, ''));
+  const headerLower = headerCols.map(c => c.toLowerCase());
+  const listNameIdx = headerLower.findIndex(h => h === 'liste');
+  const listIdIdx = headerLower.findIndex(h => h === 'list-id' || h === 'listid' || h === 'list_id');
   for (const line of lines.slice(1)) {
     const cols = splitCSVLine(line, sep).map(c => c.trim());
-    const [person, prioA, prioB, text, dueDate, completedDate, uid, reopenedFromUid, reopenedToUid, reopenedAt, createdAt, updatedAt, changedBy] = cols;
+    const person = cols[0] || '';
+    const prioA = cols[1] || '';
+    const prioB = cols[2] || '';
+    const text = cols[3] || '';
+    const dueDate = cols[4] || '';
+    const completedDate = cols[5] || '';
+    const uid = cols[6] || '';
+    const reopenedFromUid = cols[7] || '';
+    const reopenedToUid = cols[8] || '';
+    const reopenedAt = cols[9] || '';
+    const createdAt = cols[10] || '';
+    const updatedAt = cols[11] || '';
+    const changedBy = cols[12] || '';
     if (!text || person.startsWith('##')) continue;
     const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v);
+    let listId = listIdIdx >= 0 ? normalizedListId(cols[listIdIdx]) : '';
+    const csvListName = listNameIdx >= 0 ? (cols[listNameIdx] || '').trim() : '';
+    if (!listId && csvListName) {
+      listId = assignListByName(importedLists, csvListName);
+    } else if (listId) {
+      rememberImportedList(importedLists, listId, csvListName);
+    }
     result.push({
       id:            Date.now() + Math.random(),
       uid:           Number(uid) || '',
@@ -1534,30 +1888,45 @@ function parseCSV(text) {
       createdAt:     /^\d{4}-\d{2}-\d{2}T/.test(createdAt || '') ? createdAt : parseDMYtoISO(createdAt),
       updatedAt:     /^\d{4}-\d{2}-\d{2}T/.test(updatedAt || '') ? updatedAt : parseDMYtoISO(updatedAt),
       changedBy:     changedBy || '',
-      person:        person || ''
+      person:        person || '',
+      ...(listId ? { listId } : {})
     });
   }
-  return normalizeTasks(result);
+  const catalog = normalizeLists(importedLists);
+  return { tasks: normalizeTasks(result, catalog), lists: catalog };
+}
+
+function csvHasLists() {
+  return lists.length > 0 || tasks.some(t => normalizedListId(t.listId));
+}
+
+function csvRow(t, person, includeCompletedDate, includeLists) {
+  const row = [person, t.prioA, t.prioB, t.text, t.dueDate || '', includeCompletedDate ? (t.completedDate || '') : '', t.uid, t.reopenedFromUid || '', t.reopenedToUid || '', t.reopenedAt || '', formatDateTimeUTC(t.createdAt), formatDateTimeUTC(t.updatedAt), t.changedBy || ''];
+  if (includeLists) {
+    const id = normalizedListId(t.listId);
+    row.push(id ? (listName(id) || '') : '');
+    row.push(id || '');
+  }
+  return row;
 }
 
 function exportCSV() {
   if (!tasks.length) { toast('Keine Aufgaben vorhanden'); return; }
-  normalizeTasks(tasks);
+  normalizeTasks(tasks, lists);
+  const includeLists = csvHasLists();
+  const header = ['Person', 'Prio A', 'Prio B', 'Aufgabe', 'Enddatum', 'Abgeschlossen am', 'UID', 'Reopened From UID', 'Reopened To UID', 'Reopened At', 'Erstellt am', 'Geändert am', 'Geändert von'];
+  if (includeLists) header.push('Liste', 'List-ID');
   const open = tasks.filter(t => !t.completed);
   const done = tasks.filter(t =>  t.completed);
-  const rows = [['Person', 'Prio A', 'Prio B', 'Aufgabe', 'Enddatum', 'Abgeschlossen am', 'UID', 'Reopened From UID', 'Reopened To UID', 'Reopened At', 'Erstellt am', 'Geändert am', 'Geändert von']];
+  const rows = [header];
 
   for (const [person, group] of groupByPerson(open)) {
-    for (const t of group) {
-      rows.push([person, t.prioA, t.prioB, t.text, t.dueDate || '', '', t.uid, t.reopenedFromUid || '', t.reopenedToUid || '', t.reopenedAt || '', formatDateTimeUTC(t.createdAt), formatDateTimeUTC(t.updatedAt), t.changedBy || '']);
-    }
+    for (const t of group) rows.push(csvRow(t, person, false, includeLists));
   }
   if (done.length) {
-    rows.push(['## Abgeschlossen', '', '', '', '', '', '', '', '', '', '', '', '']);
+    rows.push(['## Abgeschlossen', ...Array(header.length - 1).fill('')]);
     for (const [person, group] of groupByPerson(done)) {
-      for (const t of group) {
-        rows.push([person, t.prioA, t.prioB, t.text, t.dueDate || '', t.completedDate || '', t.uid, t.reopenedFromUid || '', t.reopenedToUid || '', t.reopenedAt || '', formatDateTimeUTC(t.createdAt), formatDateTimeUTC(t.updatedAt), t.changedBy || '']);
-      }
+      for (const t of group) rows.push(csvRow(t, person, true, includeLists));
     }
   }
   const csv = '﻿' + rows.map(r =>
@@ -1571,56 +1940,68 @@ function exportCSV() {
 function parseJSON(text) {
   const data = JSON.parse(text);
   const list = Array.isArray(data) ? data : data.tasks;
-  if (!Array.isArray(list)) return [];
+  if (!Array.isArray(list)) return { tasks: [], lists: [] };
+  const importedLists = normalizeLists(Array.isArray(data) ? [] : (data.lists || []));
   const isIso   = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
   const isIsoTs = v => /^\d{4}-\d{2}-\d{2}T/.test(v || '');
-  const imported = normalizeTasks(list.map(t => ({
-    id: Date.now() + Math.random(),
-    uid: Number(t.uid) || '',
-    text: String(t.text || '').trim(),
-    completed: !!t.completed,
-    prioA: /^[A-Z]$/.test(t.prioA || '') ? t.prioA : '',
-    prioB: /^[1-9]$/.test(String(t.prioB || '')) ? String(t.prioB) : '',
-    dueDate: isIso(t.dueDate) ? t.dueDate : '',
-    completedDate: isIso(t.completedDate) ? t.completedDate : '',
-    person: String(t.person || ''),
-    reopenedFromUid: Number(t.reopenedFromUid) || '',
-    reopenedToUid: Number(t.reopenedToUid) || '',
-    reopenedAt: isIso(t.reopenedAt) ? t.reopenedAt : '',
-    createdAt: isIsoTs(t.createdAt) ? t.createdAt : '',
-    updatedAt: isIsoTs(t.updatedAt) ? t.updatedAt : '',
-    changedBy: String(t.changedBy || '')
-  })).filter(t => t.text));
-  if (data && Number(data.nextUid)) {
+  const imported = normalizeTasks(list.map(t => {
+    const listId = normalizedListId(t.listId);
+    return {
+      id: Date.now() + Math.random(),
+      uid: Number(t.uid) || '',
+      text: String(t.text || '').trim(),
+      completed: !!t.completed,
+      prioA: /^[A-Z]$/.test(t.prioA || '') ? t.prioA : '',
+      prioB: /^[1-9]$/.test(String(t.prioB || '')) ? String(t.prioB) : '',
+      dueDate: isIso(t.dueDate) ? t.dueDate : '',
+      completedDate: isIso(t.completedDate) ? t.completedDate : '',
+      person: String(t.person || ''),
+      reopenedFromUid: Number(t.reopenedFromUid) || '',
+      reopenedToUid: Number(t.reopenedToUid) || '',
+      reopenedAt: isIso(t.reopenedAt) ? t.reopenedAt : '',
+      createdAt: isIsoTs(t.createdAt) ? t.createdAt : '',
+      updatedAt: isIsoTs(t.updatedAt) ? t.updatedAt : '',
+      changedBy: String(t.changedBy || ''),
+      ...(listId ? { listId } : {})
+    };
+  }).filter(t => t.text), importedLists);
+  if (data && !Array.isArray(data) && Number(data.nextUid)) {
     nextUid = Number(data.nextUid);
     localStorage.setItem('todo-v3-next-uid', String(nextUid));
   }
-  return imported;
+  return { tasks: imported, lists: importedLists };
 }
 
 function exportJSON() {
   if (!tasks.length) { toast('Keine Aufgaben vorhanden'); return; }
-  normalizeTasks(tasks);
+  lists = normalizeLists(lists);
+  normalizeTasks(tasks, lists);
   const data = {
     format: 'todo-v3-json',
     exportedAt: new Date().toISOString(),
     nextUid,
-    tasks: tasks.map(t => ({
-      uid: t.uid,
-      text: t.text,
-      completed: !!t.completed,
-      prioA: t.prioA || '',
-      prioB: t.prioB || '',
-      dueDate: t.dueDate || '',
-      completedDate: t.completedDate || '',
-      person: t.person || '',
-      reopenedFromUid: t.reopenedFromUid || '',
-      reopenedToUid: t.reopenedToUid || '',
-      reopenedAt: t.reopenedAt || '',
-      createdAt: t.createdAt || '',
-      updatedAt: t.updatedAt || '',
-      changedBy: t.changedBy || ''
-    }))
+    lists: lists.map(l => ({ id: l.id, name: l.name })),
+    tasks: tasks.map(t => {
+      const row = {
+        uid: t.uid,
+        text: t.text,
+        completed: !!t.completed,
+        prioA: t.prioA || '',
+        prioB: t.prioB || '',
+        dueDate: t.dueDate || '',
+        completedDate: t.completedDate || '',
+        person: t.person || '',
+        reopenedFromUid: t.reopenedFromUid || '',
+        reopenedToUid: t.reopenedToUid || '',
+        reopenedAt: t.reopenedAt || '',
+        createdAt: t.createdAt || '',
+        updatedAt: t.updatedAt || '',
+        changedBy: t.changedBy || ''
+      };
+      const listId = normalizedListId(t.listId);
+      if (listId) row.listId = listId;
+      return row;
+    })
   };
   download(JSON.stringify(data, null, 2), 'todo-liste.json', 'application/json;charset=utf-8');
   toast('JSON exportiert');
@@ -1632,7 +2013,7 @@ function importFile(file) {
   reader.onload = e => {
     const text     = e.target.result.replace(/^﻿/, '');
     const name     = file.name.toLowerCase();
-    let imported = [];
+    let imported = { tasks: [], lists: [] };
     try {
       if (name.endsWith('.json')) imported = parseJSON(text);
       else if (name.endsWith('.csv')) imported = parseCSV(text);
@@ -1641,12 +2022,14 @@ function importFile(file) {
       toast('Datei konnte nicht importiert werden');
       return;
     }
-    if (!imported.length) { toast('Keine Aufgaben gefunden'); return; }
+    if (!imported.tasks.length) { toast('Keine Aufgaben gefunden'); return; }
     if (tasks.length) {
       showImportModal(imported, file.name);
     } else {
-      tasks = imported; importedFilename = file.name; editId = null;
-      save(`${imported.length} Aufgaben importiert`);
+      lists = normalizeLists(imported.lists || []);
+      tasks = imported.tasks; importedFilename = file.name; editId = null;
+      applyCurrentListAfterImport();
+      save(`${imported.tasks.length} Aufgaben importiert`);
     }
   };
   reader.readAsText(file, 'UTF-8');
@@ -1692,12 +2075,30 @@ document.getElementById('modal-cancel') .onclick = closeImportModal;
 document.getElementById('modal-replace').onclick = doImportReplace;
 document.getElementById('modal-append') .onclick = doImportAppend;
 importModal.addEventListener('click', e => { if (e.target === importModal) closeImportModal(); });
+selList.addEventListener('change', () => {
+  currentListId = selList.value;
+  persistCurrentList();
+  render();
+});
+btnNamedListNew.onclick = createNamedList;
+btnListsManage.onclick = openListsModal;
+document.getElementById('lists-modal-close').onclick = closeListsModal;
+document.getElementById('lists-modal-new').onclick = createNamedList;
+listsModal.addEventListener('click', e => { if (e.target === listsModal) closeListsModal(); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!listsModal.classList.contains('hidden')) closeListsModal();
+});
 
 // ── Init ───────────────────────────────────────────────────────────────────
 btnSearch.innerHTML = ICON_SEARCH;
-normalizeTasks(tasks);
+lists = normalizeLists(lists);
+if (currentListId && !lists.some(l => l.id === currentListId)) currentListId = '';
+normalizeTasks(tasks, lists);
 localStorage.setItem('todo-v3', JSON.stringify(tasks));
 localStorage.setItem('todo-v3-next-uid', String(nextUid));
+persistLists();
+persistCurrentList();
 render();
 
 </script>
