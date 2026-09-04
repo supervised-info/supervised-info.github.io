@@ -896,7 +896,7 @@ body.walk .chk input {
       <select id="store"></select>
     </label>
     <div class="toolbar-end">
-      <p class="count" id="count" aria-live="polite"></p>
+      <p class="count" id="count" aria-live="polite" aria-label="0 offen, 0 erledigt, 0 gesamt"></p>
       <button type="button" class="iconbtn" id="btn-hide-done" aria-pressed="false" aria-label="Erledigte ausblenden" title="Erledigte ausblenden"></button>
       <button type="button" class="iconbtn" id="btn-walk" aria-pressed="false">Geh-Modus</button>
       <div class="more" id="staple-more">
@@ -1672,7 +1672,9 @@ body.walk .chk input {
       if (it.done) erledigt += 1;
       else offen += 1;
     });
-    els.count.textContent = offen + " offen, " + erledigt + " erledigt";
+    var gesamt = state.items.length;
+    els.count.textContent = offen + "/" + erledigt + "/" + gesamt;
+    els.count.setAttribute("aria-label", offen + " offen, " + erledigt + " erledigt, " + gesamt + " gesamt");
   }
 
   function renderStoreSelect() {
