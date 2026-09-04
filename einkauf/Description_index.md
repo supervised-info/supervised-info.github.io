@@ -1,6 +1,6 @@
 # Regenerationsspec: `einkauf/index.html`
 
-Stand der Live-PWA: **2026-09-03**. Diese Spec beschreibt die Seite so, dass sie daraus neu erzeugt werden kann.
+Stand der Live-PWA: **2026-09-04**. Diese Spec beschreibt die Seite so, dass sie daraus neu erzeugt werden kann.
 
 ## Zweck
 
@@ -11,7 +11,7 @@ Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Sta
 PWA (einzige im Repo):
 
 - `einkauf/index.html` (eine HTML-Datei, CSS+JS inline)
-- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v21`
+- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v22`
 - `einkauf/manifest.webmanifest`
 - Icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`
 
@@ -19,7 +19,7 @@ PWA (einzige im Repo):
 
 SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie network-first, Cache-Fallback; navigate fällt auf `./` bzw. `index.html`. Install `skipWaiting`, activate löscht fremde Caches, `clients.claim`. Seite: `navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })` + `reg.update()`; bei `controllerchange` einmal `location.reload()`.
 
-**Bei jedem Deploy Cache-Namen hochzählen** (`v21` → `v22` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
+**Bei jedem Deploy Cache-Namen hochzählen** (`v22` → `v23` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
 
 ## Chrome
 
@@ -36,7 +36,7 @@ SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie net
 - Sheet `#sheet` Dialog „Einstellungen“ + Scrim (vor Wrap im DOM).
 - Wrap: Mast, `h1` Einkaufsliste, `.lede` „im Ladenweg“.
 - Form `#add-form`: `#add` Placeholder „Milch, Äpfel, Klopapier…“, Submit `+`.
-- Toolbar: `#store` Select „Laden“, `#count` live („N offen, M erledigt“), `#btn-hide-done` Auge, `#btn-walk` Geh-Modus, Stamm-Menü, Burger `#btn-more`.
+- Toolbar: `#store` Select „Laden“, `#count` live (`aria-live`, Format `oo/xx/yy` = offen/erledigt/gesamt, leer `0/0/0`; `aria-label` „X offen, Y erledigt, Z gesamt“), `#btn-hide-done` Auge, `#btn-walk` Geh-Modus, Stamm-Menü, Burger `#btn-more`.
 - `#status` role=status; `#list` Abteilungen.
 
 ### Einstellungen-Sheet — Reihenfolge
@@ -109,7 +109,7 @@ UI je Item: Checkbox, Name (Klick rename; Enter speichern, Escape abbrechen), De
 
 Geh-Modus: `body.walk` — Button-Label „Bearbeiten“, `aria-pressed` true; kein Grip/Select/Delete, Name nicht editierbar (CSS + Render). Persistiert.
 
-**Erledigte ausblenden (`#btn-hide-done`):** neben Geh-Modus. SVG Auge (`eye`) wenn erledigte sichtbar, durchgestrichenes Auge (`eye.slash`) wenn ausgeblendet. `aria-label` / `title`: „Erledigte ausblenden“ / „Erledigte einblenden“, `aria-pressed` true wenn versteckt. Tippen setzt `hideDone` und filtert **beide** Listen-Render (Geh-Modus und Bearbeiten): `done`-Artikel bleiben in `items` und im Backup, verschwinden nur aus der Anzeige. Leere Abteilungs-Header rendern nicht. Liste mit Artikeln, aber keiner sichtbar: `.empty` „Erledigte ausgeblendet.“ (Toggle bleibt). Leere Liste ohne Artikel bleibt „Noch nichts auf der Liste.“ Zähler `#count` weiter volle Offen/Erledigt-Zahlen. Flag nur in `einkauf_v1.hideDone`, **nicht** in `einkauf-backup` (sonst kämpft iPhone-Backup gegen Android).
+**Erledigte ausblenden (`#btn-hide-done`):** neben Geh-Modus. SVG Auge (`eye`) wenn erledigte sichtbar, durchgestrichenes Auge (`eye.slash`) wenn ausgeblendet. `aria-label` / `title`: „Erledigte ausblenden“ / „Erledigte einblenden“, `aria-pressed` true wenn versteckt. Tippen setzt `hideDone` und filtert **beide** Listen-Render (Geh-Modus und Bearbeiten): `done`-Artikel bleiben in `items` und im Backup, verschwinden nur aus der Anzeige. Leere Abteilungs-Header rendern nicht. Liste mit Artikeln, aber keiner sichtbar: `.empty` „Erledigte ausgeblendet.“ (Toggle bleibt). Leere Liste ohne Artikel bleibt „Noch nichts auf der Liste.“ Zähler `#count` weiter volle Offen/Erledigt/Gesamt-Zahlen (`oo/xx/yy`). Flag nur in `einkauf_v1.hideDone`, **nicht** in `einkauf-backup` (sonst kämpft iPhone-Backup gegen Android).
 
 **Stamm:** `staples` ist **`{ name, dept }[]`**, kein `string[]`. `sanitizeStaples` akzeptiert alte String-Backups und neue Objekte (Name trimmen, Duplikate via `mappingKey`, ungültiges `dept` → `guessDept`). Menü: Gesamtliste + Chips; Settings: anlegen / Dept / Reorder / löschen.
 
@@ -194,7 +194,8 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-03): `savedLists` füllen statt
 
 ## Akzeptanzkriterien
 
-- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v21).
+- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v22).
+- [ ] `#count` zeigt `offen/erledigt/gesamt` (leer `0/0/0`); `aria-live` bleibt; `aria-label` „X offen, Y erledigt, Z gesamt“.
 - [ ] Add rät Abteilung (`mappings` vor Sonderregeln vor Keyword); Checkbox; Pointer-Drag **abteilungsübergreifend** (Zeile oder `h2`); Mapping wie Dept-Select; Geh-Modus persistiert.
 - [ ] Auge `#btn-hide-done` blendet `done` aus (nicht löschen) in Geh-Modus und Bearbeiten; leere Depts weg; alles erledigt → „Erledigte ausgeblendet.“; `hideDone` nur `einkauf_v1`, nicht Backup; Zähler bleibt voll.
 - [ ] Stamm `{name,dept}[]`; `sanitizeStaples` akzeptiert alte Strings; Settings anlegen/Dept/Reorder/löschen; Menü Gesamtliste + Chips (`tapStaple`).
