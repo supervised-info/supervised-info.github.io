@@ -120,23 +120,31 @@ Import wenn Liste nicht leer → Modal Anhängen/Ersetzen. Sonst direkt. Toast b
 
 ## Native Begleit-App (nur dokumentieren, nicht nachbauen)
 
-Stand 2026-09-04. Die native To-Do-UI lebt **nicht** als eigene App, sondern als zweiter Reiter **To-Do** in der Einkaufs-App ([einkauf-watch](https://github.com/supervised-info/einkauf-watch), **Build 55**). Die HTML-PWA hier bleibt eigenständig (`todo-v3*`, Tools-Karte 03). Kein Live-localStorage-Sync, kein gemeinsames Store mit Einkauf (`einkauf-backup` / `einkauf-local.json` bleiben fremd).
+Stand 2026-09-05. Die native To-Do-UI lebt **nicht** als eigene App, sondern als zweiter Reiter **To-Do** in der Einkaufs-App ([einkauf-watch](https://github.com/supervised-info/einkauf-watch), **Build 62**). Die HTML-PWA hier bleibt eigenständig (`todo-v3*`, Tools-Karte 03). Kein Live-localStorage-Sync, kein gemeinsames Store mit Einkauf (`einkauf-backup` / `einkauf-local.json` bleiben fremd).
 
 Brücke ist das Backup `format: "todo-v3-json"` (Roundtrip HTML ↔ Native: `{ format, exportedAt, nextUid, lists?, tasks[] }` mit optionalem `listId`). Native liest Array oder Objekt wie diese Spec. Phase 10 (benannte Listen) ist **nativ und HTML** geliefert — gleiches JSON-Schema, kein Format-Bump.
 
+Native-To-Do seit Build 55 (kurz, nicht nachbauen):
+
+- **Build 56:** JSON-Backup zusätzlich unter **Einstellungen → To-Do Backup** (`fileImporter` nur `.json`; MD/CSV bleiben im To-Do-**…**).
+- **Build 57:** Import hebt `revision` analog Einkauf (`max(lokal, import) + 1`); HTML-Brücke hat keine `revision`. iPhone-Zeile zeigt **Abgeschlossen-Datum** (`geschlossen TT.MM.JJJJ`), wenn `completedDate` gesetzt.
+- **Build 58:** iPhone-Zeile `#uid` Badge + reopen-Pills wie diese Spec (`von #` / `reopen #`).
+- **Build 59–61:** iCloud-Inbox nur **Einkauf** (verbinden / abrufen / Auswahl / Löschen) — nie To-Do.
+- **Build 62:** iPhone-Nav ohne großen Titel „To-Do“ (leer, `.inline`); Toolbar kompakt. Der Tab-Name reicht.
+
 Dieses Delta **bleibt bewusst**:
 
-- **Nur HTML / in dieser Spec behalten:** Site-Mast Theme/Palette; eigenständige PWA ohne Tab-Einbettung. MD- und CSV-Export/Import bleiben in der HTML-PWA (Native hat MD/CSV seit Phase 8 / Build 53 ebenfalls; HTML verliert sie nicht).
-- **Nur native / nicht ins HTML:** Tab-Integration in der Einkaufs-App; Watch Geh-Modus; Siri **Todo** (ein Token, nicht „To Do“; iPhone-Nachfrage **„o“**, Watch Freitext-Diktat ohne `requestValueDialog`); Watch-Complication Label **To Do**; PDF **Liste teilen**. Native folgt mit PDF/Siri/Watch der aktuellen Liste — das bleibt native-only.
+- **Nur HTML / in dieser Spec behalten:** Site-Mast Theme/Palette; eigenständige PWA ohne Tab-Einbettung; `h1` „To-Do Liste“. MD- und CSV-Export/Import bleiben in der HTML-PWA (Native hat MD/CSV seit Phase 8 / Build 53 ebenfalls; HTML verliert sie nicht).
+- **Nur native / nicht ins HTML:** Tab-Integration in der Einkaufs-App; Watch Geh-Modus; Siri **Todo** (ein Token, nicht „To Do“; iPhone-Nachfrage **„o“**, Watch Freitext-Diktat ohne `requestValueDialog`); Watch-Complication Label **To Do**; PDF **Liste teilen**; Einstellungen-To-Do-Backup; Import-`revision`-Floor; kompakte Nav ohne Listen-Titel. Native folgt mit PDF/Siri/Watch der aktuellen Liste — das bleibt native-only. iCloud-Inbox nie für To-Do.
 
-Wieder öffnen, Sort, Suche und benannte Listen existieren nativ auf dem iPhone. Watch bleibt Geh-Modus (folgt der gesyncten aktuellen Liste, ohne Listen-Verwaltung).
+Wieder öffnen, Sort, Suche, `#uid`/reopen-Pills und benannte Listen existieren nativ auf dem iPhone. Watch bleibt Geh-Modus (folgt der gesyncten aktuellen Liste, ohne Listen-Verwaltung).
 
 ## Nicht ändern
 
 - Keys `todo-v3*` (neue Keys nur additiv: `todo-v3-lists`, `todo-v3-current-list-id`), format-String `todo-v3-json`, changedBy `TS/NA`.
 - Kicker 03.
 - `#btn-new` „Neue Liste“ bleibt der Aufgaben-Wipe, nicht das Anlegen benannter Listen.
-- Bewusstes Delta zur nativen Begleit-App (Watch, Siri, Complication, PDF, Tab in Einkauf) nicht ins HTML ziehen. HTML behält MD/CSV.
+- Bewusstes Delta zur nativen Begleit-App (Watch, Siri, Complication, PDF, Tab in Einkauf, Einstellungen-To-Do-Backup, Import-`revision`, kompakte Nav, iCloud-Inbox nur Einkauf) nicht ins HTML ziehen. HTML behält MD/CSV.
 
 ## Akzeptanzkriterien
 
@@ -146,4 +154,4 @@ Wieder öffnen, Sort, Suche und benannte Listen existieren nativ auf dem iPhone.
 - [ ] Anhängen merget Listen per id (lokaler Name gewinnt).
 - [ ] Abgeschlossen-Toggle persistiert; Sort Person/Prio; Filter-Reihenfolge Liste → Abgeschlossen → Suche → Sort.
 - [ ] Shared Theme/Palette; Skip; navy Favicon; FOUC; Creme/Blau ungebrochen.
-- [ ] Native-Delta bleibt (HTML bleibt eigenständige PWA mit `todo-v3*` + MD/CSV; kein Watch, kein Siri, keine Complication, kein PDF, keine Tab-Einbettung in Einkauf).
+- [ ] Native-Delta bleibt (HTML bleibt eigenständige PWA mit `todo-v3*` + MD/CSV; kein Watch, kein Siri, keine Complication, kein PDF, keine Tab-Einbettung in Einkauf, keine `revision`, keine iCloud-Inbox).
