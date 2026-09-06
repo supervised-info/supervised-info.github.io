@@ -394,9 +394,10 @@ h1 {
   flex-shrink: 0;
   min-width: 36px;
   width: 36px;
-  min-height: 44px;
+  min-height: 36px;
+  height: 36px;
   padding: 0;
-  border: 0;
+  border: 1.5px solid transparent;
   border-radius: 999px;
   background: var(--paper-3);
   color: var(--muted);
@@ -409,6 +410,7 @@ h1 {
 }
 .urgency-chip[data-urgency="normal"] {
   background: transparent;
+  border-color: var(--rule);
 }
 .urgency-chip[data-urgency="urgent"] {
   color: var(--oxide);
