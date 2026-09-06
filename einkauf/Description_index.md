@@ -11,7 +11,7 @@ Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Sta
 PWA (einzige im Repo):
 
 - `einkauf/index.html` (eine HTML-Datei, CSS+JS inline)
-- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v26`
+- `einkauf/sw.js` — Cache-Name **aktuell** `einkauf-offline-v27`
 - `einkauf/manifest.webmanifest`
 - Icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`
 
@@ -19,7 +19,7 @@ PWA (einzige im Repo):
 
 SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie network-first, Cache-Fallback; navigate fällt auf `./` bzw. `index.html`. Install `skipWaiting`, activate löscht fremde Caches, `clients.claim`. Seite: `navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })` + `reg.update()`; bei `controllerchange` einmal `location.reload()`.
 
-**Bei jedem Deploy Cache-Namen hochzählen** (`v26` → `v27` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
+**Bei jedem Deploy Cache-Namen hochzählen** (`v27` → `v28` …), sonst bleiben alte Assets. Nie denselben Cache-Namen wiederverwenden.
 
 ## Chrome
 
@@ -106,7 +106,7 @@ Default `currentStoreId`: `edeka`. Builtin-Seeds fehlen nie (merge). Layout-Migr
 Zwei unabhängige optionale Felder **nur Einkauf** (nicht To-Do, nicht Inbox):
 
 - **`imported`** (`boolean`): fehlender Key = `false`. **Setzen** (`true`) nur beim Fremd-Datei-Import **Daten importieren** (`.md`/`.txt` via `parseMarkdown`). **Nie** Tippen/`addItem`, Stamm/`applyStaple` / `applyAllStaples`, gespeicherte Listen/`applySavedList`. Backup-**Restore** (`applyBackupImport` / `sanitizeItems`) stempelt nicht nach — Werte bleiben wie im JSON (fehlend = false). Export schreibt das Feld **wie gespeichert** (kein Nachstempeln aller Artikel auf eigenem Re-Export). In der UI nur Anzeige, **ganz rechts** nach dem Urgency-Chip (letztes Element der Zeile): teal Markierung `.imported-mark` mit Token `--slate` (**kein** Grün/`--good`, kein Toggle, **kein linker Streifen**). L→R wie Native (einkauf-watch PR #98 / Build 64): Checkbox | Urgency | Import. Native setzt `imported` nur beim Inbox-Abruf; HTML hat keine Inbox — MD/txt ist der Fremd-Datei-Pfad.
-- **`urgency`**: `"urgent"` | `"normal"` | `"later"`; fehlender oder unbekannter Key = `"normal"`. Nutzer wechselt per Chip (Geh-Modus und Bearbeiten): `urgent` → `normal` → `later` → `urgent`. Icons: eilig ⚡, normal **leerer umrandeter Chip** (nur Rahmen `--rule`, keine Glyphe, kein ○, kein –, kein Leerzeichen-Inhalt, feste Min-Breite `.urgency-chip`), später ↓ (U+2193). Encode schreibt das Feld immer. Native nutzt ebenfalls den **leeren umrandeten Chip** (Build 64).
+- **`urgency`**: `"urgent"` | `"normal"` | `"later"`; fehlender oder unbekannter Key = `"normal"`. Nutzer wechselt per Chip (Geh-Modus und Bearbeiten): `urgent` → `normal` → `later` → `urgent`. Icons: eilig ⚡, normal **leerer umrandeter Chip** (nur Rahmen `--rule`, keine Glyphe, kein ○, kein –, kein Leerzeichen-Inhalt, `.urgency-chip` kompakte feste Min-Breite/-Höhe wie ⚡/↓ — 26×26, kein breites Pill), später ↓ (U+2193). Encode schreibt das Feld immer. Native nutzt ebenfalls den **leeren umrandeten Chip** (Build 64).
 
 Alte `einkauf_v1`-Stände und Backups ohne die Keys laden weiter. Beide Felder kombinierbar.
 
@@ -202,7 +202,7 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-06, Native Build 64 / PR #98): 
 
 ## CSS
 
-`.walk` versteckt Edit-Controls; Sheet von rechts; Tipziele ~44px; `body.locked` overflow hidden bei Sheet.
+`.walk` versteckt Edit-Controls; Sheet von rechts; Tipziele ~44px; `body.locked` overflow hidden bei Sheet. `.urgency-chip` 26×26 (⚡ / umrandet-leer / ↓ gleiche kompakte Maße, kein breites Pill).
 
 ## Nicht ändern
 
@@ -213,7 +213,7 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-06, Native Build 64 / PR #98): 
 
 ## Akzeptanzkriterien
 
-- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v26).
+- [ ] Offline nach erstem Besuch (SW v-Bump, aktuell v27).
 - [ ] `#count` zeigt `offen/erledigt/gesamt` (leer `0/0/0`); `aria-live` bleibt; `aria-label` „X offen, Y erledigt, Z gesamt“.
 - [ ] Add rät Abteilung (`mappings` vor Sonderregeln vor Keyword); Checkbox; Pointer-Drag **abteilungsübergreifend** (Zeile oder `h2`); Mapping wie Dept-Select; Geh-Modus persistiert.
 - [ ] Auge `#btn-hide-done` blendet `done` aus (nicht löschen) in Geh-Modus und Bearbeiten; leere Depts weg; alles erledigt → „Erledigte ausgeblendet.“; `hideDone` nur `einkauf_v1`, nicht Backup; Zähler bleibt voll.
