@@ -417,10 +417,6 @@ h1 {
   line-height: 1;
   overflow: hidden;
 }
-.urgency-chip[data-urgency="normal"] {
-  background: transparent;
-  border-color: var(--rule);
-}
 .urgency-chip[data-urgency="urgent"] {
   color: var(--oxide);
 }
@@ -1359,7 +1355,7 @@ body.walk .chk input {
   function urgencySymbol(u) {
     if (u === "urgent") return "\u26A1";
     if (u === "later") return "\u2193";
-    return "";
+    return "\u2194";
   }
 
   function urgencyLabel(u) {
