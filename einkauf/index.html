@@ -372,12 +372,48 @@ h1 {
 }
 .row {
   display: grid;
-  grid-template-columns: 38px 44px minmax(0, 1fr) minmax(7.2rem, auto) 44px;
+  grid-template-columns: 38px 44px minmax(0, 1fr) 36px minmax(7.2rem, auto) 44px 10px;
   gap: 0.3rem;
   align-items: center;
   border-bottom: 1px solid var(--rule);
   min-height: 48px;
   position: relative;
+}
+.imported-mark {
+  width: 4px;
+  height: 22px;
+  border-radius: 1px;
+  background: transparent;
+  justify-self: center;
+  pointer-events: none;
+}
+.row.imported .imported-mark {
+  background: var(--slate);
+}
+.urgency-chip {
+  flex-shrink: 0;
+  min-width: 36px;
+  width: 36px;
+  min-height: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  background: var(--paper-3);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.urgency-chip[data-urgency="normal"] {
+  background: transparent;
+  border-color: var(--rule);
+}
+.urgency-chip[data-urgency="urgent"] {
+  color: var(--oxide);
 }
 .grip {
   width: 38px;
@@ -744,19 +780,21 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
   .sheet.open { transform: translateY(0); }
   .row {
-    grid-template-columns: 38px 44px minmax(0, 1fr) 44px;
+    grid-template-columns: 38px 44px minmax(0, 1fr) 36px 44px 10px;
     grid-template-rows: auto auto;
   }
   .grip { grid-column: 1; grid-row: 1; }
   .chk { grid-column: 2; grid-row: 1; }
   .name, .name-edit { grid-column: 3; grid-row: 1; }
+  .urgency-chip { grid-column: 4; grid-row: 1; }
+  .del { grid-column: 5; grid-row: 1 / 3; }
+  .imported-mark { grid-column: 6; grid-row: 1; }
   .dept-sel {
     grid-column: 3;
     grid-row: 2;
     max-width: none;
     margin: 0 0 0.4rem;
   }
-  .del { grid-column: 4; grid-row: 1 / 3; }
   .layout-row.staple-edit,
   .layout-row.mapping-edit {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -772,11 +810,13 @@ body.walk .grip,
 body.walk .dept-sel,
 body.walk .del { display: none; }
 body.walk .row {
-  grid-template-columns: 48px 1fr;
+  grid-template-columns: 48px 1fr 36px 10px;
   grid-template-rows: auto;
 }
 body.walk .chk { grid-column: 1; grid-row: 1; }
 body.walk .name, body.walk .name-edit { grid-column: 2; grid-row: 1; }
+body.walk .urgency-chip { grid-column: 3; grid-row: 1; }
+body.walk .imported-mark { grid-column: 4; grid-row: 1; }
 body.walk .name {
   font-size: 1.18rem;
   pointer-events: none;
@@ -1294,6 +1334,37 @@ body.walk .chk input {
     return 0;
   }
 
+  function parseUrgency(raw) {
+    var s = String(raw == null ? "" : raw).replace(/^\s+|\s+$/g, "").toLowerCase();
+    if (s === "urgent") return "urgent";
+    if (s === "later") return "later";
+    return "normal";
+  }
+
+  function nextUrgency(u) {
+    if (u === "urgent") return "normal";
+    if (u === "normal") return "later";
+    return "urgent";
+  }
+
+  function urgencySymbol(u) {
+    if (u === "urgent") return "\u26A1";
+    if (u === "later") return "\u2193";
+    return "";
+  }
+
+  function urgencyLabel(u) {
+    if (u === "urgent") return "eilig";
+    if (u === "later") return "später";
+    return "normal";
+  }
+
+  function cycleItemUrgency(it) {
+    it.urgency = nextUrgency(parseUrgency(it.urgency));
+    scheduleSave();
+    renderList();
+  }
+
   function nextOrd() {
     var max = 0;
     state.items.forEach(function (it) {
@@ -1601,7 +1672,9 @@ body.walk .chk input {
       dept: guessDept(name),
       done: false,
       added: Date.now(),
-      ord: nextOrd()
+      ord: nextOrd(),
+      imported: false,
+      urgency: "normal"
     });
     scheduleSave();
     renderList();
@@ -1735,7 +1808,9 @@ body.walk .chk input {
 
   function renderRow(it) {
     var li = document.createElement("li");
-    li.className = "row" + (it.done ? " done" : "");
+    var imported = it.imported === true;
+    var urgency = parseUrgency(it.urgency);
+    li.className = "row" + (it.done ? " done" : "") + (imported ? " imported" : "");
     li.setAttribute("data-id", it.id);
 
     if (!state.walkMode) {
@@ -1782,6 +1857,19 @@ body.walk .chk input {
     }
     li.appendChild(name);
 
+    var chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "urgency-chip";
+    chip.setAttribute("data-urgency", urgency);
+    chip.setAttribute("aria-label", "Dringlichkeit " + urgencyLabel(urgency));
+    chip.title = "Dringlichkeit: " + urgencyLabel(urgency) + " — tippen wechselt";
+    chip.textContent = urgencySymbol(urgency);
+    chip.addEventListener("click", function (e) {
+      e.stopPropagation();
+      cycleItemUrgency(it);
+    });
+    li.appendChild(chip);
+
     if (!state.walkMode) {
       var sel = document.createElement("select");
       sel.className = "dept-sel";
@@ -1811,6 +1899,16 @@ body.walk .chk input {
       li.appendChild(sel);
       li.appendChild(del);
     }
+
+    var mark = document.createElement("span");
+    mark.className = "imported-mark";
+    if (imported) {
+      mark.setAttribute("role", "img");
+      mark.setAttribute("aria-label", "importiert");
+    } else {
+      mark.setAttribute("aria-hidden", "true");
+    }
+    li.appendChild(mark);
     return li;
   }
 
@@ -2175,7 +2273,9 @@ body.walk .chk input {
         dept: dept || guessDept(name),
         done: done,
         added: now,
-        ord: nextOrdBase(items.length)
+        ord: nextOrdBase(items.length),
+        imported: true,
+        urgency: "normal"
       });
     });
     return items;
@@ -2440,7 +2540,9 @@ body.walk .chk input {
         name: it.name,
         dept: dept,
         done: !!it.done,
-        added: typeof it.added === "number" ? it.added : Date.now()
+        added: typeof it.added === "number" ? it.added : Date.now(),
+        imported: it.imported === true,
+        urgency: parseUrgency(it.urgency)
       };
       if (typeof it.ord === "number" && isFinite(it.ord)) rec.ord = it.ord;
       return rec;
@@ -2654,7 +2756,9 @@ body.walk .chk input {
           dept: it.dept,
           done: !!it.done,
           added: it.added,
-          ord: itemOrd(it)
+          ord: itemOrd(it),
+          imported: it.imported === true,
+          urgency: parseUrgency(it.urgency)
         };
       }),
       walkMode: !!state.walkMode,
@@ -2705,6 +2809,7 @@ body.walk .chk input {
   }
 
   function applyBackupImport(data) {
+    /* imported/urgency bleiben wie im JSON (fehlend = false / normal). Kein Nachstempeln. */
     var imported = sanitizeStoresList(data.stores);
     state.stores = mergeBuiltinSeeds(imported);
     state.mappings = sanitizeMappings(data.mappings);
@@ -3097,7 +3202,9 @@ body.walk .chk input {
       dept: dept,
       done: false,
       added: Date.now(),
-      ord: nextOrd()
+      ord: nextOrd(),
+      imported: false,
+      urgency: "normal"
     });
     state.mappings[key] = dept;
     return { added: 1, reopened: 0, already: 0, name: name };
