@@ -372,23 +372,30 @@ h1 {
 }
 .row {
   display: grid;
-  grid-template-columns: 38px 44px minmax(0, 1fr) 36px minmax(7.2rem, auto) 44px;
+  grid-template-columns: 38px 44px minmax(0, 1fr) auto minmax(7.2rem, auto) 44px;
   gap: 0.3rem;
   align-items: center;
   border-bottom: 1px solid var(--rule);
   min-height: 48px;
   position: relative;
-  padding-left: 8px;
+}
+.row-trail {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  flex-shrink: 0;
 }
 .imported-mark {
-  position: absolute;
-  left: 2px;
-  top: 7px;
-  bottom: 7px;
   width: 4px;
+  height: 22px;
   border-radius: 1px;
-  background: var(--slate);
+  background: transparent;
+  flex-shrink: 0;
   pointer-events: none;
+}
+.row.imported .imported-mark {
+  background: var(--slate);
 }
 .urgency-chip {
   flex-shrink: 0;
@@ -780,13 +787,13 @@ html[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.55); }
   }
   .sheet.open { transform: translateY(0); }
   .row {
-    grid-template-columns: 38px 44px minmax(0, 1fr) 36px 44px;
+    grid-template-columns: 38px 44px minmax(0, 1fr) auto 44px;
     grid-template-rows: auto auto;
   }
   .grip { grid-column: 1; grid-row: 1; }
   .chk { grid-column: 2; grid-row: 1; }
   .name, .name-edit { grid-column: 3; grid-row: 1; }
-  .urgency-chip { grid-column: 4; grid-row: 1; }
+  .row-trail { grid-column: 4; grid-row: 1; }
   .dept-sel {
     grid-column: 3;
     grid-row: 2;
@@ -809,12 +816,12 @@ body.walk .grip,
 body.walk .dept-sel,
 body.walk .del { display: none; }
 body.walk .row {
-  grid-template-columns: 48px 1fr 36px;
+  grid-template-columns: 48px 1fr auto;
   grid-template-rows: auto;
 }
 body.walk .chk { grid-column: 1; grid-row: 1; }
 body.walk .name, body.walk .name-edit { grid-column: 2; grid-row: 1; }
-body.walk .urgency-chip { grid-column: 3; grid-row: 1; }
+body.walk .row-trail { grid-column: 3; grid-row: 1; }
 body.walk .name {
   font-size: 1.18rem;
   pointer-events: none;
@@ -1811,14 +1818,6 @@ body.walk .chk input {
     li.className = "row" + (it.done ? " done" : "") + (imported ? " imported" : "");
     li.setAttribute("data-id", it.id);
 
-    if (imported) {
-      var mark = document.createElement("span");
-      mark.className = "imported-mark";
-      mark.setAttribute("role", "img");
-      mark.setAttribute("aria-label", "importiert");
-      li.appendChild(mark);
-    }
-
     if (!state.walkMode) {
       var grip = document.createElement("button");
       grip.type = "button";
@@ -1863,6 +1862,17 @@ body.walk .chk input {
     }
     li.appendChild(name);
 
+    var trail = document.createElement("div");
+    trail.className = "row-trail";
+    var mark = document.createElement("span");
+    mark.className = "imported-mark";
+    if (imported) {
+      mark.setAttribute("role", "img");
+      mark.setAttribute("aria-label", "importiert");
+    } else {
+      mark.setAttribute("aria-hidden", "true");
+    }
+    trail.appendChild(mark);
     var chip = document.createElement("button");
     chip.type = "button";
     chip.className = "urgency-chip";
@@ -1874,7 +1884,8 @@ body.walk .chk input {
       e.stopPropagation();
       cycleItemUrgency(it);
     });
-    li.appendChild(chip);
+    trail.appendChild(chip);
+    li.appendChild(trail);
 
     if (!state.walkMode) {
       var sel = document.createElement("select");
