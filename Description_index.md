@@ -53,12 +53,12 @@ Quelle: `DESIGN.md` + Skill `seiten-farbschema`. Nicht erfinden.
 - Karten `ol.cat` → `a.card` Grid `3.2rem 1fr auto`: `.num` zweistellig, `h2`, ein Satz, `.go` CTA.
 - **Recherche** (Nummerierung startet bei 01):
   1. `01` Relativitätstheorie, anschaulich — „Lichtuhr, Eigenzeit, Zwillingswege und die Krümmung, in der wir fallen.“ CTA `Lesen →` → `relativitaetstheorie/`
+  2. `02` Elektroautos, im Vergleich — „Preis, Reichweite, Laden — 395 Modelle, Stand August 2026.“ CTA `Öffnen →` → `elektroautos/`
 - **Tools**:
-  1. `01` Elektroautos, im Vergleich — „Preis, Reichweite, Laden — 395 Modelle, Stand August 2026.“ CTA `Öffnen →` → `elektroautos/`
-  2. `02` Einkaufsliste — „Mit Checkboxen, nach Ladenweg sortiert — von Eingang bis Kasse.“ → `einkauf/`
-  3. `03` To-Do Liste — „Aufgaben mit Person, Priorität und Enddatum — lokal speichern, importieren, exportieren.“ → `todo/`
-  4. `04` BrainDump — „Gedanken als Knoten auf einer Canvas — verknüpfen, filtern, speichern.“ → `braindump/`
-  5. `05` T-Konto Verwaltung — „Buchungssätze erfassen und T-Konten für die Buchhaltung automatisch erzeugen.“ → `t-konto/`
+  1. `01` Einkaufsliste — „Mit Checkboxen, nach Ladenweg sortiert — von Eingang bis Kasse.“ → `einkauf/`
+  2. `02` To-Do Liste — „Aufgaben mit Person, Priorität und Enddatum — lokal speichern, importieren, exportieren.“ → `todo/`
+  3. `03` BrainDump — „Gedanken als Knoten auf einer Canvas — verknüpfen, filtern, speichern.“ → `braindump/`
+  4. `04` T-Konto Verwaltung — „Buchungssätze erfassen und T-Konten für die Buchhaltung automatisch erzeugen.“ → `t-konto/`
 - Bestehende Hub-CTAs behalten ASCII-Pfeile `Lesen →` / `Öffnen →`. Neue Texte ohne Pfeile (DESIGN).
 - Footer: „Keine Werkzeugkette. Statische Dateien, absichtlich.“
 - `@media (max-width: 560px)`: CTA `.go` ausblenden, Grid ohne dritte Spalte.
@@ -86,7 +86,7 @@ Quelle: `DESIGN.md` + Skill `seiten-farbschema`. Nicht erfinden.
 ## Nicht ändern / Constraints
 
 - Katalogtexte und Modellzahl „395 Modelle, Stand August 2026“ nur ändern wenn Datenstand der Elektroauto-Seite sich ändert.
-- Tab-Nummern **pro Tab**, nicht global (Einkauf bleibt Tools 02).
+- Tab-Nummern **pro Tab**, nicht global (Einkauf bleibt Tools 01).
 - Keine CDN, keine Root-Pfade `/foo/`.
 
 ## Akzeptanzkriterien
