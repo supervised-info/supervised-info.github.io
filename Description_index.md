@@ -9,7 +9,7 @@ Startseite der GitHub-Pages-Site [supervised-info](https://supervised-info.githu
 - Datei: `/index.html` (Repo-Root), **eine Datei** (CSS + JS inline).
 - Kein `app.js`, keine PWA.
 - Sibling: `DESIGN.md`, `.nojekyll`.
-- Links relativ: `relativitaetstheorie/`, `elektroautos/`, `einkauf/`, `todo/`, `braindump/`, `t-konto/`.
+- Links relativ: `relativitaetstheorie/`, `elektroautos/`, `einkauf/`, `todo/`, `braindump/`, `t-konto/`, `regelwerk-analysator/`.
 
 
 ## Gemeinsames Chrome (alle Seiten)
@@ -50,15 +50,18 @@ Quelle: `DESIGN.md` + Skill `seiten-farbschema`. Nicht erfinden.
 - Tabs `role="tablist"` `aria-label="Bereiche"`:
   - `#tab-recherche` → `#panel-recherche`
   - `#tab-tools` → `#panel-tools` (initial `hidden` im Markup; JS setzt nach Hash/Storage)
-- Karten `ol.cat` → `a.card` Grid `3.2rem 1fr auto`: `.num` zweistellig, `h2`, ein Satz, `.go` CTA.
+- Karten `ol.cat` → `a.card` Grid `3.2rem 1fr auto`: `.num` (arabisch zweistellig bzw. römisch), `h2`, ein Satz, `.go` CTA.
+- Tools-Gruppen: `section.tool-section` + `h2.tool-group` „Privat“ / „Beruf“.
 - **Recherche** (Nummerierung startet bei 01):
   1. `01` Relativitätstheorie, anschaulich — „Lichtuhr, Eigenzeit, Zwillingswege und die Krümmung, in der wir fallen.“ CTA `Lesen →` → `relativitaetstheorie/`
   2. `02` Elektroautos, im Vergleich — „Preis, Reichweite, Laden — 395 Modelle, Stand August 2026.“ CTA `Öffnen →` → `elektroautos/`
-- **Tools**:
+- **Tools · Privat** (arabisch):
   1. `01` Einkaufsliste — „Mit Checkboxen, nach Ladenweg sortiert — von Eingang bis Kasse.“ → `einkauf/`
   2. `02` To-Do Liste — „Aufgaben mit Person, Priorität und Enddatum — lokal speichern, importieren, exportieren.“ → `todo/`
   3. `03` BrainDump — „Gedanken als Knoten auf einer Canvas — verknüpfen, filtern, speichern.“ → `braindump/`
-  4. `04` T-Konto Verwaltung — „Buchungssätze erfassen und T-Konten für die Buchhaltung automatisch erzeugen.“ → `t-konto/`
+- **Tools · Beruf** (römisch):
+  1. `I` T-Konto Verwaltung — „Buchungssätze erfassen und T-Konten für die Buchhaltung automatisch erzeugen.“ → `t-konto/`
+  2. `II` Regelwerk-Analysator — „Regelwerkslöcher finden: Merkmal-Überschneidungen und Kennzahl-Konflikte.“ → `regelwerk-analysator/`
 - Bestehende Hub-CTAs behalten ASCII-Pfeile `Lesen →` / `Öffnen →`. Neue Texte ohne Pfeile (DESIGN).
 - Footer: „Keine Werkzeugkette. Statische Dateien, absichtlich.“
 - `@media (max-width: 560px)`: CTA `.go` ausblenden, Grid ohne dritte Spalte.
@@ -80,19 +83,20 @@ Quelle: `DESIGN.md` + Skill `seiten-farbschema`. Nicht erfinden.
 
 - Hub-`:root` ist Vintage-Hell (kanonisch). Navy überschreibt über `data-palette`.
 - `.tab[aria-selected="true"]` Unterstrich `var(--oxide)`.
-- `.num` und `.go` in `--oxide`, sans, uppercase tracking.
+- `.num` und `.go` in `--oxide`, sans, uppercase tracking. Römische Beruf-Nummern stehen ebenfalls in `.num` (`I`, `II`).
+- `.tool-group` Sans, uppercase, `--muted`; zweite Gruppe `.tool-section` mit oberer `--rule`-Linie.
 - Kein `prefers-reduced-motion`-Block in der aktuellen Hub-Datei (nur `html { scroll-behavior: smooth }`). Beim Regenerieren **den DESIGN-Motion-Block hinzufügen ist erlaubt, aber nicht Pflicht**; Ist-Zustand hat ihn nicht.
 
 ## Nicht ändern / Constraints
 
 - Katalogtexte und Modellzahl „395 Modelle, Stand August 2026“ nur ändern wenn Datenstand der Elektroauto-Seite sich ändert.
-- Tab-Nummern **pro Tab**, nicht global (Einkauf bleibt Tools 01).
+- Nummern **pro Recherche-Tab bzw. Tools-Gruppe**, nicht global (Einkauf bleibt Privat 01).
 - Keine CDN, keine Root-Pfade `/foo/`.
 
 ## Akzeptanzkriterien
 
 - [ ] `lang="de"`, grünes TS-Favicon, FOUC-Skript, Palette+Theme schreiben beide Keys.
 - [ ] Zwei Tabs, Hash `#tools` öffnet Tools, Reload ohne Hash merkt letzten Tab.
-- [ ] Sechs Karten, relative Ordner-Links, CTAs wie oben.
+- [ ] Recherche 01–02 plus Tools Privat 01–03 und Beruf I–II, relative Ordner-Links, CTAs wie oben.
 - [ ] Footer-Satz vorhanden.
 - [ ] Funktioniert per file:// und GitHub Pages.

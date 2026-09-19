@@ -2,13 +2,13 @@
 
 ## Zweck
 
-Buchungssätze erfassen, T-Konten automatisch aufbauen, Abschlussbuchungen mit Gegenkonten, Excel-Export (eigenes ZIP/OOXML, keine Library), Einstellungen (Farben/Layout) als JSON. Tools-Karte 05. Eine Datei. **Keine App-Daten in localStorage** (nur Site-Theme). Session-State im RAM.
+Buchungssätze erfassen, T-Konten automatisch aufbauen, Abschlussbuchungen mit Gegenkonten, Excel-Export (eigenes ZIP/OOXML, keine Library), Einstellungen (Farben/Layout) als JSON. Hub Tools **Beruf I**. Eine Datei. **Keine App-Daten in localStorage** (nur Site-Theme). Session-State im RAM.
 
 ## Chrome
 
 - Shared Keys, FOUC, `#paletteBtn` + `#themeBtn`.
 - Favicon navy `#0d1f6e`. Skip `href="#inhalt"` „Zum Inhalt springen“.
-- Kicker `supervised-info · 05` → `../`.
+- Kicker `supervised-info · I` → `../`.
 - Mast sitzt **über** dem App-Header; App-Header `#inhalt` hat eigene Farben (`FARB_DEFAULTS.appheader` `#2E4057`), unabhängig von Creme/Blau — Site-Palette färbt Mast/Page-Hintergrund, T-Konto-Karten die Settings-Farben.
 
 ## Layout / Tabs
@@ -61,7 +61,7 @@ Eigenes STORED-ZIP/OOXML analog BrainDump (CRC32, keine SheetJS). Workbook mit B
 
 - Keine Library für xlsx.
 - Default-Abschlusskonten-Namen.
-- Kicker 05. App-Daten nicht in Theme-Keys speichern.
+- Kicker I. App-Daten nicht in Theme-Keys speichern.
 
 ## Akzeptanzkriterien
 
