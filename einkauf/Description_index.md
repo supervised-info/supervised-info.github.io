@@ -4,7 +4,7 @@ Stand der Live-PWA: **2026-09-06**. Diese Spec beschreibt die Seite so, dass sie
 
 ## Zweck
 
-Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Stamm-Artikel als `{name,dept}`, benannte gespeicherte Listen (`savedLists`), mehrere Laden-Layouts, abteilungsübergreifendes Drag, Offline-PWA. Tools-Karte 02.
+Einkaufsliste nach Ladenweg (Abteilungen von Eingang bis Kasse), Checkboxen, Stamm-Artikel als `{name,dept}`, benannte gespeicherte Listen (`savedLists`), mehrere Laden-Layouts, abteilungsübergreifendes Drag, Offline-PWA. Tools-Karte 01.
 
 ## Datei-Ort, Abhängigkeiten
 
@@ -26,7 +26,7 @@ SW: PRECACHE `./`, `index.html`, `manifest.webmanifest`, drei PNG. Strategie net
 - Shared Keys + FOUC (`supervised-info.theme` / `supervised-info.palette`). Palette `#paletteBtn` (Label Creme↔Blau); Theme-Button **ID `theme-btn`** (JS akzeptiert auch `themeBtn`; Label Hell↔Dunkel). Theme und Palette sitzen am **Site-Mast**, nicht im Einstellungen-Sheet (kein Block Darstellung / Hell / Dunkel / System dort).
 - Favicon navy `#0d1f6e`.
 - Skip: `href="#add"` Text „Zur Eingabe“.
-- Kicker: `supervised-info · 02` → `../`.
+- Kicker: `supervised-info · 01` → `../`.
 - `html` hat `data-theme="light"` im Markup.
 - Apple: `apple-mobile-web-app-capable`, `mobile-web-app-capable`, title „Einkauf“, apple-touch-icon.
 - `referrer` strict-origin-when-cross-origin.
@@ -224,5 +224,5 @@ Gemeinsame Slice (HTML und Native, Stand 2026-09-06, Native Build 66): Zähler `
 - [ ] MD/Backup/Läden roundtrip; Backup-Shape wie native App inkl. `savedLists` sowie Item-`imported`/`urgency`; Bring-Link oder Fallback-Kopie.
 - [ ] `imported` nur MD/txt-Datenimport (nie Tippen/Stamm/Saved-List; Backup-Restore und eigener Re-Export stempeln nicht); UI-Markierung teal/`--slate` **ganz rechts** nach dem Chip, read-only, kein linker Streifen. `urgency` Chip ⚡ / ↔ / ↓ (kein leerer Rahmen, kein ○, kein –), Zyklus eilig→normal→später, Geh und Bearbeiten. Kein Sort nach Urgency. Nicht auf To-Do.
 - [ ] Palette/Theme site-weit am Mast; Theme-Button-ID `theme-btn`; Palette nicht in `einkauf_v1`; kein Darstellung-Block im Sheet.
-- [ ] Kicker 02, navy Favicon, Skip zur Eingabe.
+- [ ] Kicker 01, navy Favicon, Skip zur Eingabe.
 - [ ] Native-Delta bleibt (kein Watch, kein Siri/`Speech.framework`, kein To-Do-Tab, kein PDF-Teilen, keine Complication, kein System-Theme in der Toolbar, keine iCloud-Inbox, kein Live-Sync — nur Backup-Datei; HTML-To-Do bleibt `todo/` mit gelieferten benannten Listen).

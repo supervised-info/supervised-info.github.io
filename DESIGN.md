@@ -373,8 +373,11 @@ Eine Datei: `index.html`. Langer Lesetext, Inhaltsverzeichnis, Demos inline. Les
 
 Nur diese Seite ist eine PWA: `manifest.webmanifest`, `sw.js`, Icons. Eigener Speicher `einkauf_v1` (nicht die Theme-Schlüssel). Service Worker nur hier registrieren.
 
-Bei jedem Deploy den Cache-Namen in `sw.js` hochzählen (`einkauf-offline-v4`, dann `v5`, …), sonst bleiben alte Assets im Cache. Strategie: network-first, Cache als Fallback. `start_url` und `scope` relativ (`./`). Tools · Privat 02, CTA Öffnen.
+Bei jedem Deploy den Cache-Namen in `sw.js` hochzählen (aktuell `einkauf-offline-v28`, dann `v29`, …), sonst bleiben alte Assets im Cache. Strategie: network-first, Cache als Fallback. `start_url` und `scope` relativ (`./`). Tools · Privat 01, CTA Öffnen.
 
+### To-Do-Liste (`todo/`)
+
+Eine Datei: `index.html`. Aufgaben mit Person, Priorität (A–Z + 1–9), Enddatum, Wiedereröffnen mit UID-Kette, benannte Listen; Import/Export JSON/MD/CSV. Site-Mast mit Palette/Theme; App-Daten unter `todo-v3*` (kein eigenes Theme-Schlüsselpaar). Tools · Privat 02, CTA Öffnen.
 
 ### Canvas-Tool (`braindump/`)
 
