@@ -54,7 +54,9 @@ Ordnernamen ohne Umlaute. Jede Seite heißt `index.html`. CSS und JS inline, au�
 │   └── index.html
 ├── braindump/
 │   └── index.html
-└── t-konto/
+├── t-konto/
+│   └── index.html
+└── regelwerk-analysator/
     └── index.html
 ```
 
@@ -62,7 +64,7 @@ Ordnernamen ohne Umlaute. Jede Seite heißt `index.html`. CSS und JS inline, au�
 
 ## 4. Hub (`index.html`)
 
-Zwei Tabs: **Recherche** und **Tools**. Die Nummerierung beginnt in jedem Tab bei `01`. Eine neue Seite ist genau eine Karte in der passenden `ol.cat`.
+Zwei Tabs: **Recherche** und **Tools**. Recherche nummeriert arabisch ab `01`. Tools ist in zwei beschriftete Gruppen geteilt: **Privat** (arabisch `01` …) und **Beruf** (römisch `I` …). Eine neue Seite ist genau eine Karte in der passenden `ol.cat`.
 
 ### Zustand
 
@@ -72,27 +74,30 @@ Zwei Tabs: **Recherche** und **Tools**. Die Nummerierung beginnt in jedem Tab be
 
 ### Karte
 
-Raster: Nummer (`span.num`, zweistellig `01`), Titel (`h2`), ein Satz Abstract, CTA rechts.
+Raster: Nummer (`span.num`: arabisch zweistellig `01` bzw. römisch `I` / `II`), Titel (`h2`), ein Satz Abstract, CTA rechts.
 
 - Recherche: CTA **Lesen** (bestehende Hub-Beschriftung: `Lesen →`)
 - Tools: CTA **Öffnen** (bestehende Hub-Beschriftung: `Öffnen →`)
 
 Neue UI-Texte ohne ASCII-Pfeile.
 
+Zwischenüberschriften in Tools: `h2.tool-group` „Privat“ / „Beruf“, gleiche Sans/Uppercase-Sprache wie die Tabs.
+
 Aktueller Katalog:
 
 - Recherche 01: `relativitaetstheorie/` Relativitätstheorie, anschaulich
-- Tools 01: `elektroautos/` Elektroautos, im Vergleich
-- Tools 02: `einkauf/` Einkaufsliste
-- Tools 03: `todo/` To-Do Liste
-- Tools 04: `braindump/` BrainDump
-- Tools 05: `t-konto/` T-Konto Verwaltung
+- Recherche 02: `elektroautos/` Elektroautos, im Vergleich
+- Tools · Privat 01: `einkauf/` Einkaufsliste
+- Tools · Privat 02: `todo/` To-Do Liste
+- Tools · Privat 03: `braindump/` BrainDump
+- Tools · Beruf I: `t-konto/` T-Konto Verwaltung
+- Tools · Beruf II: `regelwerk-analysator/` Regelwerk-Analysator
 
 ### Unterseite, Kicker
 
-Oben links: `supervised-info · NN`. Der Text `supervised-info` verlinkt nach `../`. **NN** ist die Katalognummer **dieses Tabs**, nicht eine globale Zählung über Tabs hinweg.
+Oben links: `supervised-info · NN`. Der Text `supervised-info` verlinkt nach `../`. **NN** ist die Katalognummer **dieser Gruppe**, nicht eine globale Zählung über Tabs hinweg.
 
-Beispiele: Relativitätstheorie = Recherche 01; Elektroautos = Tools 01; Einkaufsliste = Tools 02; To-Do Liste = Tools 03; BrainDump = Tools 04; T-Konto Verwaltung = Tools 05.
+Beispiele: Relativitätstheorie = Recherche 01; Elektroautos = Recherche 02; Einkaufsliste = Privat 01; To-Do Liste = Privat 02; BrainDump = Privat 03; T-Konto Verwaltung = Beruf I; Regelwerk-Analysator = Beruf II.
 
 ---
 
@@ -362,22 +367,26 @@ Eine Datei: `index.html`. Langer Lesetext, Inhaltsverzeichnis, Demos inline. Les
 
 ### Tabelle (`elektroautos/`)
 
-`index.html` plus `app.js` plus `data.json`. Volle Viewport-Fläche, Suche und Filter. Daten liegen neben der Seite, relative Pfade. Tools-Karte 01, CTA Öffnen.
+`index.html` plus `app.js` plus `data.json`. Volle Viewport-Fläche, Suche und Filter. Daten liegen neben der Seite, relative Pfade. Recherche-Karte 02, CTA Öffnen.
 
 ### Offline-PWA (`einkauf/`)
 
 Nur diese Seite ist eine PWA: `manifest.webmanifest`, `sw.js`, Icons. Eigener Speicher `einkauf_v1` (nicht die Theme-Schlüssel). Service Worker nur hier registrieren.
 
-Bei jedem Deploy den Cache-Namen in `sw.js` hochzählen (`einkauf-offline-v4`, dann `v5`, …), sonst bleiben alte Assets im Cache. Strategie: network-first, Cache als Fallback. `start_url` und `scope` relativ (`./`). Tools-Karte 02, CTA Öffnen.
+Bei jedem Deploy den Cache-Namen in `sw.js` hochzählen (`einkauf-offline-v4`, dann `v5`, …), sonst bleiben alte Assets im Cache. Strategie: network-first, Cache als Fallback. `start_url` und `scope` relativ (`./`). Tools · Privat 02, CTA Öffnen.
 
 
 ### Canvas-Tool (`braindump/`)
 
-Eine Datei: `index.html`. Vollflächige Canvas mit Knoten, Kanten, Import/Export. Site-Mast mit Palette/Theme; App-Daten unter `mindmapper_state_v1` (und verwandten BrainDump-Schlüsseln). Tools-Karte 04, CTA Öffnen.
+Eine Datei: `index.html`. Vollflächige Canvas mit Knoten, Kanten, Import/Export. Site-Mast mit Palette/Theme; App-Daten unter `mindmapper_state_v1` (und verwandten BrainDump-Schlüsseln). Tools · Privat 03, CTA Öffnen.
 
 ### Buchhaltungs-Tool (`t-konto/`)
 
-Eine Datei: `index.html`. Buchungssätze, T-Konten und Abschlussbuchungen; Excel/CSV sowie Einstellungen als JSON. Site-Mast mit Palette/Theme; App-Daten über Speichern/Laden (keine eigenen Theme-localStorage-Schlüssel). Tools-Karte 05, CTA Öffnen.
+Eine Datei: `index.html`. Buchungssätze, T-Konten und Abschlussbuchungen; Excel/CSV sowie Einstellungen als JSON. Site-Mast mit Palette/Theme; App-Daten über Speichern/Laden (keine eigenen Theme-localStorage-Schlüssel). Tools · Beruf I, CTA Öffnen.
+
+### Regelwerk-Analysator (`regelwerk-analysator/`)
+
+Eine Datei: `index.html` (groß, SheetJS 0.18.5 **inline**, kein CDN). Tabs für Kontenplan, EPOS-Vorgaben/Regeln/Vergleich, Dimensionen, Sachkonten. `FORCE_TABS` und `?tabs=` steuern sichtbare Reiter. Site-Mast mit Palette/Theme; Analyse nur im RAM, Dateien lokal. Tools · Beruf II, CTA Öffnen.
 
 ---
 
@@ -388,8 +397,8 @@ Eine Datei: `index.html`. Buchungssätze, T-Konten und Abschlussbuchungen; Excel
 3. Favicon: Unterseite mit **navy** TS-Kachel `#0d1f6e` (siehe Abschnitt 6b). Hub behält grün `#004225`.
 4. CSS/JS inline, außer große Daten. Nur relative Pfade. `lang="de"`. Tipziele um 44px, `focus-visible`, `prefers-reduced-motion`.
 5. PWA-Dateien nur, wenn die Seite offline stehen muss.
-6. Eine Karte in die richtige `ol.cat` auf dem Hub: nächste Nummer **in diesem Tab**, Titel, ein Satz, Lesen oder Öffnen.
-7. Kicker der Unterseite: `supervised-info · NN` mit `../`, NN = diese Tab-Nummer.
+6. Eine Karte in die richtige `ol.cat` auf dem Hub: nächste Nummer **in dieser Tools-Gruppe** (Privat arabisch, Beruf römisch) bzw. im Recherche-Tab, Titel, ein Satz, Lesen oder Öffnen.
+7. Kicker der Unterseite: `supervised-info · NN` mit `../`, NN = diese Gruppen-/Tab-Nummer.
 8. Push auf `main`. GitHub Pages liefert den Branch aus.
 
 ### Nicht tun
@@ -398,4 +407,4 @@ Eine Datei: `index.html`. Buchungssätze, T-Konten und Abschlussbuchungen; Excel
 - Jekyll, Node-Paketverwaltung, Bundler oder andere Build-Schritte einziehen.
 - Absolute Site-Pfade (`/foo/`) verwenden.
 - Weitere Paletten neben vintage und navy.
-- Nummern über Tabs hinweg durchzählen (Einkauf ist Tools 02, nicht 03).
+- Nummern über Tabs oder Tools-Gruppen hinweg durchzählen (Einkauf ist Privat 01, nicht 03).
