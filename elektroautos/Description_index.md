@@ -2,7 +2,7 @@
 
 ## Zweck
 
-Vollflächige Vergleichstabelle für Elektrofahrzeuge: Suche, Filter, Spaltengruppen, Merken (Pins), Präferenz, Detail-Sheet, CSV/JSON Export/Import. Tools-Karte 01 auf dem Hub (CTA Öffnen).
+Vollflächige Vergleichstabelle für Elektrofahrzeuge: Suche, Filter, Spaltengruppen, Merken (Pins), Präferenz, Detail-Sheet, CSV/JSON Export/Import. Recherche-Karte 02 auf dem Hub (CTA Öffnen).
 
 ## Datei-Ort, Abhängigkeiten
 

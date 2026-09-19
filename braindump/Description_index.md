@@ -2,7 +2,7 @@
 
 ## Zweck
 
-Vollflächige Canvas-Mindmap: Baum aus Knoten und Kanten, Farben, Tags, Notizen, Fokus, Filter, Undo, Autosave, Import/Export MD/JSON/HTML/Excel/MindManager/PNG. Tools-Karte 04. Eine Datei (circa 5000 Zeilen). Kein app.js.
+Vollflächige Canvas-Mindmap: Baum aus Knoten und Kanten, Farben, Tags, Notizen, Fokus, Filter, Undo, Autosave, Import/Export MD/JSON/HTML/Excel/MindManager/PNG. Tools-Karte 03. Eine Datei (circa 5000 Zeilen). Kein app.js.
 
 ## Datei-Ort, Abhängigkeiten
 
@@ -13,7 +13,7 @@ Nur `braindump/index.html`. CSS und JS inline. Keine PWA.
 - Shared Keys supervised-info.theme und supervised-info.palette, FOUC-Skript wortgleich, Buttons #paletteBtn dann #themeBtn.
 - Favicon navy #0d1f6e.
 - Kein Skip-Link (Ist-Zustand).
-- Kicker: supervised-info · 04 mit Link ../ .
+- Kicker: supervised-info · 03 mit Link ../ .
 - html,body Höhe 100%, overflow hidden.
 - Extra Tokens: --bg, --canvas-bg, --node-bg, --node-border, --node-border-selected, --node-text, --line, --toolbar-bg, --btn-*, --accent, --danger, --oxide-glow*.
 - Standalone-HTML-Export hat Mini-Theme-Key braindump_view_theme (nicht die Site-Keys).
@@ -84,7 +84,7 @@ Storage-UI: Prozent; warn ab 70, danger ab 90; n/v im privaten Modus.
 Enter Tab Shift+Tab Entf Ctrl+Z Ctrl+Shift+Z Shift+D Ctrl+F Esc Cmd+Click
 
 ## Nicht ändern
-Keys mindmapper_* braindump_*. Kicker 04. Keine Libraries.
+Keys mindmapper_* braindump_*. Kicker 03. Keine Libraries.
 
 ## Akzeptanzkriterien
 - Canvas CRUD Undo Autosave JSON MD Theme FOUC Minimap Help

@@ -4,13 +4,13 @@ Stand der Live-PWA: **2026-09-04**. Diese Spec beschreibt die Seite so, dass sie
 
 ## Zweck
 
-To-Do-Liste mit Person, Priorität (A–Z + 1–9), Enddatum, Wiedereröffnen mit UID-Kette, **benannte Listen** (Phase 10), lokale Persistenz, Import/Export JSON/MD/CSV. Tools-Karte 03. Eine Datei.
+To-Do-Liste mit Person, Priorität (A–Z + 1–9), Enddatum, Wiedereröffnen mit UID-Kette, **benannte Listen** (Phase 10), lokale Persistenz, Import/Export JSON/MD/CSV. Tools-Karte 02. Eine Datei.
 
 ## Chrome
 
 - Shared Keys, FOUC, `#paletteBtn` + `#themeBtn`.
 - Favicon navy `#0d1f6e`. Skip `href="#inp-task"` „Zur Aufgabeneingabe“.
-- Kicker `supervised-info · 03` → `../`.
+- Kicker `supervised-info · 02` → `../`.
 - `referrer` strict-origin-when-cross-origin.
 - Extra: `--mono`, `--r: 12px`. Body zentriert, `.page` `min(72rem, 100%)`.
 
@@ -120,7 +120,7 @@ Import wenn Liste nicht leer → Modal Anhängen/Ersetzen. Sonst direkt. Toast b
 
 ## Native Begleit-App (nur dokumentieren, nicht nachbauen)
 
-Stand 2026-09-05. Die native To-Do-UI lebt **nicht** als eigene App, sondern als zweiter Reiter **To-Do** in der Einkaufs-App ([einkauf-watch](https://github.com/supervised-info/einkauf-watch), **Build 62**). Die HTML-PWA hier bleibt eigenständig (`todo-v3*`, Tools-Karte 03). Kein Live-localStorage-Sync, kein gemeinsames Store mit Einkauf (`einkauf-backup` / `einkauf-local.json` bleiben fremd).
+Stand 2026-09-05. Die native To-Do-UI lebt **nicht** als eigene App, sondern als zweiter Reiter **To-Do** in der Einkaufs-App ([einkauf-watch](https://github.com/supervised-info/einkauf-watch), **Build 62**). Die HTML-PWA hier bleibt eigenständig (`todo-v3*`, Tools-Karte 02). Kein Live-localStorage-Sync, kein gemeinsames Store mit Einkauf (`einkauf-backup` / `einkauf-local.json` bleiben fremd).
 
 Brücke ist das Backup `format: "todo-v3-json"` (Roundtrip HTML ↔ Native: `{ format, exportedAt, nextUid, lists?, tasks[] }` mit optionalem `listId`). Native liest Array oder Objekt wie diese Spec. Benannte Listen (`lists` / `listId`) sind **nativ und HTML** geliefert — gleiches JSON-Schema, kein Format-Bump, kein Follow-up.
 
@@ -143,7 +143,7 @@ Wieder öffnen, Sort, Suche, `#uid`/reopen-Pills, Abgeschlossen-Datum und benann
 ## Nicht ändern
 
 - Keys `todo-v3*` (neue Keys nur additiv: `todo-v3-lists`, `todo-v3-current-list-id`), format-String `todo-v3-json`, changedBy `TS/NA`.
-- Kicker 03.
+- Kicker 02.
 - `#btn-new` „Neue Liste“ bleibt der Aufgaben-Wipe, nicht das Anlegen benannter Listen.
 - Bewusstes Delta zur nativen Begleit-App (Watch, Siri, Complication, PDF, Tab in Einkauf, Einstellungen-To-Do-Backup, Import-`revision`, kompakte Nav / Label **Edit**, iCloud-Inbox nur Einkauf) nicht ins HTML ziehen. HTML behält MD/CSV. Benannte Listen sind auf beiden Seiten geliefert.
 
